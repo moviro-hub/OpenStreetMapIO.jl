@@ -58,7 +58,7 @@ node = Node(LatLon(54.2619665, 9.9854149), Dict("amenity" => "restaurant"))
 """
 struct Node
     latlon::LatLon
-    tags::Union{Dict{String,String},Nothing}
+    tags::Union{Dict{String, String}, Nothing}
 end
 
 """
@@ -77,7 +77,7 @@ way = Way([12345, 67890, 11111], Dict("highway" => "primary"))
 """
 struct Way
     refs::Vector{Int64}
-    tags::Union{Dict{String,String},Nothing}
+    tags::Union{Dict{String, String}, Nothing}
 end
 
 """
@@ -100,7 +100,7 @@ struct Relation
     refs::Vector{Int64}
     types::Vector{String}
     roles::Vector{String}
-    tags::Union{Dict{String,String},Nothing}
+    tags::Union{Dict{String, String}, Nothing}
 end
 
 """
@@ -125,18 +125,18 @@ osmdata = readpbf("map.pbf")  # Load from file
 ```
 """
 struct OpenStreetMap
-    nodes::Dict{Int64,Node}
-    ways::Dict{Int64,Way}
-    relations::Dict{Int64,Relation}
-    meta::Dict{String,Any}
+    nodes::Dict{Int64, Node}
+    ways::Dict{Int64, Way}
+    relations::Dict{Int64, Relation}
+    meta::Dict{String, Any}
 
     OpenStreetMap() = new(Dict(), Dict(), Dict(), Dict())
     function OpenStreetMap(
-        nodes::Dict{Int64,Node},
-        ways::Dict{Int64,Way},
-        relations::Dict{Int64,Relation},
-        meta::Dict{String,Any},
-    )
+            nodes::Dict{Int64, Node},
+            ways::Dict{Int64, Way},
+            relations::Dict{Int64, Relation},
+            meta::Dict{String, Any},
+        )
         return new(nodes, ways, relations, meta)
     end
 end

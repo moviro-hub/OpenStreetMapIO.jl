@@ -77,6 +77,11 @@ Pkg.instantiate()
 Pkg.test()
 ```
 
+5. Set up pre-commit hooks (optional but recommended):
+```bash
+./scripts/setup_precommit.sh
+```
+
 ## Code Style Guidelines
 
 ### General Style
@@ -85,6 +90,37 @@ Pkg.test()
 - Use descriptive variable and function names
 - Add comprehensive docstrings for all public functions
 - Include type annotations for function parameters and return values
+
+### Pre-commit Hooks
+
+This project uses pre-commit hooks to ensure consistent code formatting and quality. The hooks are configured in `.pre-commit-config.yaml` and include:
+
+- **Runic Julia Formatter**: Automatically formats Julia code using Runic.jl before each commit
+- **Automatic formatting**: Code is formatted in-place during the commit process
+
+#### Setting up Pre-commit Hooks
+
+1. Install pre-commit:
+```bash
+pip install pre-commit
+```
+
+2. Install the hooks:
+```bash
+pre-commit install
+```
+
+3. Test the hooks:
+```bash
+pre-commit run --all-files
+```
+
+#### Benefits
+
+- **Consistent formatting**: All commits are automatically formatted
+- **Reduced review time**: No need to discuss formatting in code reviews
+- **Team consistency**: Everyone's code follows the same style
+- **Automatic enforcement**: No manual formatting required
 
 ### Documentation
 

@@ -87,11 +87,11 @@ osmdata = readosm("map.osm", node_callback=keep_restaurants)
 - [`queryoverpass`](@ref): Query data from Overpass API
 """
 function readosm(
-    filename::String;
-    node_callback::Union{Function,Nothing}=nothing,
-    way_callback::Union{Function,Nothing}=nothing,
-    relation_callback::Union{Function,Nothing}=nothing,
-)::OpenStreetMap
+        filename::String;
+        node_callback::Union{Function, Nothing} = nothing,
+        way_callback::Union{Function, Nothing} = nothing,
+        relation_callback::Union{Function, Nothing} = nothing,
+    )::OpenStreetMap
     # Validate file exists and is readable
     isfile(filename) || throw(ArgumentError("File '$filename' does not exist"))
 
@@ -99,9 +99,9 @@ function readosm(
     doc = XML.read(filename, XML.Node)
     return parse_osm(
         doc;
-        node_callback=node_callback,
-        way_callback=way_callback,
-        relation_callback=relation_callback,
+        node_callback = node_callback,
+        way_callback = way_callback,
+        relation_callback = relation_callback,
     )
 end
 
@@ -185,7 +185,7 @@ osmdata = queryoverpass("around:1000,54.2619665,9.9854149")
 - [`readpbf`](@ref): Read OSM PBF files
 - [`readosm`](@ref): Read OSM XML files
 """
-function queryoverpass(bounds::String; timeout::Int64=25)::OpenStreetMap
+function queryoverpass(bounds::String; timeout::Int64 = 25)::OpenStreetMap
     query = """
     	[out:xml][timeout:$timeout];
     	(
@@ -225,11 +225,11 @@ Optimized for performance with early returns and efficient parsing.
 # Internal function used by `readosm`.
 """
 function parse_osm(
-    xmldoc::XML.Node;
-    node_callback::Union{Function,Nothing}=nothing,
-    way_callback::Union{Function,Nothing}=nothing,
-    relation_callback::Union{Function,Nothing}=nothing,
-)::OpenStreetMap
+        xmldoc::XML.Node;
+        node_callback::Union{Function, Nothing} = nothing,
+        way_callback::Union{Function, Nothing} = nothing,
+        relation_callback::Union{Function, Nothing} = nothing,
+    )::OpenStreetMap
     osmdata = OpenStreetMap()
 
     # Find the OSM root element efficiently
@@ -303,7 +303,7 @@ end
 
 Efficiently find the OSM root element in the XML document.
 """
-function find_osm_root(xmldoc::XML.Node)::Union{XML.Node,Nothing}
+function find_osm_root(xmldoc::XML.Node)::Union{XML.Node, Nothing}
     for xmlnode in XML.children(xmldoc)
         XML.tag(xmlnode) == "osm" && return xmlnode
     end
@@ -332,7 +332,7 @@ end
 Parse node element into (id, Node) tuple.
 Optimized for performance with efficient tag parsing.
 """
-function parse_node(xmlnode::XML.Node)::Tuple{Int64,Node}
+function parse_node(xmlnode::XML.Node)::Tuple{Int64, Node}
     attrs = XML.attributes(xmlnode)
     id = parse(Int64, attrs["id"])
     latlon = LatLon(parse(Float64, attrs["lat"]), parse(Float64, attrs["lon"]))
@@ -348,7 +348,7 @@ end
 Parse way element into (id, Way) tuple.
 Optimized for performance with efficient node reference and tag parsing.
 """
-function parse_way(xmlnode::XML.Node)::Tuple{Int64,Way}
+function parse_way(xmlnode::XML.Node)::Tuple{Int64, Way}
     attrs = XML.attributes(xmlnode)
     id = parse(Int64, attrs["id"])
 
@@ -363,7 +363,7 @@ end
 Parse relation element into (id, Relation) tuple.
 Optimized for performance with efficient member and tag parsing.
 """
-function parse_relation(xmlnode::XML.Node)::Tuple{Int64,Relation}
+function parse_relation(xmlnode::XML.Node)::Tuple{Int64, Relation}
     attrs = XML.attributes(xmlnode)
     id = parse(Int64, attrs["id"])
 
@@ -378,8 +378,8 @@ end
 Parse unknown XML elements into a dictionary.
 Optimized for performance with efficient attribute and child processing.
 """
-function parse_unknown_element(xmlnode::XML.Node)::Dict{String,Any}
-    out = Dict{String,Any}()
+function parse_unknown_element(xmlnode::XML.Node)::Dict{String, Any}
+    out = Dict{String, Any}()
 
     # Process attributes efficiently
     for (k, v) in XML.attributes(xmlnode)
@@ -406,7 +406,7 @@ end
 Parse all tag elements from an XML node efficiently.
 Returns nothing if no tags, or Dict{String,String} with tag data.
 """
-function parse_tags(xmlnode::XML.Node)::Union{Dict{String,String},Nothing}
+function parse_tags(xmlnode::XML.Node)::Union{Dict{String, String}, Nothing}
     children = XML.children(xmlnode)
     isempty(children) && return nothing
 
@@ -415,7 +415,7 @@ function parse_tags(xmlnode::XML.Node)::Union{Dict{String,String},Nothing}
         XML.tag(subxmlnode) == "tag" || continue
 
         if tags === nothing
-            tags = Dict{String,String}()
+            tags = Dict{String, String}()
         end
 
         tag_attrs = XML.attributes(subxmlnode)
@@ -432,8 +432,8 @@ Parse way children (node references and tags) efficiently.
 Returns (refs::Vector{Int64}, tags::Union{Dict{String,String}, Nothing}).
 """
 function parse_way_children(
-    xmlnode::XML.Node
-)::Tuple{Vector{Int64},Union{Dict{String,String},Nothing}}
+        xmlnode::XML.Node
+    )::Tuple{Vector{Int64}, Union{Dict{String, String}, Nothing}}
     children = XML.children(xmlnode)
     isempty(children) && return Int64[], nothing
 
@@ -447,7 +447,7 @@ function parse_way_children(
             push!(refs, parse(Int64, nd_attrs["ref"]))
         elseif elname == "tag"
             if tags === nothing
-                tags = Dict{String,String}()
+                tags = Dict{String, String}()
             end
             tag_attrs = XML.attributes(subxmlnode)
             tags[tag_attrs["k"]] = decode_html_entities(tag_attrs["v"])
@@ -464,8 +464,8 @@ Parse relation children (members and tags) efficiently.
 Returns (refs::Vector{Int64}, types::Vector{String}, roles::Vector{String}, tags::Union{Dict{String,String}, Nothing}).
 """
 function parse_relation_children(
-    xmlnode::XML.Node
-)::Tuple{Vector{Int64},Vector{String},Vector{String},Union{Dict{String,String},Nothing}}
+        xmlnode::XML.Node
+    )::Tuple{Vector{Int64}, Vector{String}, Vector{String}, Union{Dict{String, String}, Nothing}}
     children = XML.children(xmlnode)
     isempty(children) && return Int64[], String[], String[], nothing
 
@@ -483,7 +483,7 @@ function parse_relation_children(
             push!(roles, member_attrs["role"])
         elseif elname == "tag"
             if tags === nothing
-                tags = Dict{String,String}()
+                tags = Dict{String, String}()
             end
             tag_attrs = XML.attributes(subxmlnode)
             tags[tag_attrs["k"]] = decode_html_entities(tag_attrs["v"])

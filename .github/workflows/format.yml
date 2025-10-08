@@ -1,0 +1,22 @@
+name: Format
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+jobs:
+    format:
+        name: Format Check
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: julia-actions/setup-julia@v1
+              with:
+                  version: "1.9"
+            - uses: julia-actions/cache@v1
+            - name: Install dependencies
+              run: julia --project=@. -e 'using Pkg; Pkg.instantiate()'
+            - name: Check formatting
+              run: julia --project=@. -e 'using Runic; Runic.main(["--check", "src"])'

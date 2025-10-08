@@ -16,9 +16,9 @@ struct Blob
     OBSOLETE_bzip2_data::Vector{UInt8}
 end
 function PB.default_values(::Type{Blob})
-    return (; raw=UInt8[], raw_size=zero(Int32), zlib_data=UInt8[], lzma_data=UInt8[], OBSOLETE_bzip2_data=UInt8[])
+    return (; raw = UInt8[], raw_size = zero(Int32), zlib_data = UInt8[], lzma_data = UInt8[], OBSOLETE_bzip2_data = UInt8[])
 end
-PB.field_numbers(::Type{Blob}) = (; raw=1, raw_size=2, zlib_data=3, lzma_data=4, OBSOLETE_bzip2_data=5)
+PB.field_numbers(::Type{Blob}) = (; raw = 1, raw_size = 2, zlib_data = 3, lzma_data = 4, OBSOLETE_bzip2_data = 5)
 
 function PB.decode(d::PB.AbstractProtoDecoder, ::Type{<:Blob})
     raw = UInt8[]
@@ -69,8 +69,8 @@ struct BlobHeader
     indexdata::Vector{UInt8}
     datasize::Int32
 end
-PB.default_values(::Type{BlobHeader}) = (; var"#type"="", indexdata=UInt8[], datasize=zero(Int32))
-PB.field_numbers(::Type{BlobHeader}) = (; var"#type"=1, indexdata=2, datasize=3)
+PB.default_values(::Type{BlobHeader}) = (; var"#type" = "", indexdata = UInt8[], datasize = zero(Int32))
+PB.field_numbers(::Type{BlobHeader}) = (; var"#type" = 1, indexdata = 2, datasize = 3)
 
 function PB.decode(d::PB.AbstractProtoDecoder, ::Type{<:BlobHeader})
     var"#type" = ""

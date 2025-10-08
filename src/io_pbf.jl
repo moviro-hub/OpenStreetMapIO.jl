@@ -45,11 +45,11 @@ osmdata = readpbf("map.pbf",
 - [`queryoverpass`](@ref): Query data from Overpass API
 """
 function readpbf(
-    filename::String;
-    node_callback::Union{Function,Nothing}=nothing,
-    way_callback::Union{Function,Nothing}=nothing,
-    relation_callback::Union{Function,Nothing}=nothing,
-)::OpenStreetMap
+        filename::String;
+        node_callback::Union{Function, Nothing} = nothing,
+        way_callback::Union{Function, Nothing} = nothing,
+        relation_callback::Union{Function, Nothing} = nothing,
+    )::OpenStreetMap
     # Validate file exists and is readable
     isfile(filename) || throw(ArgumentError("File '$filename' does not exist"))
 
@@ -104,7 +104,7 @@ Optimized for performance with efficient memory allocation.
 
 # Internal function used by `readpbf`.
 """
-function read_next_blob(f)::Tuple{OSMPBF.BlobHeader,OSMPBF.Blob}
+function read_next_blob(f)::Tuple{OSMPBF.BlobHeader, OSMPBF.Blob}
     # Read blob header size
     header_size_bytes = read(f, UInt32)
     eof(f) && throw(EOFError("Unexpected end of file while reading blob header size"))
@@ -148,7 +148,7 @@ Validate that the blob header has the expected type.
 """
 function validate_blob_type(blobheader::OSMPBF.BlobHeader, expected_type::String)
     actual_type = blobheader.var"#type"
-    if actual_type != expected_type
+    return if actual_type != expected_type
         throw(ArgumentError("Expected blob type '$expected_type', got '$actual_type'"))
     end
 end
@@ -172,9 +172,9 @@ Optimized for performance with efficient decompression handling.
 # Internal function used by `readpbf`.
 """
 function decode_blob(
-    blob::OSMPBF.Blob,
-    block_type::Union{Type{OSMPBF.HeaderBlock},Type{OSMPBF.PrimitiveBlock}},
-)
+        blob::OSMPBF.Blob,
+        block_type::Union{Type{OSMPBF.HeaderBlock}, Type{OSMPBF.PrimitiveBlock}},
+    )
     # Validate blob has exactly one data format
     has_raw = !isempty(blob.raw)
     has_zlib = !isempty(blob.zlib_data)
@@ -185,7 +185,7 @@ function decode_blob(
         throw(ArgumentError("Blob contains no data"))
     end
 
-    try
+    return try
         if has_raw
             # Raw (uncompressed) data
             return decode(ProtoDecoder(PipeBuffer(blob.raw)), block_type)
@@ -222,10 +222,10 @@ function process_header_block!(osmdata::OpenStreetMap, header::OSMPBF.HeaderBloc
         bbox = header.bbox
         try
             osmdata.meta["bbox"] = BBox(
-                round(1e-9 * bbox.bottom; digits=7),
-                round(1e-9 * bbox.left; digits=7),
-                round(1e-9 * bbox.top; digits=7),
-                round(1e-9 * bbox.right; digits=7),
+                round(1.0e-9 * bbox.bottom; digits = 7),
+                round(1.0e-9 * bbox.left; digits = 7),
+                round(1.0e-9 * bbox.top; digits = 7),
+                round(1.0e-9 * bbox.right; digits = 7),
             )
         catch e
             @warn "Invalid bounding box in header: $e"
@@ -234,7 +234,7 @@ function process_header_block!(osmdata::OpenStreetMap, header::OSMPBF.HeaderBloc
 
     # Process replication metadata
     if hasproperty(header, :osmosis_replication_timestamp) &&
-        header.osmosis_replication_timestamp !== nothing
+            header.osmosis_replication_timestamp !== nothing
         try
             osmdata.meta["writenat"] = unix2datetime(header.osmosis_replication_timestamp)
         catch e
@@ -243,16 +243,16 @@ function process_header_block!(osmdata::OpenStreetMap, header::OSMPBF.HeaderBloc
     end
 
     if hasproperty(header, :osmosis_replication_sequence_number) &&
-        header.osmosis_replication_sequence_number !== nothing
+            header.osmosis_replication_sequence_number !== nothing
         osmdata.meta["sequencenumber"] = header.osmosis_replication_sequence_number
     end
 
     if hasproperty(header, :osmosis_replication_base_url) &&
-        header.osmosis_replication_base_url !== nothing
+            header.osmosis_replication_base_url !== nothing
         osmdata.meta["baseurl"] = header.osmosis_replication_base_url
     end
 
-    if hasproperty(header, :writingprogram) && header.writingprogram !== nothing
+    return if hasproperty(header, :writingprogram) && header.writingprogram !== nothing
         osmdata.meta["writingprogram"] = header.writingprogram
     end
 end
@@ -273,12 +273,12 @@ Optimized for performance with efficient string table handling and batch process
 # Internal function used by `readpbf`.
 """
 function process_primitive_block!(
-    osmdata::OpenStreetMap,
-    primblock::OSMPBF.PrimitiveBlock,
-    node_callback::Union{Function,Nothing},
-    way_callback::Union{Function,Nothing},
-    relation_callback::Union{Function,Nothing},
-)
+        osmdata::OpenStreetMap,
+        primblock::OSMPBF.PrimitiveBlock,
+        node_callback::Union{Function, Nothing},
+        way_callback::Union{Function, Nothing},
+        relation_callback::Union{Function, Nothing},
+    )
     # Pre-compute string lookup table for performance
     string_table = build_string_table(primblock.stringtable)
 
@@ -315,6 +315,7 @@ function process_primitive_block!(
             continue  # Skip this group and continue with the next one
         end
     end
+    return
 end
 
 # Helper struct for lat/lon parameters
@@ -375,11 +376,11 @@ Optimized for performance with efficient tag processing.
 # Internal function used by `process_primitive_block!`.
 """
 function extract_regular_nodes(
-    primgrp::OSMPBF.PrimitiveGroup,
-    string_table::Vector{String},
-    node_callback::Union{Function,Nothing},
-)::Dict{Int64,Node}
-    nodes = Dict{Int64,Node}()
+        primgrp::OSMPBF.PrimitiveGroup,
+        string_table::Vector{String},
+        node_callback::Union{Function, Nothing},
+    )::Dict{Int64, Node}
+    nodes = Dict{Int64, Node}()
 
     for n in primgrp.nodes
         try
@@ -392,7 +393,7 @@ function extract_regular_nodes(
             # Build tags efficiently
             tags = nothing
             if length(n.keys) > 0
-                tags = Dict{String,String}()
+                tags = Dict{String, String}()
                 for (k, v) in zip(n.keys, n.vals)
                     # Validate string indices
                     if k + 1 > length(string_table) || v + 1 > length(string_table)
@@ -442,13 +443,13 @@ Optimized for performance with vectorized operations and efficient tag processin
 # Internal function used by `process_primitive_block!`.
 """
 function extract_dense_nodes(
-    primgrp::OSMPBF.PrimitiveGroup,
-    string_table::Vector{String},
-    latlon_params::LatLonParams,
-    node_callback::Union{Function,Nothing},
-)::Dict{Int64,Node}
+        primgrp::OSMPBF.PrimitiveGroup,
+        string_table::Vector{String},
+        latlon_params::LatLonParams,
+        node_callback::Union{Function, Nothing},
+    )::Dict{Int64, Node}
     if primgrp.dense === nothing || isempty(primgrp.dense.id)
-        return Dict{Int64,Node}()
+        return Dict{Int64, Node}()
     end
 
     try
@@ -456,32 +457,32 @@ function extract_dense_nodes(
         ids = cumsum(primgrp.dense.id)
         lats =
             round.(
-                1e-9 * (
-                    latlon_params.lat_offset .+
+            1.0e-9 * (
+                latlon_params.lat_offset .+
                     latlon_params.granularity .* cumsum(primgrp.dense.lat)
-                ),
-                digits=7,
-            )
+            ),
+            digits = 7,
+        )
         lons =
             round.(
-                1e-9 * (
-                    latlon_params.lon_offset .+
+            1.0e-9 * (
+                latlon_params.lon_offset .+
                     latlon_params.granularity .* cumsum(primgrp.dense.lon)
-                ),
-                digits=7,
-            )
+            ),
+            digits = 7,
+        )
 
         # Validate data consistency
         if length(ids) != length(lats) || length(lats) != length(lons)
             @warn "Dense nodes have inconsistent ID/lat/lon lengths, skipping"
-            return Dict{Int64,Node}()
+            return Dict{Int64, Node}()
         end
 
         # Extract tags efficiently
         tags = extract_dense_node_tags(primgrp.dense, string_table, ids)
 
         # Assemble Node objects
-        nodes = Dict{Int64,Node}()
+        nodes = Dict{Int64, Node}()
         for (id, lat, lon) in zip(ids, lats, lons)
             try
                 node = Node(LatLon(lat, lon), get(tags, id, nothing))
@@ -505,7 +506,7 @@ function extract_dense_nodes(
 
     catch e
         @warn "Error processing dense nodes: $e"
-        return Dict{Int64,Node}()
+        return Dict{Int64, Node}()
     end
 end
 
@@ -526,9 +527,9 @@ Optimized for performance with minimal allocations.
 # Internal function used by `extract_dense_nodes`.
 """
 function extract_dense_node_tags(
-    dense::OSMPBF.DenseNodes, string_table::Vector{String}, ids::Vector{Int64}
-)::Dict{Int64,Dict{String,String}}
-    tags = Dict{Int64,Dict{String,String}}()
+        dense::OSMPBF.DenseNodes, string_table::Vector{String}, ids::Vector{Int64}
+    )::Dict{Int64, Dict{String, String}}
+    tags = Dict{Int64, Dict{String, String}}()
 
     if isempty(dense.keys_vals)
         return tags
@@ -578,7 +579,7 @@ function extract_dense_node_tags(
 
             # Add tag
             if !haskey(tags, id)
-                tags[id] = Dict{String,String}()
+                tags[id] = Dict{String, String}()
             end
             tags[id][string_table[k + 1]] = string_table[v + 1]
 
@@ -606,11 +607,11 @@ Optimized for performance with efficient tag processing and reference handling.
 # Internal function used by `process_primitive_block!`.
 """
 function extract_ways(
-    primgrp::OSMPBF.PrimitiveGroup,
-    string_table::Vector{String},
-    way_callback::Union{Function,Nothing},
-)::Dict{Int64,Way}
-    ways = Dict{Int64,Way}()
+        primgrp::OSMPBF.PrimitiveGroup,
+        string_table::Vector{String},
+        way_callback::Union{Function, Nothing},
+    )::Dict{Int64, Way}
+    ways = Dict{Int64, Way}()
 
     for w in primgrp.ways
         try
@@ -623,7 +624,7 @@ function extract_ways(
             # Build tags efficiently
             tags = nothing
             if length(w.keys) > 0
-                tags = Dict{String,String}()
+                tags = Dict{String, String}()
                 for (k, v) in zip(w.keys, w.vals)
                     # Validate string indices
                     if k + 1 > length(string_table) || v + 1 > length(string_table)
@@ -675,11 +676,11 @@ Optimized for performance with efficient tag processing and member handling.
 # Internal function used by `process_primitive_block!`.
 """
 function extract_relations(
-    primgrp::OSMPBF.PrimitiveGroup,
-    string_table::Vector{String},
-    relation_callback::Union{Function,Nothing},
-)::Dict{Int64,Relation}
-    relations = Dict{Int64,Relation}()
+        primgrp::OSMPBF.PrimitiveGroup,
+        string_table::Vector{String},
+        relation_callback::Union{Function, Nothing},
+    )::Dict{Int64, Relation}
+    relations = Dict{Int64, Relation}()
 
     for r in primgrp.relations
         try
@@ -692,7 +693,7 @@ function extract_relations(
             # Build tags efficiently
             tags = nothing
             if length(r.keys) > 0
-                tags = Dict{String,String}()
+                tags = Dict{String, String}()
                 for (k, v) in zip(r.keys, r.vals)
                     # Validate string indices
                     if k + 1 > length(string_table) || v + 1 > length(string_table)
@@ -784,8 +785,8 @@ Extract relation member roles from string indices efficiently.
 # Internal function used by `extract_relations`.
 """
 function extract_relation_roles(
-    roles_sid::Vector{Int32}, string_table::Vector{String}
-)::Vector{String}
+        roles_sid::Vector{Int32}, string_table::Vector{String}
+    )::Vector{String}
     result = Vector{String}(undef, length(roles_sid))
 
     for (i, sid) in enumerate(roles_sid)

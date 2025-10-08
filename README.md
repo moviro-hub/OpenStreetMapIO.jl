@@ -103,6 +103,30 @@ julia scripts/update_protobuf.jl
 
 This will regenerate the Julia protobuf code from the `.proto` files.
 
+## Development Setup
+
+### Pre-commit Hooks
+
+This project uses pre-commit hooks to ensure code quality and formatting. To set up the pre-commit hooks:
+
+```bash
+# Run the setup script
+./scripts/setup_precommit.sh
+
+# Or manually install pre-commit and the hooks
+pip install pre-commit
+pre-commit install
+```
+
+The pre-commit hooks will:
+- Automatically format Julia code with Runic.jl before each commit
+- Ensure consistent code style across the project
+
+To test the hooks manually:
+```bash
+pre-commit run --all-files
+```
+
 ## API Reference
 
 ### Core Functions
