@@ -35,25 +35,6 @@ jobs:
             - name: Run tests
               run: julia --project=@. -e 'using Pkg; Pkg.test()'
 
-    test-coverage:
-        name: Coverage
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - uses: julia-actions/setup-julia@v1
-              with:
-                  version: "1.9"
-            - uses: julia-actions/cache@v1
-            - name: Install dependencies
-              run: julia --project=@. -e 'using Pkg; Pkg.instantiate()'
-            - name: Run tests with coverage
-              run: julia --project=@. -e 'using Pkg; Pkg.test(coverage=true)'
-            - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v3
-              with:
-                  file: ./lcov.info
-                  fail_ci_if_error: false
-
     docs:
         name: Documentation
         runs-on: ubuntu-latest

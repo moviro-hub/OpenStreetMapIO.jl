@@ -11,10 +11,8 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
-        "Getting Started" => "getting_started.md",
         "API Reference" => "api.md",
         "Examples" => "examples.md",
-        "Developer Guide" => "developer.md",
     ],
     checkdocs=:exports,
 )
