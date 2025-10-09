@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: runic
+        name: Runic
+        entry: bash -c 'julia -e "using Runic; Runic.main([\"--check\", \"$1\"])"'
+        language: system
+        files: \.jl$
+        pass_filenames: true
