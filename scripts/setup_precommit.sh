@@ -24,12 +24,40 @@ fi
 
 # Install the pre-commit hooks
 echo "Installing pre-commit hooks..."
-pre-commit install
+
+# Create a simple pre-commit hook that works with Cursor
+cat > .git/hooks/pre-commit << 'EOF'
+#!/bin/bash
+
+# Simple pre-commit hook for Runic formatting
+echo "Running Runic formatting check..."
+
+# Get list of staged .jl files
+staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.jl$')
+
+if [ -z "$staged_files" ]; then
+    echo "No Julia files to check."
+    exit 0
+fi
+
+# Check each file
+for file in $staged_files; do
+    echo "Checking $file..."
+    # Use diff to detect if formatting is needed
+    if julia -e "using Runic; Runic.main([\"--diff\", \"$file\"])" 2>&1 | grep -q "^diff --git"; then
+        echo "❌ $file is not properly formatted!"
+        echo "Please run: julia -m Runic --inplace $file"
+        exit 1
+    fi
+done
+
+echo "✅ All Julia files are properly formatted!"
+exit 0
+EOF
+
+chmod +x .git/hooks/pre-commit
 
 echo "Pre-commit hooks installed successfully!"
 echo ""
-echo "To test the hooks, run:"
-echo "  pre-commit run --all-files"
-echo ""
-echo "To run hooks manually on staged files:"
-echo "  pre-commit run"
+echo "The hook will automatically check Julia file formatting on every commit."
+echo "If formatting is needed, the commit will be blocked with instructions."
