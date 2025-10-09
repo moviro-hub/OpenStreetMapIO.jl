@@ -131,7 +131,7 @@ using OpenStreetMapIO, Test
 
         # Apply filters during reading
         filtered_osm = OpenStreetMapIO.readpbf(
-            "data/map.pbf"; node_callback=keep_amenities, way_callback=keep_highways
+            "data/map.pbf"; node_callback = keep_amenities, way_callback = keep_highways
         )
 
         # Verify filtering worked

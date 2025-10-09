@@ -61,7 +61,7 @@ using OpenStreetMapIO, Test
             return node
         end
 
-        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback=node_callback)
+        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback = node_callback)
         @test node_count > 0
         @test length(osmdata.nodes) == node_count
 
@@ -72,7 +72,7 @@ using OpenStreetMapIO, Test
             return way
         end
 
-        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; way_callback=way_callback)
+        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; way_callback = way_callback)
         @test way_count > 0
         @test length(osmdata.ways) == way_count
 
@@ -84,7 +84,7 @@ using OpenStreetMapIO, Test
         end
 
         osmdata = OpenStreetMapIO.readpbf(
-            "data/map.pbf"; relation_callback=relation_callback
+            "data/map.pbf"; relation_callback = relation_callback
         )
         @test relation_count > 0
         @test length(osmdata.relations) == relation_count
@@ -93,15 +93,15 @@ using OpenStreetMapIO, Test
         filtered_nodes = 0
         function filter_nodes(node)
             if node.tags !== nothing &&
-                haskey(node.tags, "addr:country") &&
-                node.tags["addr:country"] == "DE"
+                    haskey(node.tags, "addr:country") &&
+                    node.tags["addr:country"] == "DE"
                 filtered_nodes += 1
                 return node
             end
             return nothing
         end
 
-        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback=filter_nodes)
+        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback = filter_nodes)
         @test filtered_nodes > 0
         @test length(osmdata.nodes) == filtered_nodes
 
@@ -126,7 +126,7 @@ using OpenStreetMapIO, Test
         end
 
         # Callback errors are now handled gracefully, so this should not throw
-        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback=error_callback)
+        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback = error_callback)
         @test length(osmdata.nodes) == 0  # No nodes should be processed due to callback errors
     end
 
@@ -148,7 +148,7 @@ using OpenStreetMapIO, Test
 
         for (id, node) in osmdata.nodes
             if bbox.bottom_lat <= node.latlon.lat <= bbox.top_lat &&
-                bbox.left_lon <= node.latlon.lon <= bbox.right_lon
+                    bbox.left_lon <= node.latlon.lon <= bbox.right_lon
                 nodes_in_bbox += 1
             end
         end
@@ -215,7 +215,7 @@ using OpenStreetMapIO, Test
         # Test tag consistency
         for (id, node) in osmdata.nodes
             if node.tags !== nothing
-                @test isa(node.tags, Dict{String,String})
+                @test isa(node.tags, Dict{String, String})
                 for (key, value) in node.tags
                     @test isa(key, String)
                     @test isa(value, String)

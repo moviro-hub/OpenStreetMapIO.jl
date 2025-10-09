@@ -87,7 +87,7 @@ using OpenStreetMapIO, Test
         end
 
         # Clean up
-        rm(temp_file; force=true)
+        rm(temp_file; force = true)
     end
 
     @testset "XML Metadata Extraction" begin
@@ -108,7 +108,7 @@ using OpenStreetMapIO, Test
 
         for (id, node) in osmdata.nodes
             if bbox.bottom_lat <= node.latlon.lat <= bbox.top_lat &&
-                bbox.left_lon <= node.latlon.lon <= bbox.right_lon
+                    bbox.left_lon <= node.latlon.lon <= bbox.right_lon
                 nodes_in_bbox += 1
             end
         end
@@ -175,7 +175,7 @@ using OpenStreetMapIO, Test
         # Test tag consistency
         for (id, node) in osmdata.nodes
             if node.tags !== nothing
-                @test isa(node.tags, Dict{String,String})
+                @test isa(node.tags, Dict{String, String})
                 for (key, value) in node.tags
                     @test isa(key, String)
                     @test isa(value, String)
@@ -216,9 +216,9 @@ using OpenStreetMapIO, Test
             if node.tags !== nothing
                 for (key, value) in node.tags
                     if occursin("straße", value) ||
-                        occursin("ü", value) ||
-                        occursin("ö", value) ||
-                        occursin("ä", value)
+                            occursin("ü", value) ||
+                            occursin("ö", value) ||
+                            occursin("ä", value)
                         push!(special_char_nodes, node)
                         break
                     end

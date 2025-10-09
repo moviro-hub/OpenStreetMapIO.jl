@@ -2,19 +2,19 @@ using Documenter, OpenStreetMapIO
 
 # Set up the documentation environment
 makedocs(;
-    sitename="OpenStreetMapIO.jl",
-    authors="MOVIRO",
-    format=Documenter.HTML(;
-        prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://moviro.github.io/OpenStreetMapIO.jl",
-        assets=String[],
+    sitename = "OpenStreetMapIO.jl",
+    authors = "MOVIRO",
+    format = Documenter.HTML(;
+        prettyurls = get(ENV, "CI", "false") == "true",
+        canonical = "https://moviro.github.io/OpenStreetMapIO.jl",
+        assets = String[],
     ),
-    pages=[
+    pages = [
         "Home" => "index.md",
         "API Reference" => "api.md",
         "Examples" => "examples.md",
     ],
-    checkdocs=:exports,
+    checkdocs = :exports,
 )
 
-deploydocs(; repo="github.com/moviro-hub/OpenStreetMapIO.jl.git", devbranch="main")
+deploydocs(; repo = "github.com/moviro-hub/OpenStreetMapIO.jl.git", devbranch = "main")

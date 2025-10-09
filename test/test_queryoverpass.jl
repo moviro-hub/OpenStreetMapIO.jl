@@ -48,7 +48,7 @@ using OpenStreetMapIO, Test
 
             for (id, node) in osmdata.nodes
                 if bbox.bottom_lat <= node.latlon.lat <= bbox.top_lat &&
-                    bbox.left_lon <= node.latlon.lon <= bbox.right_lon
+                        bbox.left_lon <= node.latlon.lon <= bbox.right_lon
                     nodes_in_bbox += 1
                 end
             end

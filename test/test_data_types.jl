@@ -8,7 +8,7 @@ using OpenStreetMapIO, Test
         @test node.latlon isa LatLon
         @test node.latlon.lat == TEST_POINT_1.lat
         @test node.latlon.lon == TEST_POINT_1.lon
-        @test node.tags isa Dict{String,String}
+        @test node.tags isa Dict{String, String}
         @test node.tags["test"] == "value"
 
         # Test Node with no tags
@@ -33,7 +33,7 @@ using OpenStreetMapIO, Test
         @test way.refs isa Vector{Int64}
         @test length(way.refs) == 4
         @test way.refs == [1, 2, 3, 4]
-        @test way.tags isa Dict{String,String}
+        @test way.tags isa Dict{String, String}
         @test way.tags["highway"] == "primary"
 
         # Test Way with no tags
@@ -42,7 +42,7 @@ using OpenStreetMapIO, Test
         @test way_no_tags.tags === nothing
 
         # Test empty Way
-        empty_way = Way(Int64[], Dict{String,String}())
+        empty_way = Way(Int64[], Dict{String, String}())
         @test length(empty_way.refs) == 0
         @test length(empty_way.tags) == 0
 
@@ -64,7 +64,7 @@ using OpenStreetMapIO, Test
         @test relation.refs isa Vector{Int64}
         @test relation.types isa Vector{String}
         @test relation.roles isa Vector{String}
-        @test relation.tags isa Dict{String,String}
+        @test relation.tags isa Dict{String, String}
 
         @test length(relation.refs) == 3
         @test length(relation.types) == 3
@@ -80,7 +80,7 @@ using OpenStreetMapIO, Test
         @test relation_no_tags.tags === nothing
 
         # Test empty Relation
-        empty_relation = Relation(Int64[], String[], String[], Dict{String,String}())
+        empty_relation = Relation(Int64[], String[], String[], Dict{String, String}())
         @test length(empty_relation.refs) == 0
         @test length(empty_relation.types) == 0
         @test length(empty_relation.roles) == 0
@@ -126,10 +126,10 @@ using OpenStreetMapIO, Test
         # Test OpenStreetMap creation
         osmdata = create_test_osm_data()
 
-        @test osmdata.nodes isa Dict{Int64,Node}
-        @test osmdata.ways isa Dict{Int64,Way}
-        @test osmdata.relations isa Dict{Int64,Relation}
-        @test osmdata.meta isa Dict{String,Any}
+        @test osmdata.nodes isa Dict{Int64, Node}
+        @test osmdata.ways isa Dict{Int64, Way}
+        @test osmdata.relations isa Dict{Int64, Relation}
+        @test osmdata.meta isa Dict{String, Any}
 
         @test length(osmdata.nodes) == 1
         @test length(osmdata.ways) == 1

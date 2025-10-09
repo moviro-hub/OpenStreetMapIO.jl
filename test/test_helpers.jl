@@ -35,7 +35,7 @@ const KNOWN_WAY_ID = 889648159
 const KNOWN_RELATION_ID = 12475101
 
 const TEST_POINT_1 = LatLon(54.2619665, 9.9854149)
-const TEST_POINT_2 = LatLon(54.2620000, 9.9860000)
+const TEST_POINT_2 = LatLon(54.262, 9.986)
 const TEST_BBOX = BBox(54.0, 9.0, 55.0, 10.0)
 
 # Helper function to check if test data is available
@@ -48,12 +48,12 @@ function create_test_osm_data()
     nodes = Dict(1 => Node(LatLon(54.0, 9.0), Dict("test" => "node1")))
     ways = Dict(1 => Way([1], Dict("highway" => "primary")))
     relations = Dict(1 => Relation([1], ["node"], ["role"], Dict("type" => "route")))
-    meta = Dict{String,Any}("bbox" => BBox(54.0, 9.0, 55.0, 10.0))
+    meta = Dict{String, Any}("bbox" => BBox(54.0, 9.0, 55.0, 10.0))
     return OpenStreetMap(nodes, ways, relations, meta)
 end
 
 # Helper function for performance timing
-function time_function(f, iterations=1000)
+function time_function(f, iterations = 1000)
     times = Float64[]
     for _ in 1:3  # Run 3 times and take median
         start_time = time()
@@ -68,5 +68,5 @@ end
 # Helper functions for basic testing
 function test_basic_operations()
     # Basic test to ensure the module loads correctly
-    @test true
+    return @test true
 end

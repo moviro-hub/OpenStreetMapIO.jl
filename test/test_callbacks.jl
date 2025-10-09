@@ -20,15 +20,15 @@ using OpenStreetMapIO, Test
         filtered_count = 0
         function filter_german_nodes(node)
             if node.tags !== nothing &&
-                haskey(node.tags, "addr:country") &&
-                node.tags["addr:country"] == "DE"
+                    haskey(node.tags, "addr:country") &&
+                    node.tags["addr:country"] == "DE"
                 filtered_count += 1
                 return node
             end
             return nothing
         end
 
-        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback=filter_german_nodes)
+        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback = filter_german_nodes)
         @test filtered_count > 0
         @test length(osmdata.nodes) == filtered_count
 
@@ -42,12 +42,12 @@ using OpenStreetMapIO, Test
         # Test node callback that modifies data
         function add_test_tag(node)
             # Create a new node with modified tags since Node is immutable
-            new_tags = node.tags === nothing ? Dict{String,String}() : copy(node.tags)
+            new_tags = node.tags === nothing ? Dict{String, String}() : copy(node.tags)
             new_tags["test_callback"] = "modified"
             return Node(node.latlon, new_tags)
         end
 
-        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback=add_test_tag)
+        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback = add_test_tag)
 
         # Check that some nodes have the test tag
         nodes_with_test_tag = 0
@@ -68,7 +68,7 @@ using OpenStreetMapIO, Test
             return way
         end
 
-        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; way_callback=count_ways)
+        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; way_callback = count_ways)
         @test way_count > 0
         @test length(osmdata.ways) == way_count
 
@@ -82,7 +82,7 @@ using OpenStreetMapIO, Test
             return nothing
         end
 
-        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; way_callback=filter_highway_ways)
+        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; way_callback = filter_highway_ways)
         @test filtered_count >= 0  # May be 0 if no highways in test data
         @test length(osmdata.ways) == filtered_count
 
@@ -102,7 +102,7 @@ using OpenStreetMapIO, Test
             return nothing
         end
 
-        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; way_callback=filter_long_ways)
+        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; way_callback = filter_long_ways)
         @test long_way_count >= 0
         @test length(osmdata.ways) == long_way_count
 
@@ -120,7 +120,7 @@ using OpenStreetMapIO, Test
             return relation
         end
 
-        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; relation_callback=count_relations)
+        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; relation_callback = count_relations)
         @test relation_count > 0
         @test length(osmdata.relations) == relation_count
 
@@ -128,8 +128,8 @@ using OpenStreetMapIO, Test
         filtered_count = 0
         function filter_route_relations(relation)
             if relation.tags !== nothing &&
-                haskey(relation.tags, "type") &&
-                relation.tags["type"] == "route"
+                    haskey(relation.tags, "type") &&
+                    relation.tags["type"] == "route"
                 filtered_count += 1
                 return relation
             end
@@ -137,7 +137,7 @@ using OpenStreetMapIO, Test
         end
 
         osmdata = OpenStreetMapIO.readpbf(
-            "data/map.pbf"; relation_callback=filter_route_relations
+            "data/map.pbf"; relation_callback = filter_route_relations
         )
         @test filtered_count >= 0  # May be 0 if no routes in test data
         @test length(osmdata.relations) == filtered_count
@@ -160,7 +160,7 @@ using OpenStreetMapIO, Test
         end
 
         osmdata = OpenStreetMapIO.readpbf(
-            "data/map.pbf"; relation_callback=filter_large_relations
+            "data/map.pbf"; relation_callback = filter_large_relations
         )
         @test large_relation_count >= 0
         @test length(osmdata.relations) == large_relation_count
@@ -194,9 +194,9 @@ using OpenStreetMapIO, Test
 
         osmdata = OpenStreetMapIO.readpbf(
             "data/map.pbf";
-            node_callback=count_nodes_callback,
-            way_callback=count_ways_callback,
-            relation_callback=count_relations_callback,
+            node_callback = count_nodes_callback,
+            way_callback = count_ways_callback,
+            relation_callback = count_relations_callback,
         )
 
         @test node_count > 0
@@ -213,8 +213,8 @@ using OpenStreetMapIO, Test
 
         function filter_german_nodes_callback(node)
             if node.tags !== nothing &&
-                haskey(node.tags, "addr:country") &&
-                node.tags["addr:country"] == "DE"
+                    haskey(node.tags, "addr:country") &&
+                    node.tags["addr:country"] == "DE"
                 german_nodes += 1
                 return node
             end
@@ -231,8 +231,8 @@ using OpenStreetMapIO, Test
 
         function filter_route_relations_callback(relation)
             if relation.tags !== nothing &&
-                haskey(relation.tags, "type") &&
-                relation.tags["type"] == "route"
+                    haskey(relation.tags, "type") &&
+                    relation.tags["type"] == "route"
                 route_relations += 1
                 return relation
             end
@@ -241,9 +241,9 @@ using OpenStreetMapIO, Test
 
         osmdata = OpenStreetMapIO.readpbf(
             "data/map.pbf";
-            node_callback=filter_german_nodes_callback,
-            way_callback=filter_highway_ways_callback,
-            relation_callback=filter_route_relations_callback,
+            node_callback = filter_german_nodes_callback,
+            way_callback = filter_highway_ways_callback,
+            relation_callback = filter_route_relations_callback,
         )
 
         @test german_nodes >= 0
@@ -262,15 +262,15 @@ using OpenStreetMapIO, Test
 
         # Callback errors are now handled gracefully with warnings
         osmdata_nodes = OpenStreetMapIO.readpbf(
-            "data/map.pbf"; node_callback=error_callback
+            "data/map.pbf"; node_callback = error_callback
         )
         @test length(osmdata_nodes.nodes) == 0  # No nodes should be processed due to callback errors
 
-        osmdata_ways = OpenStreetMapIO.readpbf("data/map.pbf"; way_callback=error_callback)
+        osmdata_ways = OpenStreetMapIO.readpbf("data/map.pbf"; way_callback = error_callback)
         @test length(osmdata_ways.ways) == 0  # No ways should be processed due to callback errors
 
         osmdata_relations = OpenStreetMapIO.readpbf(
-            "data/map.pbf"; relation_callback=error_callback
+            "data/map.pbf"; relation_callback = error_callback
         )
         @test length(osmdata_relations.relations) == 0  # No relations should be processed due to callback errors
 
@@ -279,7 +279,7 @@ using OpenStreetMapIO, Test
             return nothing  # Should exclude the element
         end
 
-        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback=nothing_callback)
+        osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback = nothing_callback)
         @test length(osmdata.nodes) == 0  # No nodes should be included
     end
 
@@ -299,7 +299,7 @@ using OpenStreetMapIO, Test
         for i in 1:3
             start_time = time()
             osmdata_with_callback = OpenStreetMapIO.readpbf(
-                "data/map.pbf"; node_callback=identity
+                "data/map.pbf"; node_callback = identity
             )
             push!(callback_times, time() - start_time)
         end
@@ -325,7 +325,7 @@ using OpenStreetMapIO, Test
         for i in 1:3
             start_time = time()
             osmdata_complex = OpenStreetMapIO.readpbf(
-                "data/map.pbf"; node_callback=complex_callback
+                "data/map.pbf"; node_callback = complex_callback
             )
             push!(complex_times, time() - start_time)
         end
@@ -346,9 +346,9 @@ using OpenStreetMapIO, Test
         osmdata_original = OpenStreetMapIO.readpbf("data/map.pbf")
         osmdata_with_callback = OpenStreetMapIO.readpbf(
             "data/map.pbf";
-            node_callback=preserve_data_callback,
-            way_callback=preserve_data_callback,
-            relation_callback=preserve_data_callback,
+            node_callback = preserve_data_callback,
+            way_callback = preserve_data_callback,
+            relation_callback = preserve_data_callback,
         )
 
         # Data should be identical
@@ -358,7 +358,7 @@ using OpenStreetMapIO, Test
 
         # Test specific elements
         if haskey(osmdata_original.nodes, 1675598406) &&
-            haskey(osmdata_with_callback.nodes, 1675598406)
+                haskey(osmdata_with_callback.nodes, 1675598406)
             @test osmdata_original.nodes[1675598406].latlon ==
                 osmdata_with_callback.nodes[1675598406].latlon
             @test osmdata_original.nodes[1675598406].tags ==
@@ -366,7 +366,7 @@ using OpenStreetMapIO, Test
         end
 
         if haskey(osmdata_original.ways, 889648159) &&
-            haskey(osmdata_with_callback.ways, 889648159)
+                haskey(osmdata_with_callback.ways, 889648159)
             @test osmdata_original.ways[889648159].refs ==
                 osmdata_with_callback.ways[889648159].refs
             @test osmdata_original.ways[889648159].tags ==
