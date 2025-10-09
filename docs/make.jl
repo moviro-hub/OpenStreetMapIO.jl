@@ -14,7 +14,7 @@ makedocs(;
         "API Reference" => "api.md",
         "Examples" => "examples.md",
     ],
-    checkdocs=:exports,
+    checkdocs = :exports,
 )
 
 deploydocs(; repo="github.com/moviro-hub/OpenStreetMapIO.jl.git", devbranch="main")
