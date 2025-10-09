@@ -9,7 +9,7 @@ makedocs(;
         canonical="https://moviro.github.io/OpenStreetMapIO.jl",
         assets=String[],
     ),
-    pages=[
+    pages = [
         "Home" => "index.md",
         "API Reference" => "api.md",
         "Examples" => "examples.md",
