@@ -61,7 +61,7 @@ using Downloads: download
 export readpbf, readosm, queryoverpass
 export OpenStreetMap, Node, Way, Relation, BBox, LatLon
 
-include("protobuf/OSMPBF.jl")
+include("OSMPBF.jl")
 include("map_types.jl")
 include("io_pbf.jl")
 include("io_xml.jl")
