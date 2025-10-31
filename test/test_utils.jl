@@ -75,9 +75,19 @@ function test_data_path(filename)
     return joinpath(@__DIR__, "data", filename)
 end
 
+# Helper function to extract error message in a way that works across Julia versions
+function error_message(e::Exception)
+    # Try to get the msg field directly (works in most cases)
+    if isdefined(e, :msg)
+        return getfield(e, :msg)
+    end
+    # Fallback to string representation
+    return string(e)
+end
+
 # Export all test utilities
 export median, TEST_DATA_PBF, TEST_DATA_XML, KNOWN_NODE_ID, KNOWN_WAY_ID, KNOWN_RELATION_ID
 export TEST_POINT_1, TEST_POINT_2, TEST_BBOX
-export has_test_data, create_test_osm_data, time_function, test_data_path
+export has_test_data, create_test_osm_data, time_function, test_data_path, error_message
 
 end # module TestUtils

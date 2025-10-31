@@ -572,8 +572,7 @@ using CodecZlib: ZlibCompressorStream
                     @test false  # Should not reach here
                 catch e
                     @test e isa ArgumentError
-                    # Get error message in a way that works across Julia versions
-                    error_msg = sprint(showerror, e)
+                    error_msg = error_message(e)
                     @test occursin("BZIP2", error_msg) || occursin("bzip2", lowercase(error_msg))
                 end
             end
@@ -629,8 +628,9 @@ using CodecZlib: ZlibCompressorStream
             compressed_io = IOBuffer()
             stream = ZlibCompressorStream(compressed_io)
             write(stream, test_data)
+            flush(stream)  # Ensure data is flushed before reading
+            compressed_data = read(compressed_io)  # Read before closing
             close(stream)
-            compressed_data = take!(compressed_io)
 
             # Create blob with correct raw_size
             correct_blob = OpenStreetMapIO.OSMPBF.Blob(
@@ -660,8 +660,7 @@ using CodecZlib: ZlibCompressorStream
                 @test false  # Should not reach here
             catch e
                 @test e isa ArgumentError
-                # Get error message in a way that works across Julia versions
-                error_msg = sprint(showerror, e)
+                error_msg = error_message(e)
                 @test occursin("size mismatch", lowercase(error_msg)) ||
                     occursin("failed to decode", lowercase(error_msg))
             end
