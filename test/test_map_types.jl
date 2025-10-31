@@ -1,4 +1,8 @@
-include("test_utils.jl")
+if !isdefined(Main, :TestUtils)
+    include("test_utils.jl")
+    using .TestUtils
+end
+using OpenStreetMapIO, Test
 
 @testset "Map Types Tests" begin
     @testset "Node Data Type Tests" begin

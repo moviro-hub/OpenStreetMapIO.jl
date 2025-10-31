@@ -1,4 +1,6 @@
 include("test_utils.jl")
+using .TestUtils
+using OpenStreetMapIO, Test
 
 # Core functionality tests - matching src/ structure
 include("test_map_types.jl")        # Tests for src/map_types.jl

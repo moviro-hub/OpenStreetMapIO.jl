@@ -1,4 +1,8 @@
-include("test_utils.jl")
+if !isdefined(Main, :TestUtils)
+    include("test_utils.jl")
+    using .TestUtils
+end
+using OpenStreetMapIO, Test
 
 @testset "Load Overpass Tests" begin
     @testset "Basic Overpass Queries" begin
