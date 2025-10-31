@@ -572,7 +572,9 @@ using CodecZlib: ZlibCompressorStream
                     @test false  # Should not reach here
                 catch e
                     @test e isa ArgumentError
-                    @test occursin("BZIP2", e.msg) || occursin("bzip2", lowercase(e.msg))
+                    # Get error message in a way that works across Julia versions
+                    error_msg = sprint(showerror, e)
+                    @test occursin("BZIP2", error_msg) || occursin("bzip2", lowercase(error_msg))
                 end
             end
 
@@ -658,8 +660,10 @@ using CodecZlib: ZlibCompressorStream
                 @test false  # Should not reach here
             catch e
                 @test e isa ArgumentError
-                @test occursin("size mismatch", lowercase(e.msg)) ||
-                    occursin("failed to decode", lowercase(e.msg))
+                # Get error message in a way that works across Julia versions
+                error_msg = sprint(showerror, e)
+                @test occursin("size mismatch", lowercase(error_msg)) ||
+                    occursin("failed to decode", lowercase(error_msg))
             end
         end
     end
