@@ -173,10 +173,12 @@ function validate_decompressed_size(data::Vector{UInt8}, expected_size::Union{In
     if expected_size !== nothing
         actual_size = length(data)
         if actual_size != expected_size
-            throw(ArgumentError(
-                "$format_name decompressed size mismatch: expected $expected_size bytes, got $actual_size bytes. " *
-                "File may be corrupted."
-            ))
+            throw(
+                ArgumentError(
+                    "$format_name decompressed size mismatch: expected $expected_size bytes, got $actual_size bytes. " *
+                        "File may be corrupted."
+                )
+            )
         end
     end
     return nothing
