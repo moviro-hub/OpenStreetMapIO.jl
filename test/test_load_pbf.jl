@@ -1,4 +1,26 @@
 using OpenStreetMapIO, Test
+using ProtoBuf
+using ProtoBuf: OneOf, ProtoEncoder
+using Dates: DateTime
+using Zstd_jll: libzstd
+
+const PB = OpenStreetMapIO.OSMPBF
+
+function compress_zstd(data::Vector{UInt8})
+    bound = ccall((:ZSTD_compressBound, libzstd), Csize_t, (Csize_t,), Csize_t(length(data)))
+    output = Vector{UInt8}(undef, Int(bound))
+    result = ccall(
+        (:ZSTD_compress, libzstd), Csize_t,
+        (Ptr{UInt8}, Csize_t, Ptr{UInt8}, Csize_t, Cint),
+        pointer(output), Csize_t(length(output)), pointer(data), Csize_t(length(data)), Cint(3),
+    )
+    if ccall((:ZSTD_isError, libzstd), UInt32, (Csize_t,), result) != 0
+        err_ptr = ccall((:ZSTD_getErrorName, libzstd), Ptr{UInt8}, (Csize_t,), result)
+        error("ZSTD compression failed: $(unsafe_string(err_ptr))")
+    end
+    resize!(output, Int(result))
+    return output
+end
 
 @testset "PBF File Reading Tests" begin
     @testset "Basic PBF Reading" begin
@@ -25,6 +47,7 @@ using OpenStreetMapIO, Test
                 @test haskey(node.tags, "addr:city")
                 @test haskey(node.tags, "addr:postcode")
                 @test haskey(node.tags, "addr:street")
+                @test node.metadata === nothing || node.metadata isa ElementMetadata
             end
         end
 
@@ -37,6 +60,7 @@ using OpenStreetMapIO, Test
                 @test length(way.tags) > 0
                 # Specific values may vary depending on data version
                 @test haskey(way.tags, "natural") || haskey(way.tags, "highway")
+                @test way.metadata === nothing || way.metadata isa ElementMetadata
             end
         end
 
@@ -50,6 +74,7 @@ using OpenStreetMapIO, Test
                 @test length(relation.roles) === length(relation.refs)
                 @test length(relation.tags) > 0  # Should have some tags
                 @test haskey(relation.tags, "type")
+                @test relation.metadata === nothing || relation.metadata isa ElementMetadata
             end
         end
     end
@@ -254,5 +279,100 @@ using OpenStreetMapIO, Test
         @test internal_node_refs > 0
         @test internal_way_refs >= 0  # May be 0 if no internal way references
         @test internal_relation_refs >= 0  # May be 0 if no internal relation references
+    end
+
+    @testset "Element Metadata Extraction" begin
+        osmdata = OpenStreetMapIO.readpbf("data/map.pbf")
+
+        if haskey(osmdata.nodes, KNOWN_NODE_ID)
+            meta = osmdata.nodes[KNOWN_NODE_ID].metadata
+            @test meta !== nothing
+            if meta !== nothing
+                @test meta.version === nothing || meta.version isa Int32
+                @test meta.timestamp === nothing || meta.timestamp isa DateTime
+                @test meta.changeset === nothing || meta.changeset isa Int64
+                @test meta.uid === nothing || meta.uid isa Int32
+                @test meta.user === nothing || meta.user isa String
+                @test meta.visible === nothing || meta.visible isa Bool
+                @test any(!isnothing, (meta.version, meta.timestamp, meta.changeset, meta.uid, meta.user, meta.visible))
+            end
+        end
+
+        if haskey(osmdata.ways, KNOWN_WAY_ID)
+            meta = osmdata.ways[KNOWN_WAY_ID].metadata
+            @test meta !== nothing
+            if meta !== nothing
+                @test meta.version === nothing || meta.version isa Int32
+                @test meta.timestamp === nothing || meta.timestamp isa DateTime
+                @test meta.user === nothing || meta.user isa String
+            end
+        end
+
+        if haskey(osmdata.relations, KNOWN_RELATION_ID)
+            meta = osmdata.relations[KNOWN_RELATION_ID].metadata
+            @test meta !== nothing
+            if meta !== nothing
+                @test meta.version === nothing || meta.version isa Int32
+                @test meta.timestamp === nothing || meta.timestamp isa DateTime
+            end
+        end
+    end
+
+    @testset "LocationsOnWays Decoding" begin
+        way_id = 2001
+        way = PB.Way(
+            Int64(way_id),
+            UInt32[],
+            UInt32[],
+            nothing,
+            Int64[1, 1],
+            Int64[100_000_000, 50_000_000],
+            Int64[20_000_000, -10_000_000],
+        )
+        primgrp = PB.PrimitiveGroup(PB.Node[], nothing, [way], PB.Relation[], PB.ChangeSet[])
+        block = PB.PrimitiveBlock(
+            PB.StringTable(Vector{Vector{UInt8}}([UInt8[]])),
+            [primgrp],
+            Int32(100),
+            Int64(0),
+            Int64(0),
+            Int32(1000),
+        )
+
+        osmdata = OpenStreetMap()
+        OpenStreetMapIO.process_primitive_block!(osmdata, block, nothing, nothing, nothing)
+
+        @test haskey(osmdata.ways, way_id)
+        decoded_way = osmdata.ways[way_id]
+        @test decoded_way.coordinates !== nothing
+        coords = decoded_way.coordinates
+        @test length(coords) == 2
+        @test isapprox(coords[1].lat, 10.0f0; atol = 1.0e-5)
+        @test isapprox(coords[1].lon, 2.0f0; atol = 1.0e-5)
+        @test isapprox(coords[2].lat, 15.0f0; atol = 1.0e-5)
+        @test isapprox(coords[2].lon, 1.0f0; atol = 1.0e-5)
+    end
+
+    @testset "Additional Compression Formats" begin
+        block = PB.PrimitiveBlock(
+            PB.StringTable(Vector{Vector{UInt8}}([UInt8[]])),
+            PB.PrimitiveGroup[],
+            Int32(100),
+            Int64(0),
+            Int64(0),
+            Int32(1000),
+        )
+
+        buffer = IOBuffer()
+        encoder = ProtoEncoder(buffer)
+        ProtoBuf.encode(encoder, block)
+        encoded = take!(buffer)
+        compressed = compress_zstd(encoded)
+        blob = PB.Blob(Int32(length(encoded)), OneOf(:zstd_data, compressed))
+
+        decoded = OpenStreetMapIO.decode_blob(blob, PB.PrimitiveBlock)
+        @test decoded.granularity == block.granularity
+        @test decoded.date_granularity == block.date_granularity
+        @test isempty(decoded.primitivegroup)
     end
 end

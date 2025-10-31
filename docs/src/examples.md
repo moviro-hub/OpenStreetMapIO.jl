@@ -111,7 +111,7 @@ function add_processing_info(node)
     new_tags = node.tags === nothing ? Dict{String,String}() : copy(node.tags)
     new_tags["processed_by"] = "OpenStreetMapIO.jl"
     new_tags["processed_at"] = string(now())
-    return Node(node.latlon, new_tags)
+    return Node(node.latlon, new_tags, node.metadata)
 end
 
 processed_data = readpbf("map.pbf", node_callback=add_processing_info)

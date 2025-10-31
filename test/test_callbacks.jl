@@ -44,7 +44,7 @@ using OpenStreetMapIO, Test
             # Create a new node with modified tags since Node is immutable
             new_tags = node.tags === nothing ? Dict{String, String}() : copy(node.tags)
             new_tags["test_callback"] = "modified"
-            return Node(node.latlon, new_tags)
+            return Node(node.latlon, new_tags, node.metadata)
         end
 
         osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback = add_test_tag)

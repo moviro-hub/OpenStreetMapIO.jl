@@ -191,7 +191,7 @@ function parse_node(xmlnode::XML.Node)::Tuple{Int64, Node}
 
     # Parse tags efficiently
     tags = parse_tags(xmlnode)
-    return id, Node(latlon, tags)
+    return id, Node(latlon, tags, nothing)
 end
 
 """
@@ -206,7 +206,7 @@ function parse_way(xmlnode::XML.Node)::Tuple{Int64, Way}
 
     # Parse node references and tags efficiently
     refs, tags = parse_way_children(xmlnode)
-    return id, Way(refs, tags)
+    return id, Way(refs, tags, nothing, nothing)
 end
 
 """
@@ -221,7 +221,7 @@ function parse_relation(xmlnode::XML.Node)::Tuple{Int64, Relation}
 
     # Parse members and tags efficiently
     refs, types, roles, tags = parse_relation_children(xmlnode)
-    return id, Relation(refs, types, roles, tags)
+    return id, Relation(refs, types, roles, tags, nothing)
 end
 
 """

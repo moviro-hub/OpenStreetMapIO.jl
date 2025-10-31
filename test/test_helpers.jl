@@ -45,9 +45,11 @@ end
 
 # Helper function to create test OSM data
 function create_test_osm_data()
-    nodes = Dict(1 => Node(LatLon(54.0, 9.0), Dict("test" => "node1")))
-    ways = Dict(1 => Way([1], Dict("highway" => "primary")))
-    relations = Dict(1 => Relation([1], ["node"], ["role"], Dict("type" => "route")))
+    nodes = Dict(1 => Node(LatLon(54.0, 9.0), Dict("test" => "node1"), nothing))
+    ways = Dict(1 => Way([1], Dict("highway" => "primary"), nothing, nothing))
+    relations = Dict(
+        1 => Relation([1], ["node"], ["role"], Dict("type" => "route"), nothing),
+    )
     meta = Dict{String, Any}("bbox" => BBox(54.0, 9.0, 55.0, 10.0))
     return OpenStreetMap(nodes, ways, relations, meta)
 end

@@ -53,13 +53,13 @@ osmdata = readpbf("map.pbf", node_callback=keep_restaurants)
 """
 module OpenStreetMapIO
 using ProtoBuf: decode, ProtoDecoder, PipeBuffer
-using CodecZlib: ZlibDecompressorStream
-using Dates: unix2datetime, DateTime
+import CodecZlib
+using Dates: unix2datetime, DateTime, Millisecond
 using XML: XML
 using Downloads: download
 
 export readpbf, readosm, queryoverpass
-export OpenStreetMap, Node, Way, Relation, BBox, LatLon
+export OpenStreetMap, Node, Way, Relation, BBox, LatLon, ElementMetadata
 
 include("OSMPBF/OSMPBF.jl")
 include("map_types.jl")

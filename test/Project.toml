@@ -1,2 +1,5 @@
 [deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+ProtoBuf = "3349acd9-ac6a-5e09-bcdb-63829b23a429"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Zstd_jll = "3161d3a3-bdf6-5164-811a-617609db77b4"
