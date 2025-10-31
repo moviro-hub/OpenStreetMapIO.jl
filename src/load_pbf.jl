@@ -478,7 +478,7 @@ function extract_info(
 
     # Return nothing if all fields are nothing
     if version === nothing && timestamp === nothing && changeset === nothing &&
-       uid === nothing && user === nothing && visible === nothing
+            uid === nothing && user === nothing && visible === nothing
         return nothing
     end
 
