@@ -841,8 +841,8 @@ function extract_ways(
             # Extract optional LocationsOnWays coordinates
             positions = nothing
             if hasproperty(w, :lat) && hasproperty(w, :lon) &&
-               !isempty(w.lat) && !isempty(w.lon) &&
-               length(w.lat) == length(w.lon) && length(w.lat) == length(refs)
+                    !isempty(w.lat) && !isempty(w.lon) &&
+                    length(w.lat) == length(w.lon) && length(w.lat) == length(refs)
                 # Convert delta-coded coordinates
                 lats_cumsum = cumsum(w.lat)
                 lons_cumsum = cumsum(w.lon)
