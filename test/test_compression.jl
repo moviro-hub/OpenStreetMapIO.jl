@@ -111,6 +111,6 @@ using CodecZlib: ZlibCompressorStream
         )
         # Check that we get an error (either size mismatch or decode failure)
         @test occursin("size mismatch", lowercase(err.value.msg)) ||
-              occursin("failed to decode", lowercase(err.value.msg))
+            occursin("failed to decode", lowercase(err.value.msg))
     end
 end
