@@ -175,25 +175,22 @@ function decode_blob(
         blob::OSMPBF.Blob,
         block_type::Union{Type{OSMPBF.HeaderBlock}, Type{OSMPBF.PrimitiveBlock}},
     )
-    # Validate blob has exactly one data format
-    has_raw = !isempty(blob.raw)
-    has_zlib = !isempty(blob.zlib_data)
-
-    if has_raw && has_zlib
-        throw(ArgumentError("Blob contains both raw and compressed data"))
-    elseif !has_raw && !has_zlib
+    # Validate blob has a data payload (ProtoBuf oneof)
+    if isnothing(blob.data)
         throw(ArgumentError("Blob contains no data"))
     end
 
     return try
-        if has_raw
+        if blob.data.name === :raw
             # Raw (uncompressed) data
-            return decode(ProtoDecoder(PipeBuffer(blob.raw)), block_type)
-        else
+            return decode(ProtoDecoder(PipeBuffer(blob.data[])), block_type)
+        elseif blob.data.name === :zlib_data
             # Zlib compressed data
             return decode(
-                ProtoDecoder(ZlibDecompressorStream(IOBuffer(blob.zlib_data))), block_type
+                ProtoDecoder(ZlibDecompressorStream(IOBuffer(blob.data[]))), block_type
             )
+        else
+            throw(ArgumentError("Unsupported blob compression: $(blob.data.name)"))
         end
     catch e
         if isa(e, ProtoBuf.ProtoError)
@@ -222,10 +219,10 @@ function process_header_block!(osmdata::OpenStreetMap, header::OSMPBF.HeaderBloc
         bbox = header.bbox
         try
             osmdata.meta["bbox"] = BBox(
-                round(1.0e-9 * bbox.bottom; digits = 7),
-                round(1.0e-9 * bbox.left; digits = 7),
-                round(1.0e-9 * bbox.top; digits = 7),
-                round(1.0e-9 * bbox.right; digits = 7),
+                Float32(round(1.0e-9 * bbox.bottom; digits = 7)),
+                Float32(round(1.0e-9 * bbox.left; digits = 7)),
+                Float32(round(1.0e-9 * bbox.top; digits = 7)),
+                Float32(round(1.0e-9 * bbox.right; digits = 7)),
             )
         catch e
             @warn "Invalid bounding box in header: $e"
@@ -404,7 +401,7 @@ function extract_regular_nodes(
                 end
             end
 
-            node = Node(LatLon(n.lat, n.lon), tags)
+            node = Node(LatLon(Float32(n.lat), Float32(n.lon)), tags)
 
             # Apply callback if provided
             if node_callback !== nothing
@@ -456,20 +453,24 @@ function extract_dense_nodes(
         # Compute cumulative IDs, lats, and lons efficiently
         ids = cumsum(primgrp.dense.id)
         lats =
+            Float32.(
             round.(
-            1.0e-9 * (
-                latlon_params.lat_offset .+
-                    latlon_params.granularity .* cumsum(primgrp.dense.lat)
-            ),
-            digits = 7,
+                1.0e-9 * (
+                    latlon_params.lat_offset .+
+                        latlon_params.granularity .* cumsum(primgrp.dense.lat)
+                ),
+                digits = 7,
+            )
         )
         lons =
+            Float32.(
             round.(
-            1.0e-9 * (
-                latlon_params.lon_offset .+
-                    latlon_params.granularity .* cumsum(primgrp.dense.lon)
-            ),
-            digits = 7,
+                1.0e-9 * (
+                    latlon_params.lon_offset .+
+                        latlon_params.granularity .* cumsum(primgrp.dense.lon)
+                ),
+                digits = 7,
+            )
         )
 
         # Validate data consistency

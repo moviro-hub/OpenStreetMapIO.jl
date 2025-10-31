@@ -17,10 +17,10 @@ bbox = BBox(54.0, 9.0, 55.0, 10.0)  # lat_min, lon_min, lat_max, lon_max
 ```
 """
 struct BBox
-    bottom_lat::Float64
-    left_lon::Float64
-    top_lat::Float64
-    right_lon::Float64
+    bottom_lat::Float32
+    left_lon::Float32
+    top_lat::Float32
+    right_lon::Float32
 end
 
 """
@@ -38,8 +38,8 @@ coord = LatLon(54.2619665, 9.9854149)
 ```
 """
 struct LatLon
-    lat::Float64
-    lon::Float64
+    lat::Float32
+    lon::Float32
 end
 
 """

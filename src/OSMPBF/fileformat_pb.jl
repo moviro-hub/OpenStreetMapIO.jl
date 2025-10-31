@@ -10,13 +10,13 @@ export Blob, BlobHeader
 
 struct Blob
     raw_size::Int32
-    data::Union{Nothing,OneOf{Vector{UInt8}}}
+    data::Union{Nothing, OneOf{Vector{UInt8}}}
 end
 PB.oneof_field_types(::Type{Blob}) = (;
-    data = (;raw=Vector{UInt8}, zlib_data=Vector{UInt8}, lzma_data=Vector{UInt8}, OBSOLETE_bzip2_data=Vector{UInt8}, lz4_data=Vector{UInt8}, zstd_data=Vector{UInt8}),
+    data = (; raw = Vector{UInt8}, zlib_data = Vector{UInt8}, lzma_data = Vector{UInt8}, OBSOLETE_bzip2_data = Vector{UInt8}, lz4_data = Vector{UInt8}, zstd_data = Vector{UInt8}),
 )
-PB.default_values(::Type{Blob}) = (;raw_size = zero(Int32), raw = UInt8[], zlib_data = UInt8[], lzma_data = UInt8[], OBSOLETE_bzip2_data = UInt8[], lz4_data = UInt8[], zstd_data = UInt8[])
-PB.field_numbers(::Type{Blob}) = (;raw_size = 2, raw = 1, zlib_data = 3, lzma_data = 4, OBSOLETE_bzip2_data = 5, lz4_data = 6, zstd_data = 7)
+PB.default_values(::Type{Blob}) = (; raw_size = zero(Int32), raw = UInt8[], zlib_data = UInt8[], lzma_data = UInt8[], OBSOLETE_bzip2_data = UInt8[], lz4_data = UInt8[], zstd_data = UInt8[])
+PB.field_numbers(::Type{Blob}) = (; raw_size = 2, raw = 1, zlib_data = 3, lzma_data = 4, OBSOLETE_bzip2_data = 5, lz4_data = 6, zstd_data = 7)
 
 function PB.decode(d::PB.AbstractProtoDecoder, ::Type{<:Blob})
     raw_size = zero(Int32)
@@ -47,7 +47,7 @@ end
 function PB.encode(e::PB.AbstractProtoEncoder, x::Blob)
     initpos = position(e.io)
     x.raw_size != zero(Int32) && PB.encode(e, 2, x.raw_size)
-    if isnothing(x.data);
+    if isnothing(x.data)
     elseif x.data.name === :raw
         PB.encode(e, 1, x.data[]::Vector{UInt8})
     elseif x.data.name === :zlib_data
@@ -66,7 +66,7 @@ end
 function PB._encoded_size(x::Blob)
     encoded_size = 0
     x.raw_size != zero(Int32) && (encoded_size += PB._encoded_size(x.raw_size, 2))
-    if isnothing(x.data);
+    if isnothing(x.data)
     elseif x.data.name === :raw
         encoded_size += PB._encoded_size(x.data[]::Vector{UInt8}, 1)
     elseif x.data.name === :zlib_data
@@ -88,8 +88,8 @@ struct BlobHeader
     indexdata::Vector{UInt8}
     datasize::Int32
 end
-PB.default_values(::Type{BlobHeader}) = (;var"#type" = "", indexdata = UInt8[], datasize = zero(Int32))
-PB.field_numbers(::Type{BlobHeader}) = (;var"#type" = 1, indexdata = 2, datasize = 3)
+PB.default_values(::Type{BlobHeader}) = (; var"#type" = "", indexdata = UInt8[], datasize = zero(Int32))
+PB.field_numbers(::Type{BlobHeader}) = (; var"#type" = 1, indexdata = 2, datasize = 3)
 
 function PB.decode(d::PB.AbstractProtoDecoder, ::Type{<:BlobHeader})
     var"#type" = ""

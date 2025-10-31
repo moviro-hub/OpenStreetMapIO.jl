@@ -19,7 +19,7 @@ Pkg.activate(@__DIR__)
 # Shared parameters
 project_root = dirname(@__DIR__)
 base_url = "https://raw.githubusercontent.com/openstreetmap/OSM-binary/master/osmpbf"
-        proto_files = ["fileformat.proto", "osmformat.proto"]
+proto_files = ["fileformat.proto", "osmformat.proto"]
 # Paths (single source of truth for proto directory)
 proto_dir = joinpath(@__DIR__, "proto")
 julia_output_dir = joinpath(project_root, "src")
@@ -34,7 +34,7 @@ for file_name in proto_files
     tmp = tempname()
     Downloads.download(url, tmp)
     dest = joinpath(proto_dir, file_name)
-    mv(tmp, dest; force=true)
+    mv(tmp, dest; force = true)
 end
 
 # Validate existence of required protos
@@ -50,5 +50,5 @@ try
     # Optional minimal confirmation; keep output concise
     @info "Protobuf files updated."
 catch e
-    @error "Error generating protobuf files" exception=e
+    @error "Error generating protobuf files" exception = e
 end

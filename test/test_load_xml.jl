@@ -16,7 +16,8 @@ using OpenStreetMapIO, Test
             node = osmdata.nodes[1675598406]
 
             @test typeof(node) === Node
-            @test node.latlon === LatLon(54.2619665, 9.9854149)
+            @test isapprox(node.latlon.lat, 54.2619665f0; atol = 1.0e-6)
+            @test isapprox(node.latlon.lon, 9.9854149f0; atol = 1.0e-6)
             @test length(node.tags) >= 3  # Should have some tags
             @test node.tags["addr:country"] === "DE"
             # Other tags may vary depending on data version
