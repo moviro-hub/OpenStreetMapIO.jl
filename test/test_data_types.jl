@@ -3,32 +3,32 @@ using OpenStreetMapIO, Test
 @testset "Data Type Validation Tests" begin
     @testset "Node Data Type Tests" begin
         # Test Node creation and validation
-        node = Node(TEST_POINT_1, Dict("test" => "value"))
+        node = Node(TEST_POINT_1, Dict("test" => "value"), nothing)
 
-        @test node.latlon isa LatLon
-        @test node.latlon.lat == TEST_POINT_1.lat
-        @test node.latlon.lon == TEST_POINT_1.lon
+        @test node.position isa Position
+        @test node.position.lat == TEST_POINT_1.lat
+        @test node.position.lon == TEST_POINT_1.lon
         @test node.tags isa Dict{String, String}
         @test node.tags["test"] == "value"
 
         # Test Node with no tags
-        node_no_tags = Node(LatLon(0.0, 0.0), nothing)
-        @test node_no_tags.latlon isa LatLon
+        node_no_tags = Node(Position(0.0, 0.0), nothing, nothing)
+        @test node_no_tags.position isa Position
         @test node_no_tags.tags === nothing
 
-        # Test LatLon validation
-        @test LatLon(0.0, 0.0) isa LatLon
-        @test LatLon(-90.0, -180.0) isa LatLon
-        @test LatLon(90.0, 180.0) isa LatLon
+        # Test Position validation
+        @test Position(0.0, 0.0) isa Position
+        @test Position(-90.0, -180.0) isa Position
+        @test Position(90.0, 180.0) isa Position
 
         # Test coordinate bounds
-        @test -90.0 <= node.latlon.lat <= 90.0
-        @test -180.0 <= node.latlon.lon <= 180.0
+        @test -90.0 <= node.position.lat <= 90.0
+        @test -180.0 <= node.position.lon <= 180.0
     end
 
     @testset "Way Data Type Tests" begin
         # Test Way creation and validation
-        way = Way([1, 2, 3, 4], Dict("highway" => "primary"))
+        way = Way([1, 2, 3, 4], Dict("highway" => "primary"), nothing, nothing)
 
         @test way.refs isa Vector{Int64}
         @test length(way.refs) == 4
@@ -37,17 +37,17 @@ using OpenStreetMapIO, Test
         @test way.tags["highway"] == "primary"
 
         # Test Way with no tags
-        way_no_tags = Way([1, 2, 3], nothing)
+        way_no_tags = Way([1, 2, 3], nothing, nothing, nothing)
         @test way_no_tags.refs isa Vector{Int64}
         @test way_no_tags.tags === nothing
 
         # Test empty Way
-        empty_way = Way(Int64[], Dict{String, String}())
+        empty_way = Way(Int64[], Dict{String, String}(), nothing, nothing)
         @test length(empty_way.refs) == 0
         @test length(empty_way.tags) == 0
 
         # Test Way with single node
-        single_node_way = Way([1], Dict("test" => "single"))
+        single_node_way = Way([1], Dict("test" => "single"), nothing, nothing)
         @test length(single_node_way.refs) == 1
         @test single_node_way.refs[1] == 1
     end
@@ -59,6 +59,7 @@ using OpenStreetMapIO, Test
             ["node", "way", "relation"],
             ["member1", "member2", "member3"],
             Dict("type" => "route"),
+            nothing,
         )
 
         @test relation.refs isa Vector{Int64}
@@ -76,17 +77,17 @@ using OpenStreetMapIO, Test
         @test relation.tags["type"] == "route"
 
         # Test Relation with no tags
-        relation_no_tags = Relation([1, 2], ["node", "way"], ["role1", "role2"], nothing)
+        relation_no_tags = Relation([1, 2], ["node", "way"], ["role1", "role2"], nothing, nothing)
         @test relation_no_tags.tags === nothing
 
         # Test empty Relation
-        empty_relation = Relation(Int64[], String[], String[], Dict{String, String}())
+        empty_relation = Relation(Int64[], String[], String[], Dict{String, String}(), nothing)
         @test length(empty_relation.refs) == 0
         @test length(empty_relation.types) == 0
         @test length(empty_relation.roles) == 0
 
         # Test Relation with single member
-        single_member_relation = Relation([1], ["node"], ["role"], Dict("test" => "single"))
+        single_member_relation = Relation([1], ["node"], ["role"], Dict("test" => "single"), nothing)
         @test length(single_member_relation.refs) == 1
         @test single_member_relation.refs[1] == 1
         @test single_member_relation.types[1] == "node"
@@ -160,9 +161,9 @@ using OpenStreetMapIO, Test
 
             @test isa(node_pbf, Node)
             @test isa(node_xml, Node)
-            @test isa(node_pbf.latlon, LatLon)
-            @test isa(node_xml.latlon, LatLon)
-            @test node_pbf.latlon == node_xml.latlon
+            @test isa(node_pbf.position, Position)
+            @test isa(node_xml.position, Position)
+            @test node_pbf.position == node_xml.position
         end
 
         if haskey(osmdata_pbf.ways, 889648159) && haskey(osmdata_xml.ways, 889648159)
@@ -177,18 +178,18 @@ using OpenStreetMapIO, Test
 
     @testset "Data Type Edge Cases" begin
         # Test with extreme coordinate values
-        extreme_node = Node(LatLon(90.0, 180.0), Dict("extreme" => "true"))
-        @test extreme_node.latlon.lat == 90.0
-        @test extreme_node.latlon.lon == 180.0
+        extreme_node = Node(Position(90.0, 180.0), Dict("extreme" => "true"), nothing)
+        @test extreme_node.position.lat == 90.0
+        @test extreme_node.position.lon == 180.0
 
         # Test with negative extreme coordinates
-        negative_extreme_node = Node(LatLon(-90.0, -180.0), Dict("negative" => "true"))
-        @test negative_extreme_node.latlon.lat == -90.0
-        @test negative_extreme_node.latlon.lon == -180.0
+        negative_extreme_node = Node(Position(-90.0, -180.0), Dict("negative" => "true"), nothing)
+        @test negative_extreme_node.position.lat == -90.0
+        @test negative_extreme_node.position.lon == -180.0
 
         # Test with very long way
         long_way_refs = collect(1:1000)
-        long_way = Way(long_way_refs, Dict("long" => "true"))
+        long_way = Way(long_way_refs, Dict("long" => "true"), nothing, nothing)
         @test length(long_way.refs) == 1000
         @test long_way.refs[1] == 1
         @test long_way.refs[1000] == 1000
@@ -202,6 +203,7 @@ using OpenStreetMapIO, Test
             large_relation_types,
             large_relation_roles,
             Dict("large" => "true"),
+            nothing,
         )
         @test length(large_relation.refs) == 1000
         @test length(large_relation.types) == 1000
@@ -209,7 +211,7 @@ using OpenStreetMapIO, Test
 
         # Test with many tags
         many_tags = Dict("tag$i" => "value$i" for i in 1:100)
-        node_many_tags = Node(LatLon(54.0, 9.0), many_tags)
+        node_many_tags = Node(Position(54.0, 9.0), many_tags, nothing)
         @test length(node_many_tags.tags) == 100
         @test node_many_tags.tags["tag1"] == "value1"
         @test node_many_tags.tags["tag100"] == "value100"

@@ -34,8 +34,8 @@ const KNOWN_NODE_ID = 1675598406
 const KNOWN_WAY_ID = 889648159
 const KNOWN_RELATION_ID = 12475101
 
-const TEST_POINT_1 = LatLon(54.2619665, 9.9854149)
-const TEST_POINT_2 = LatLon(54.262, 9.986)
+const TEST_POINT_1 = Position(54.2619665, 9.9854149)
+const TEST_POINT_2 = Position(54.262, 9.986)
 const TEST_BBOX = BBox(54.0, 9.0, 55.0, 10.0)
 
 # Helper function to check if test data is available
@@ -45,9 +45,9 @@ end
 
 # Helper function to create test OSM data
 function create_test_osm_data()
-    nodes = Dict(1 => Node(LatLon(54.0, 9.0), Dict("test" => "node1")))
-    ways = Dict(1 => Way([1], Dict("highway" => "primary")))
-    relations = Dict(1 => Relation([1], ["node"], ["role"], Dict("type" => "route")))
+    nodes = Dict(1 => Node(Position(54.0, 9.0), Dict("test" => "node1"), nothing))
+    ways = Dict(1 => Way([1], Dict("highway" => "primary"), nothing, nothing))
+    relations = Dict(1 => Relation([1], ["node"], ["role"], Dict("type" => "route"), nothing))
     meta = Dict{String, Any}("bbox" => BBox(54.0, 9.0, 55.0, 10.0))
     return OpenStreetMap(nodes, ways, relations, meta)
 end

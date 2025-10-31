@@ -18,8 +18,8 @@ using OpenStreetMapIO, Test
 
             # Test that all nodes are within the bounding box
             for (id, node) in osmdata.nodes
-                @test bbox.bottom_lat <= node.latlon.lat <= bbox.top_lat
-                @test bbox.left_lon <= node.latlon.lon <= bbox.right_lon
+                @test bbox.bottom_lat <= node.position.lat <= bbox.top_lat
+                @test bbox.left_lon <= node.position.lon <= bbox.right_lon
             end
 
         catch e
@@ -28,9 +28,9 @@ using OpenStreetMapIO, Test
         end
     end
 
-    @testset "Overpass Query with LatLon and Radius" begin
+    @testset "Overpass Query with Position and Radius" begin
         # Test query with center point and radius
-        center = LatLon(53.25, 9.95)
+        center = Position(53.25, 9.95)
         radius = 1_000
 
         try
@@ -47,8 +47,8 @@ using OpenStreetMapIO, Test
             total_nodes = length(osmdata.nodes)
 
             for (id, node) in osmdata.nodes
-                if bbox.bottom_lat <= node.latlon.lat <= bbox.top_lat &&
-                        bbox.left_lon <= node.latlon.lon <= bbox.right_lon
+                if bbox.bottom_lat <= node.position.lat <= bbox.top_lat &&
+                        bbox.left_lon <= node.position.lon <= bbox.right_lon
                     nodes_in_bbox += 1
                 end
             end

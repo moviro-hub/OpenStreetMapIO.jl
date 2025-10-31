@@ -44,7 +44,7 @@ using OpenStreetMapIO, Test
             # Create a new node with modified tags since Node is immutable
             new_tags = node.tags === nothing ? Dict{String, String}() : copy(node.tags)
             new_tags["test_callback"] = "modified"
-            return Node(node.latlon, new_tags)
+            return Node(node.position, new_tags, node.info)
         end
 
         osmdata = OpenStreetMapIO.readpbf("data/map.pbf"; node_callback = add_test_tag)
@@ -359,8 +359,8 @@ using OpenStreetMapIO, Test
         # Test specific elements
         if haskey(osmdata_original.nodes, 1675598406) &&
                 haskey(osmdata_with_callback.nodes, 1675598406)
-            @test osmdata_original.nodes[1675598406].latlon ==
-                osmdata_with_callback.nodes[1675598406].latlon
+            @test osmdata_original.nodes[1675598406].position ==
+                osmdata_with_callback.nodes[1675598406].position
             @test osmdata_original.nodes[1675598406].tags ==
                 osmdata_with_callback.nodes[1675598406].tags
         end

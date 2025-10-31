@@ -16,7 +16,7 @@ using OpenStreetMapIO, Test
             node = osmdata.nodes[1675598406]
 
             @test typeof(node) === Node
-            @test node.latlon === LatLon(54.2619665, 9.9854149)
+            @test node.position === Position(54.2619665, 9.9854149)
             @test length(node.tags) >= 3  # Should have some tags
             @test node.tags["addr:country"] === "DE"
             # Other tags may vary depending on data version
@@ -107,8 +107,8 @@ using OpenStreetMapIO, Test
         total_nodes = length(osmdata.nodes)
 
         for (id, node) in osmdata.nodes
-            if bbox.bottom_lat <= node.latlon.lat <= bbox.top_lat &&
-                    bbox.left_lon <= node.latlon.lon <= bbox.right_lon
+            if bbox.bottom_lat <= node.position.lat <= bbox.top_lat &&
+                    bbox.left_lon <= node.position.lon <= bbox.right_lon
                 nodes_in_bbox += 1
             end
         end
@@ -196,7 +196,7 @@ using OpenStreetMapIO, Test
         @test length(osmdata_xml.relations) == length(osmdata_pbf.relations)
 
         # Test that specific elements are the same
-        @test osmdata_xml.nodes[1675598406].latlon == osmdata_pbf.nodes[1675598406].latlon
+        @test osmdata_xml.nodes[1675598406].position == osmdata_pbf.nodes[1675598406].position
         @test osmdata_xml.ways[889648159].refs == osmdata_pbf.ways[889648159].refs
         @test osmdata_xml.relations[12475101].refs == osmdata_pbf.relations[12475101].refs
 

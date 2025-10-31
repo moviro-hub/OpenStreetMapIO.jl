@@ -160,7 +160,7 @@ using OpenStreetMapIO, Test
             node_ids = collect(keys(osmdata.nodes))
             node = osmdata.nodes[node_ids[1]]
             @test isa(node, Node)
-            @test isa(node.latlon, LatLon)
+            @test isa(node.position, Position)
         end
 
         # Test way data access

@@ -17,7 +17,7 @@ using OpenStreetMapIO, Test
                 node = osmdata.nodes[KNOWN_NODE_ID]
 
                 @test typeof(node) === Node
-                @test node.latlon === TEST_POINT_1
+                @test node.position === TEST_POINT_1
                 @test length(node.tags) >= 3  # Should have some tags
                 @test node.tags["addr:country"] === "DE"
                 # Other tags may vary depending on data version
@@ -147,8 +147,8 @@ using OpenStreetMapIO, Test
         total_nodes = length(osmdata.nodes)
 
         for (id, node) in osmdata.nodes
-            if bbox.bottom_lat <= node.latlon.lat <= bbox.top_lat &&
-                    bbox.left_lon <= node.latlon.lon <= bbox.right_lon
+            if bbox.bottom_lat <= node.position.lat <= bbox.top_lat &&
+                    bbox.left_lon <= node.position.lon <= bbox.right_lon
                 nodes_in_bbox += 1
             end
         end
