@@ -11,10 +11,10 @@ Usage:
 """
 
 using Pkg: Pkg
+Pkg.activate(@__DIR__)
+
 using ProtoBuf: ProtoBuf
 using Downloads: Downloads
-
-Pkg.activate(@__DIR__)
 
 # Shared parameters
 project_root = dirname(@__DIR__)
