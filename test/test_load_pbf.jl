@@ -648,12 +648,19 @@ using CodecZlib: ZlibCompressorStream
             )
 
             # This should fail - either with size mismatch (our validation) or decode error
-            err = @test_throws ArgumentError OpenStreetMapIO.decode_blob(
+            @test_throws ArgumentError OpenStreetMapIO.decode_blob(
                 incorrect_blob, OpenStreetMapIO.OSMPBF.HeaderBlock
             )
-            # Check that we get an error (either size mismatch or decode failure)
-            @test occursin("size mismatch", lowercase(err.value.msg)) ||
-                occursin("failed to decode", lowercase(err.value.msg))
+
+            # Verify error message mentions size mismatch or decode failure
+            try
+                OpenStreetMapIO.decode_blob(incorrect_blob, OpenStreetMapIO.OSMPBF.HeaderBlock)
+                @test false  # Should not reach here
+            catch e
+                @test e isa ArgumentError
+                @test occursin("size mismatch", lowercase(e.msg)) ||
+                    occursin("failed to decode", lowercase(e.msg))
+            end
         end
     end
 
