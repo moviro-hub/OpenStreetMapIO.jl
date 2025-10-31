@@ -43,8 +43,47 @@ bbox = BBox(53.4, 9.8, 53.7, 10.2)
 osmdata = queryoverpass(bbox)
 
 # Query around a specific point
-center = LatLon(53.55, 9.99)
+center = Position(53.55, 9.99)
 osmdata = queryoverpass(center, 2000)  # 2km radius
+```
+
+## Working with Metadata
+
+### Accessing Element Information
+
+```julia
+# Read file with element metadata
+osmdata = readpbf("map.pbf")
+
+# Access version information
+for (id, node) in osmdata.nodes
+    if node.info !== nothing
+        println("Node $id:")
+        println("  Version: $(node.info.version)")
+        println("  Timestamp: $(node.info.timestamp)")
+        println("  Changeset: $(node.info.changeset)")
+        if node.info.user !== nothing
+            println("  User: $(node.info.user)")
+        end
+    end
+end
+```
+
+### Working with LocationsOnWays
+
+```julia
+# Some PBF files include embedded coordinates in ways
+osmdata = readpbf("map.pbf")
+
+for (id, way) in osmdata.ways
+    if way.positions !== nothing
+        # Way has embedded node coordinates
+        println("Way $id with embedded coordinates:")
+        for (i, pos) in enumerate(way.positions)
+            println("  Node $(way.refs[i]) at ($(pos.lat), $(pos.lon))")
+        end
+    end
+end
 ```
 
 ## Data Filtering and Processing
@@ -111,7 +150,7 @@ function add_processing_info(node)
     new_tags = node.tags === nothing ? Dict{String,String}() : copy(node.tags)
     new_tags["processed_by"] = "OpenStreetMapIO.jl"
     new_tags["processed_at"] = string(now())
-    return Node(node.latlon, new_tags)
+    return Node(node.position, new_tags, node.info)
 end
 
 processed_data = readpbf("map.pbf", node_callback=add_processing_info)
