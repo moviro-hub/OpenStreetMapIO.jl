@@ -1,4 +1,7 @@
-# Test helper functions and shared test data
+# Test utility functions and shared test data
+# This module provides common utilities used across all test files
+
+module TestUtils
 using OpenStreetMapIO, Test
 
 # Simple median function for performance tests
@@ -14,16 +17,18 @@ end
 
 # Shared test data - loaded once and reused
 const TEST_DATA_PBF = begin
+    test_file = joinpath(@__DIR__, "data", "map.pbf")
     try
-        OpenStreetMapIO.readpbf("data/map.pbf")
+        OpenStreetMapIO.readpbf(test_file)
     catch
         OpenStreetMap()  # Empty data if file not available
     end
 end
 
 const TEST_DATA_XML = begin
+    test_file = joinpath(@__DIR__, "data", "map.osm")
     try
-        OpenStreetMapIO.readosm("data/map.osm")
+        OpenStreetMapIO.readosm(test_file)
     catch
         OpenStreetMap()  # Empty data if file not available
     end
@@ -34,8 +39,8 @@ const KNOWN_NODE_ID = 1675598406
 const KNOWN_WAY_ID = 889648159
 const KNOWN_RELATION_ID = 12475101
 
-const TEST_POINT_1 = LatLon(54.2619665, 9.9854149)
-const TEST_POINT_2 = LatLon(54.262, 9.986)
+const TEST_POINT_1 = Position(54.2619665, 9.9854149)
+const TEST_POINT_2 = Position(54.262, 9.986)
 const TEST_BBOX = BBox(54.0, 9.0, 55.0, 10.0)
 
 # Helper function to check if test data is available
@@ -45,9 +50,9 @@ end
 
 # Helper function to create test OSM data
 function create_test_osm_data()
-    nodes = Dict(1 => Node(LatLon(54.0, 9.0), Dict("test" => "node1")))
-    ways = Dict(1 => Way([1], Dict("highway" => "primary")))
-    relations = Dict(1 => Relation([1], ["node"], ["role"], Dict("type" => "route")))
+    nodes = Dict(1 => Node(Position(54.0, 9.0), Dict("test" => "node1"), nothing))
+    ways = Dict(1 => Way([1], Dict("highway" => "primary"), nothing, nothing))
+    relations = Dict(1 => Relation([1], ["node"], ["role"], Dict("type" => "route"), nothing))
     meta = Dict{String, Any}("bbox" => BBox(54.0, 9.0, 55.0, 10.0))
     return OpenStreetMap(nodes, ways, relations, meta)
 end
@@ -65,8 +70,24 @@ function time_function(f, iterations = 1000)
     return median(times)
 end
 
-# Helper functions for basic testing
-function test_basic_operations()
-    # Basic test to ensure the module loads correctly
-    return @test true
+# Helper function to get test data file path
+function test_data_path(filename)
+    return joinpath(@__DIR__, "data", filename)
 end
+
+# Helper function to extract error message in a way that works across Julia versions
+function error_message(e::Exception)
+    # Try to get the msg field directly (works in most cases)
+    if isdefined(e, :msg)
+        return getfield(e, :msg)
+    end
+    # Fallback to string representation
+    return string(e)
+end
+
+# Export all test utilities
+export median, TEST_DATA_PBF, TEST_DATA_XML, KNOWN_NODE_ID, KNOWN_WAY_ID, KNOWN_RELATION_ID
+export TEST_POINT_1, TEST_POINT_2, TEST_BBOX
+export has_test_data, create_test_osm_data, time_function, test_data_path, error_message
+
+end # module TestUtils

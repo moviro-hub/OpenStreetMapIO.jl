@@ -1,2 +1,4 @@
 [deps]
+CodecZlib = "944b1d66-785c-5afd-91f1-9de20f533193"
+ProtoBuf = "3349acd9-ac6a-5e09-bcdb-63829b23a429"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

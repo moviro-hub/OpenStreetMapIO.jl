@@ -24,7 +24,7 @@ A Julia package for reading and processing OpenStreetMap data in various formats
 - [`Way`](@ref): OSM ways (paths) as ordered node references
 - [`Relation`](@ref): OSM relations (groupings) of elements
 - [`BBox`](@ref): Geographic bounding box
-- [`LatLon`](@ref): Geographic coordinates
+- [`Position`](@ref): Geographic coordinates
 
 ## Examples
 
@@ -54,16 +54,21 @@ osmdata = readpbf("map.pbf", node_callback=keep_restaurants)
 module OpenStreetMapIO
 using ProtoBuf: decode, ProtoDecoder, PipeBuffer
 using CodecZlib: ZlibDecompressorStream
+using CodecLz4: LZ4FrameDecompressorStream
+using CodecZstd: ZstdDecompressorStream
+using CodecXz: XzDecompressorStream
 using Dates: unix2datetime, DateTime
 using XML: XML
 using Downloads: download
 
 export readpbf, readosm, queryoverpass
-export OpenStreetMap, Node, Way, Relation, BBox, LatLon
+export OpenStreetMap, Node, Way, Relation, BBox, Position, Info
 
-include("OSMPBF.jl")
+include("OSMPBF/OSMPBF.jl")
 include("map_types.jl")
-include("io_pbf.jl")
-include("io_xml.jl")
+include("utils.jl")
+include("load_pbf.jl")
+include("load_xml.jl")
+include("load_overpass.jl")
 
 end

@@ -1,4 +1,4 @@
-# OSMPBF module is included internally in io_pbf.jl
+# OSMPBF module is included internally in load_pbf.jl
 
 """
     BBox
@@ -24,7 +24,7 @@ struct BBox
 end
 
 """
-    LatLon
+    Position
 
 Represents a geographic coordinate with latitude and longitude.
 
@@ -34,12 +34,55 @@ Represents a geographic coordinate with latitude and longitude.
 
 # Examples
 ```julia
-coord = LatLon(54.2619665, 9.9854149)
+coord = Position(54.2619665, 9.9854149)
 ```
 """
-struct LatLon
+struct Position
     lat::Float64
     lon::Float64
+end
+
+"""
+    Info
+
+Optional metadata for OSM elements (nodes, ways, relations).
+Contains versioning and attribution information.
+
+# Fields
+- `version::Union{Int32,Nothing}`: Version number of this element
+- `timestamp::Union{DateTime,Nothing}`: Last modification timestamp
+- `changeset::Union{Int64,Nothing}`: Changeset ID that created/modified this version
+- `uid::Union{Int32,Nothing}`: User ID of the modifier
+- `user::Union{String,Nothing}`: Username of the modifier
+- `visible::Union{Bool,Nothing}`: Visibility flag (for historical data)
+
+# Examples
+```julia
+info = Info(1, DateTime(2023, 1, 1), 12345, 100, "mapper", true)
+info_minimal = Info(nothing, nothing, nothing, nothing, nothing, nothing)
+```
+"""
+struct Info
+    version::Union{Int32, Nothing}
+    timestamp::Union{DateTime, Nothing}
+    changeset::Union{Int64, Nothing}
+    uid::Union{Int32, Nothing}
+    user::Union{String, Nothing}
+    visible::Union{Bool, Nothing}
+
+    # Constructor with all nothing defaults
+    Info() = new(nothing, nothing, nothing, nothing, nothing, nothing)
+
+    function Info(
+            version::Union{Int32, Nothing},
+            timestamp::Union{DateTime, Nothing},
+            changeset::Union{Int64, Nothing},
+            uid::Union{Int32, Nothing},
+            user::Union{String, Nothing},
+            visible::Union{Bool, Nothing},
+        )
+        return new(version, timestamp, changeset, uid, user, visible)
+    end
 end
 
 """
@@ -48,17 +91,19 @@ end
 Represents an OpenStreetMap node (point) with geographic coordinates and optional tags.
 
 # Fields
-- `latlon::LatLon`: Geographic coordinates of the node
+- `position::Position`: Geographic coordinates of the node
 - `tags::Union{Dict{String,String},Nothing}`: Key-value pairs describing the node, or `nothing` if no tags
+- `info::Union{Info,Nothing}`: Optional metadata (version, timestamp, changeset, user, etc.)
 
 # Examples
 ```julia
-node = Node(LatLon(54.2619665, 9.9854149), Dict("amenity" => "restaurant"))
+node = Node(Position(54.2619665, 9.9854149), Dict("amenity" => "restaurant"), nothing)
 ```
 """
 struct Node
-    latlon::LatLon
+    position::Position
     tags::Union{Dict{String, String}, Nothing}
+    info::Union{Info, Nothing}
 end
 
 """
@@ -69,15 +114,19 @@ Represents an OpenStreetMap way (path) as an ordered list of node references.
 # Fields
 - `refs::Vector{Int64}`: Ordered list of node IDs that form the way
 - `tags::Union{Dict{String,String},Nothing}`: Key-value pairs describing the way, or `nothing` if no tags
+- `info::Union{Info,Nothing}`: Optional metadata (version, timestamp, changeset, user, etc.)
+- `positions::Union{Vector{Position},Nothing}`: Optional node locations (LocationsOnWays feature)
 
 # Examples
 ```julia
-way = Way([12345, 67890, 11111], Dict("highway" => "primary"))
+way = Way([12345, 67890, 11111], Dict("highway" => "primary"), nothing, nothing)
 ```
 """
 struct Way
     refs::Vector{Int64}
     tags::Union{Dict{String, String}, Nothing}
+    info::Union{Info, Nothing}
+    positions::Union{Vector{Position}, Nothing}
 end
 
 """
@@ -90,10 +139,11 @@ Represents an OpenStreetMap relation (grouping) of nodes, ways, and other relati
 - `types::Vector{String}`: Types of each member ("node", "way", or "relation")
 - `roles::Vector{String}`: Roles of each member in the relation
 - `tags::Union{Dict{String,String},Nothing}`: Key-value pairs describing the relation, or `nothing` if no tags
+- `info::Union{Info,Nothing}`: Optional metadata (version, timestamp, changeset, user, etc.)
 
 # Examples
 ```julia
-relation = Relation([12345, 67890], ["node", "way"], ["stop", "platform"], Dict("route" => "bus"))
+relation = Relation([12345, 67890], ["node", "way"], ["stop", "platform"], Dict("route" => "bus"), nothing)
 ```
 """
 struct Relation
@@ -101,6 +151,7 @@ struct Relation
     types::Vector{String}
     roles::Vector{String}
     tags::Union{Dict{String, String}, Nothing}
+    info::Union{Info, Nothing}
 end
 
 """

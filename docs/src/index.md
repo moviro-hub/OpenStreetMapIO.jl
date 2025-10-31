@@ -4,7 +4,7 @@ A Julia package for reading and processing OpenStreetMap data in various formats
 
 ## Features
 
-- **File Format Support**: Read OSM data from both PBF (Protocol Buffer Format) and XML formats
+- **File Format Support**: Read OSM data from both PBF and XML formats
 - **Online Data Access**: Query OSM data directly from Overpass API
 - **Callback Support**: Filter data during reading with custom callback functions
 
