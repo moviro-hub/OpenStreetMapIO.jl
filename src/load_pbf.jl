@@ -848,10 +848,10 @@ function extract_ways(
                 lons_cumsum = cumsum(w.lon)
                 positions = [
                     Position(
-                        round(1.0e-9 * (latlon_params.lat_offset + latlon_params.granularity * lat), digits=7),
-                        round(1.0e-9 * (latlon_params.lon_offset + latlon_params.granularity * lon), digits=7)
-                    )
-                    for (lat, lon) in zip(lats_cumsum, lons_cumsum)
+                            round(1.0e-9 * (latlon_params.lat_offset + latlon_params.granularity * lat), digits = 7),
+                            round(1.0e-9 * (latlon_params.lon_offset + latlon_params.granularity * lon), digits = 7)
+                        )
+                        for (lat, lon) in zip(lats_cumsum, lons_cumsum)
                 ]
             end
 
