@@ -149,10 +149,10 @@ using OpenStreetMapIO, Test
                 bbox_xml = osmdata_xml.meta["bbox"]
 
                 # Bounding boxes should be approximately equal (within floating point precision)
-                @test isapprox(bbox_pbf.bottom_lat, bbox_xml.bottom_lat; atol=1e-6)
-                @test isapprox(bbox_pbf.left_lon, bbox_xml.left_lon; atol=1e-6)
-                @test isapprox(bbox_pbf.top_lat, bbox_xml.top_lat; atol=1e-6)
-                @test isapprox(bbox_pbf.right_lon, bbox_xml.right_lon; atol=1e-6)
+                @test isapprox(bbox_pbf.bottom_lat, bbox_xml.bottom_lat; atol = 1.0e-6)
+                @test isapprox(bbox_pbf.left_lon, bbox_xml.left_lon; atol = 1.0e-6)
+                @test isapprox(bbox_pbf.top_lat, bbox_xml.top_lat; atol = 1.0e-6)
+                @test isapprox(bbox_pbf.right_lon, bbox_xml.right_lon; atol = 1.0e-6)
             end
         end
     end
