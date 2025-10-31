@@ -91,8 +91,27 @@ function queryoverpass(bounds::String; timeout::Int64 = 25)::OpenStreetMap
     	out skel qt;
     """
 
-    url = "https://overpass-api.de/api/interpreter?data=$(url_encode(query))"
-    response_body = download(url)
-    node = XML.read(IOBuffer(response_body), XML.Node)
-    return parse_osm(node)
+    # Try primary endpoint first, then fallback
+    endpoints = [
+        "https://overpass-api.de/api/interpreter",
+        "https://lz4.overpass-api.de/api/interpreter",
+    ]
+
+    last_error = ErrorException("All Overpass API endpoints failed")
+
+    for endpoint in endpoints
+        url = "$(endpoint)?data=$(url_encode(query))"
+        try
+            response_body = download(url)
+            node = XML.read(IOBuffer(response_body), XML.Node)
+            return parse_osm(node)
+        catch e
+            last_error = e
+            # Try next endpoint immediately
+            continue
+        end
+    end
+
+    # If all endpoints failed, throw the last error
+    throw(last_error)
 end

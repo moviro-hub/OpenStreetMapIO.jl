@@ -1,6 +1,6 @@
-using OpenStreetMapIO, Test
+include("test_utils.jl")
 
-@testset "Data Type Validation Tests" begin
+@testset "Map Types Tests" begin
     @testset "Node Data Type Tests" begin
         # Test Node creation and validation
         node = Node(TEST_POINT_1, Dict("test" => "value"), nothing)
@@ -147,17 +147,19 @@ using OpenStreetMapIO, Test
 
     @testset "Data Type Consistency Tests" begin
         # Test that data types are consistent across different sources
-        osmdata_pbf = OpenStreetMapIO.readpbf("data/map.pbf")
-        osmdata_xml = OpenStreetMapIO.readosm("data/map.osm")
+        test_file_pbf = test_data_path("map.pbf")
+        test_file_xml = test_data_path("map.osm")
+        osmdata_pbf = OpenStreetMapIO.readpbf(test_file_pbf)
+        osmdata_xml = OpenStreetMapIO.readosm(test_file_xml)
 
         # Test that both sources produce the same data types
         @test isa(osmdata_pbf, OpenStreetMap)
         @test isa(osmdata_xml, OpenStreetMap)
 
         # Test specific elements
-        if haskey(osmdata_pbf.nodes, 1675598406) && haskey(osmdata_xml.nodes, 1675598406)
-            node_pbf = osmdata_pbf.nodes[1675598406]
-            node_xml = osmdata_xml.nodes[1675598406]
+        if haskey(osmdata_pbf.nodes, KNOWN_NODE_ID) && haskey(osmdata_xml.nodes, KNOWN_NODE_ID)
+            node_pbf = osmdata_pbf.nodes[KNOWN_NODE_ID]
+            node_xml = osmdata_xml.nodes[KNOWN_NODE_ID]
 
             @test isa(node_pbf, Node)
             @test isa(node_xml, Node)
@@ -166,9 +168,9 @@ using OpenStreetMapIO, Test
             @test node_pbf.position == node_xml.position
         end
 
-        if haskey(osmdata_pbf.ways, 889648159) && haskey(osmdata_xml.ways, 889648159)
-            way_pbf = osmdata_pbf.ways[889648159]
-            way_xml = osmdata_xml.ways[889648159]
+        if haskey(osmdata_pbf.ways, KNOWN_WAY_ID) && haskey(osmdata_xml.ways, KNOWN_WAY_ID)
+            way_pbf = osmdata_pbf.ways[KNOWN_WAY_ID]
+            way_xml = osmdata_xml.ways[KNOWN_WAY_ID]
 
             @test isa(way_pbf, Way)
             @test isa(way_xml, Way)

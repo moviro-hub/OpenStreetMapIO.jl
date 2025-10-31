@@ -1,9 +1,12 @@
-using OpenStreetMapIO, Test
+include("test_utils.jl")
 
-@testset "XML File Reading Tests" begin
+@testset "Load XML Tests" begin
+    test_file_xml = test_data_path("map.osm")
+    test_file_pbf = test_data_path("map.pbf")
+
     @testset "Basic XML Reading" begin
         # Test basic XML file reading
-        @time osmdata = OpenStreetMapIO.readosm("data/map.osm")
+        @time osmdata = TEST_DATA_XML
 
         # Verify basic structure
         @test osmdata isa OpenStreetMap
@@ -13,10 +16,10 @@ using OpenStreetMapIO, Test
 
         # Test specific known elements
         @testset "Testing Node" begin
-            node = osmdata.nodes[1675598406]
+            node = osmdata.nodes[KNOWN_NODE_ID]
 
             @test typeof(node) === Node
-            @test node.position === Position(54.2619665, 9.9854149)
+            @test node.position === TEST_POINT_1
             @test length(node.tags) >= 3  # Should have some tags
             @test node.tags["addr:country"] === "DE"
             # Other tags may vary depending on data version
@@ -26,7 +29,7 @@ using OpenStreetMapIO, Test
         end
 
         @testset "Testing Way" begin
-            way = osmdata.ways[889648159]
+            way = osmdata.ways[KNOWN_WAY_ID]
 
             @test typeof(way) === Way
             @test length(way.refs) === 56
@@ -37,7 +40,7 @@ using OpenStreetMapIO, Test
         end
 
         @testset "Testing Relation" begin
-            relation = osmdata.relations[12475101]
+            relation = osmdata.relations[KNOWN_RELATION_ID]
 
             @test typeof(relation) === Relation
             @test length(relation.refs) > 0  # Should have some references
@@ -57,7 +60,7 @@ using OpenStreetMapIO, Test
 
         # Test reading invalid XML file (using PBF file)
         try
-            OpenStreetMapIO.readosm("data/map.pbf")
+            OpenStreetMapIO.readosm(test_file_pbf)
             @test false  # Should have thrown an error
         catch e
             @test true  # Should throw some kind of error
@@ -74,7 +77,7 @@ using OpenStreetMapIO, Test
         </osm>
         """
 
-        temp_file = "temp_malformed.osm"
+        temp_file = joinpath(@__DIR__, "temp_malformed.osm")
         open(temp_file, "w") do f
             write(f, malformed_xml)
         end
@@ -91,7 +94,7 @@ using OpenStreetMapIO, Test
     end
 
     @testset "XML Metadata Extraction" begin
-        osmdata = OpenStreetMapIO.readosm("data/map.osm")
+        osmdata = OpenStreetMapIO.readosm(test_file_xml)
 
         # Test metadata structure
         @test haskey(osmdata.meta, "bbox")
@@ -115,12 +118,39 @@ using OpenStreetMapIO, Test
 
         # Some nodes should be within the bounding box
         @test nodes_in_bbox > 0  # At least some nodes should be in bbox
+
+        # Test XML Metadata
+        @testset "Metadata dictionary structure" begin
+            @test osmdata.meta isa Dict{String, Any}
+        end
+
+        @testset "Bounding box metadata" begin
+            # The test file should have a bounding box
+            if haskey(osmdata.meta, "bbox")
+                bbox = osmdata.meta["bbox"]
+
+                @test bbox isa BBox
+                @test bbox.bottom_lat isa Float64
+                @test bbox.left_lon isa Float64
+                @test bbox.top_lat isa Float64
+                @test bbox.right_lon isa Float64
+
+                # Validate bbox coordinates
+                @test -90.0 <= bbox.bottom_lat <= 90.0
+                @test -180.0 <= bbox.left_lon <= 180.0
+                @test -90.0 <= bbox.top_lat <= 90.0
+                @test -180.0 <= bbox.right_lon <= 180.0
+
+                @test bbox.bottom_lat <= bbox.top_lat
+                @test bbox.left_lon <= bbox.right_lon
+            end
+        end
     end
 
     @testset "XML Performance Tests" begin
         # Test reading time
         start_time = time()
-        osmdata = OpenStreetMapIO.readosm("data/map.osm")
+        osmdata = OpenStreetMapIO.readosm(test_file_xml)
         read_time = time() - start_time
 
         @test read_time < 10.0  # Should read in less than 10 seconds
@@ -141,7 +171,7 @@ using OpenStreetMapIO, Test
     end
 
     @testset "XML Data Consistency" begin
-        osmdata = OpenStreetMapIO.readosm("data/map.osm")
+        osmdata = OpenStreetMapIO.readosm(test_file_xml)
 
         # Test that all way references point to existing nodes
         for (way_id, way) in osmdata.ways
@@ -187,8 +217,8 @@ using OpenStreetMapIO, Test
 
     @testset "XML vs PBF Consistency" begin
         # Read both formats and compare
-        osmdata_xml = OpenStreetMapIO.readosm("data/map.osm")
-        osmdata_pbf = OpenStreetMapIO.readpbf("data/map.pbf")
+        osmdata_xml = OpenStreetMapIO.readosm(test_file_xml)
+        osmdata_pbf = OpenStreetMapIO.readpbf(test_file_pbf)
 
         # Test that both formats produce similar data
         @test length(osmdata_xml.nodes) == length(osmdata_pbf.nodes)
@@ -196,19 +226,34 @@ using OpenStreetMapIO, Test
         @test length(osmdata_xml.relations) == length(osmdata_pbf.relations)
 
         # Test that specific elements are the same
-        @test osmdata_xml.nodes[1675598406].position == osmdata_pbf.nodes[1675598406].position
-        @test osmdata_xml.ways[889648159].refs == osmdata_pbf.ways[889648159].refs
-        @test osmdata_xml.relations[12475101].refs == osmdata_pbf.relations[12475101].refs
+        @test osmdata_xml.nodes[KNOWN_NODE_ID].position == osmdata_pbf.nodes[KNOWN_NODE_ID].position
+        @test osmdata_xml.ways[KNOWN_WAY_ID].refs == osmdata_pbf.ways[KNOWN_WAY_ID].refs
+        @test osmdata_xml.relations[KNOWN_RELATION_ID].refs == osmdata_pbf.relations[KNOWN_RELATION_ID].refs
 
         # Test that tags are the same (note: relation types might differ between formats)
-        @test osmdata_xml.nodes[1675598406].tags == osmdata_pbf.nodes[1675598406].tags
-        @test osmdata_xml.ways[889648159].tags == osmdata_pbf.ways[889648159].tags
-        @test osmdata_xml.relations[12475101].tags == osmdata_pbf.relations[12475101].tags
+        @test osmdata_xml.nodes[KNOWN_NODE_ID].tags == osmdata_pbf.nodes[KNOWN_NODE_ID].tags
+        @test osmdata_xml.ways[KNOWN_WAY_ID].tags == osmdata_pbf.ways[KNOWN_WAY_ID].tags
+        @test osmdata_xml.relations[KNOWN_RELATION_ID].tags == osmdata_pbf.relations[KNOWN_RELATION_ID].tags
+
+        # Test metadata consistency across formats
+        @testset "Bounding box consistency" begin
+            # Both formats should have bbox
+            if haskey(osmdata_pbf.meta, "bbox") && haskey(osmdata_xml.meta, "bbox")
+                bbox_pbf = osmdata_pbf.meta["bbox"]
+                bbox_xml = osmdata_xml.meta["bbox"]
+
+                # Bounding boxes should be approximately equal (within floating point precision)
+                @test isapprox(bbox_pbf.bottom_lat, bbox_xml.bottom_lat; atol = 1.0e-6)
+                @test isapprox(bbox_pbf.left_lon, bbox_xml.left_lon; atol = 1.0e-6)
+                @test isapprox(bbox_pbf.top_lat, bbox_xml.top_lat; atol = 1.0e-6)
+                @test isapprox(bbox_pbf.right_lon, bbox_xml.right_lon; atol = 1.0e-6)
+            end
+        end
     end
 
     @testset "XML Special Cases" begin
         # Test reading XML with special characters
-        osmdata = OpenStreetMapIO.readosm("data/map.osm")
+        osmdata = OpenStreetMapIO.readosm(test_file_xml)
 
         # Find nodes with special characters in tags
         special_char_nodes = []
