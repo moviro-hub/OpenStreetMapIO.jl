@@ -220,27 +220,58 @@ This document provides comprehensive guidelines for AI agents working on Julia c
 
 ### Comments and Docstrings
 
-1. **Docstrings**: Use triple-quoted strings (`"""`) for all exported and public functions/types
-   ```julia
-   """
-       function_name(param1, param2)
+1. **Docstrings**: Use triple-quoted strings (`"""`) **only** for:
+   - **Exported functions/types** (public API)
+   - **Complex functions** where the use is not obvious
    
-   Brief description of what the function does.
+   ```julia
+   # Good - exported function (always needs docstring)
+   """
+       readpbf(path; node_callback = nothing, way_callback = nothing)
+   
+   Read OpenStreetMap data from a PBF file.
    
    # Arguments
-   - `param1::Type1`: Description of param1
-   - `param2::Type2`: Description of param2
+   - `path::String`: Path to the PBF file
+   - `node_callback::Union{Function, Nothing} = nothing`: Optional callback to filter nodes
    
    # Returns
-   Description of return value and its type.
-   
-   # Examples
-   ```julia
-   result = function_name(value1, value2)
-   ```
+   - `OpenStreetMap`: Parsed OSM data
    """
-   function function_name(param1::Type1, param2::Type2)
+   function readpbf(path::String; node_callback = nothing, way_callback = nothing)
        # ...
+   end
+   ```
+   
+   ```julia
+   # Good - complex function where use might not be obvious
+   """
+       parse_delta_encoded_nodes(base_lat, base_lon, deltas)
+   
+   Parse delta-encoded node coordinates from PBF format.
+   Applies cumulative deltas to base coordinates.
+   """
+   function parse_delta_encoded_nodes(base_lat::Float64, base_lon::Float64, deltas::Vector{Int64})
+       # Complex delta decoding logic...
+   end
+   ```
+   
+   ```julia
+   # Good - simple internal function, no docstring needed
+   function validate_position(lat::Float64, lon::Float64)::Nothing
+       if lat < -90 || lat > 90
+           throw(ArgumentError("Invalid latitude: $lat"))
+       end
+       if lon < -180 || lon > 180
+           throw(ArgumentError("Invalid longitude: $lon"))
+       end
+   end
+   ```
+   
+   ```julia
+   # Good - simple helper, use is obvious from name and types
+   function get_tag_value(tags::Union{Dict{String, String}, Nothing}, key::String)::Union{String, Nothing}
+       return tags === nothing ? nothing : get(tags, key, nothing)
    end
    ```
 
@@ -414,7 +445,15 @@ This document provides comprehensive guidelines for AI agents working on Julia c
 
 ## Documentation Standards
 
+**Important**: Docstrings should **only** be used for:
+1. **Exported functions/types** (public API) - always document these
+2. **Complex functions** where the use is not obvious - document if clarity is needed
+
+Simple internal functions with clear names and obvious behavior do **not** need docstrings.
+
 ### Module Documentation
+
+Modules should always be documented:
 
 ```julia
 """
@@ -444,6 +483,8 @@ module ModuleName
 
 ### Type Documentation
 
+**Only document exported types** (or complex internal types if use is not obvious):
+
 ```julia
 """
     TypeName
@@ -466,6 +507,8 @@ end
 ```
 
 ### Function Documentation
+
+**Only document exported functions or complex functions**:
 
 ```julia
 """
@@ -495,6 +538,14 @@ result = function_name(value1, value2; kwarg1 = value3)
 - [`related_function`](@ref)
 """
 function function_name(param1::Type1, param2::Type2; kwarg1::Type3 = default)::ReturnType
+```
+
+**Simple internal functions don't need docstrings**:
+```julia
+# No docstring needed - function name and types make use obvious
+function get_lat(p::Position)::Float64
+    return p.lat
+end
 ```
 
 ## Performance Best Practices
@@ -829,7 +880,7 @@ end
 
 When reviewing or writing code, check:
 - [ ] Type annotations present for public APIs
-- [ ] Documentation complete (docstrings with examples)
+- [ ] Documentation complete for exported functions and complex functions
 - [ ] Error handling appropriate
 - [ ] No type instability in hot paths
 - [ ] Tests cover main functionality and edge cases
@@ -847,7 +898,7 @@ Agents should:
 2. **Target 25 lines** per function, but be flexible based on context
 3. **Write minimal code** - don't state the obvious; only add comments/clarity when code would otherwise be difficult to read
 4. **Follow Julia conventions** for naming, formatting, and type annotations
-5. **Write comprehensive documentation** with examples
+5. **Write documentation** for exported functions/types and complex functions where use is not obvious
 6. **Consider performance** implications, especially type stability
 7. **Handle errors** gracefully with informative messages
 8. **Write tests** for public APIs
