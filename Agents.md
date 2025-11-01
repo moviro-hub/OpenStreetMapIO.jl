@@ -312,6 +312,7 @@ end
 - Pre-allocate when size is known
 - Use views to avoid copying: `@view array[start:end]`
 - Avoid global variables in hot paths (use `Ref` or pass as parameter)
+- **Use specialized array types for performance:**
 
 ```julia
 # Good - pre-allocate
@@ -320,6 +321,31 @@ for i in eachindex(inputs)
     results[i] = compute(inputs[i])
 end
 
+# Use StaticArrays.jl for small, fixed-size arrays (moderate size, typically < 100 elements)
+# Stack-allocated, no heap allocation, excellent performance
+using StaticArrays
+function compute_transform(point::SVector{3, Float64})::SVector{3, Float64}
+    # SVector is stack-allocated, much faster than Vector for small sizes
+end
+
+# Use FixedSizeArrays.jl for preallocated arrays with known size at compile time
+# Better than Vector when size is fixed and known
+using FixedSizeArrays
+const FIXED_SIZE = 10
+results = FixedArray{Float64, (FIXED_SIZE,)}()  # Pre-allocated fixed size
+
+# Use built-in Vector/Array only when:
+# - You need to push/append to the array dynamically
+# - Performance is not a concern
+# - Size is unknown at creation time
+```
+
+**Array Type Selection Guide:**
+- **StaticArrays.jl** (`SVector`, `SMatrix`, `MVector`, `MMatrix`): For small, fixed-size arrays (< ~100 elements). Stack-allocated, zero heap allocation, excellent performance for small sizes.
+- **FixedSizeArrays.jl**: For pre-allocated arrays where size is known at compile time but may be larger than StaticArrays handles efficiently.
+- **Built-in `Vector`/`Array`**: Use only when you need dynamic resizing (`push!`, `append!`) or when size is unknown at creation time.
+
+```julia
 # Avoid globals
 function increment(counter::Ref{Int})
     counter[] += 1
@@ -541,6 +567,8 @@ end
 - Be aware of memory usage for large datasets
 - Consider streaming for very large files
 - Use appropriate data structures (Dict vs. Vector)
+- Consider StaticArrays.jl for small fixed-size arrays (see [Performance](#performance) section)
+- Consider FixedSizeArrays.jl for pre-allocated arrays with known size
 
 **Concurrency:**
 - Document thread-safety assumptions
