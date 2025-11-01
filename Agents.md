@@ -122,6 +122,68 @@ This document provides comprehensive guidelines for AI agents working on Julia c
 - Iteration patterns (for loops, comprehensions)
 - Standard control flow (if/else, return)
 
+### 4. Focus on One Change at a Time
+**CRITICAL**: Make small, focused changes. Keep code changes minimal and focused on a single concern to improve readability and make reviews easier.
+
+**Guidelines:**
+- **One change per commit/PR**: Each change should address a single issue or feature
+  ```julia
+  # Good - single focused change
+  # Change: Add validation for latitude bounds
+  function create_node(lat::Float64, lon::Float64, tags, info)
+      if lat < -90 || lat > 90
+          throw(ArgumentError("Latitude must be between -90 and 90"))
+      end
+      # ... rest of function
+  end
+  ```
+
+- **Keep diffs small**: Aim for changes under 50-100 lines when possible
+  - Large refactorings should be broken into smaller, logical steps
+  - Multiple related changes should be separate commits/PRs
+
+- **Separate concerns**: Don't mix bug fixes, refactoring, and new features in one change
+  ```julia
+  # Bad - mixed concerns (bug fix + refactoring + feature)
+  function parse_nodes(data)
+      # Fixed bug: handle empty data
+      if isempty(data)
+          return Node[]
+      end
+      # Refactored: extracted validation
+      validate_data(data)
+      # New feature: added callback support
+      return parse_with_callback(data, callback)
+  end
+  
+  # Good - separate changes
+  # Change 1: Fix empty data handling
+  # Change 2: Extract validation function
+  # Change 3: Add callback support
+  ```
+
+- **Incremental refactoring**: Break large refactorings into smaller steps
+  1. First: Add new code alongside old (parallel implementation)
+  2. Second: Switch usage to new code
+  3. Third: Remove old code (if applicable)
+
+- **Review-friendly changes**: 
+  - Make it easy to see what changed
+  - Keep related changes together in the same file
+  - Avoid "cleanup" changes mixed with functional changes
+
+**When to make larger changes:**
+- Initial implementation of a new feature (but still keep it focused)
+- Complex bug fixes that require coordinated changes across multiple files
+- Architecture changes that cannot be done incrementally (but document why)
+
+**Benefits of small changes:**
+- Easier to review and understand
+- Lower risk of introducing bugs
+- Easier to revert if needed
+- Clearer git history
+- Faster feedback cycles
+
 ## Julia Style Guide
 
 ### Naming Conventions
@@ -890,6 +952,8 @@ When reviewing or writing code, check:
 - [ ] Input validation where appropriate
 - [ ] No redundant comments or obvious statements
 - [ ] Code is minimal and self-documenting
+- [ ] Changes are focused on a single concern (one change at a time)
+- [ ] Diffs are kept small and reviewable
 
 ## Summary
 
@@ -897,11 +961,12 @@ Agents should:
 1. **Always ask** when user intent is unclear
 2. **Target 25 lines** per function, but be flexible based on context
 3. **Write minimal code** - don't state the obvious; only add comments/clarity when code would otherwise be difficult to read
-4. **Follow Julia conventions** for naming, formatting, and type annotations
-5. **Write documentation** for exported functions/types and complex functions where use is not obvious
-6. **Consider performance** implications, especially type stability
-7. **Handle errors** gracefully with informative messages
-8. **Write tests** for public APIs
-9. **Organize code** logically and maintain separation of concerns
+4. **Focus on one change at a time** - keep code changes small for readability and review
+5. **Follow Julia conventions** for naming, formatting, and type annotations
+6. **Write documentation** for exported functions/types and complex functions where use is not obvious
+7. **Consider performance** implications, especially type stability
+8. **Handle errors** gracefully with informative messages
+9. **Write tests** for public APIs
+10. **Organize code** logically and maintain separation of concerns
 
-Remember: **Quality over speed**. It's better to ask for clarification than to implement the wrong solution. Keep code minimal and clear?avoid redundancy.
+Remember: **Quality over speed**. It's better to ask for clarification than to implement the wrong solution. Keep code minimal and clear?avoid redundancy. Make small, focused changes for easier review.
