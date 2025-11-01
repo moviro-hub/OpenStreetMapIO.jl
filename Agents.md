@@ -17,42 +17,27 @@ Guidelines for AI agents working on Julia codebases. Focus on code quality, main
 ## Core Principles
 
 ### 1. Ask Rather Than Guess
-**CRITICAL**: When intent is unclear, **always ask** rather than assume. Ask about:
-- Function names and signatures
-- Algorithm choices
-- Data structures and types
-- Design decisions
-- Edge case handling
-- Performance vs. readability trade-offs
+**CRITICAL**: When intent is unclear, **always ask** rather than assume. Ask about function names, algorithms, data structures, design decisions, edge cases, and performance trade-offs.
 
 ### 2. Function Length
 - **Target**: 25 lines per function (excluding docstrings)
-- **Negotiable** based on context:
-  - Complex algorithms may exceed 25 lines
-  - Utility functions should be shorter
-  - Over 50 lines: almost always refactor
-  - Over 35 lines: review for refactoring opportunities
-- Each function should do one thing well (Single Responsibility)
+- **Negotiable** based on context
+- Over 50 lines: almost always refactor
+- Over 35 lines: review for refactoring
+- Each function should do one thing well
 
 ### 3. Minimal Code
 **CRITICAL**: Write minimal, clear code. Don't state the obvious.
 
-**Don't:**
 ```julia
-# Bad - stating the obvious
+# Bad
 # Create a new value
 value = 42
-# Increment the counter
-counter += 1
 result = sum(numbers)
 return result
-```
 
-**Do:**
-```julia
-# Good - self-explanatory
+# Good
 value = 42
-counter += 1
 return sum(numbers)
 
 # Good - explain why, not what
@@ -60,52 +45,38 @@ return sum(numbers)
 result = sqrt(value)
 ```
 
-**Add comments/clarity only when:**
-- Complex algorithms or business logic
-- Non-obvious performance optimizations
-- Edge cases or special handling
-- Workarounds for bugs or limitations
+Add comments only for: complex algorithms, non-obvious optimizations, edge cases, workarounds.
 
 ### 4. One Change at a Time
 **CRITICAL**: Make small, focused changes for easier review.
 
-- **One concern per change**: Don't mix bug fixes, refactoring, and features
-- **Small diffs**: Target 50-100 lines; break large refactorings into steps
-- **Separate commits**: Multiple related changes = separate commits/PRs
-- **Incremental refactoring**: Add new ? switch ? remove old
-
-**Benefits:** Easier review, lower bug risk, easier revert, clearer history
+- One concern per change
+- Target 50-100 lines per diff
+- Separate commits for multiple changes
+- Incremental refactoring: Add new ? switch ? remove old
 
 ## Julia Style Guide
 
 ### Naming
-
 - **Functions**: `lowercase_with_underscores`
 - **Types/Structs**: `PascalCase`
 - **Constants**: `UPPERCASE_WITH_UNDERSCORES`
 - **Modules**: `PascalCase` (match filename)
-- **Type parameters**: `T`, `S`, `U`, `V` (single uppercase letters)
+- **Type parameters**: `T`, `S`, `U`, `V`
 
 ### Formatting
-
-- **Indentation**: 4 spaces (not tabs)
-- **Line length**: Prefer < 92 chars, but readability first
-- **Spacing**: 
-  - Spaces around binary operators: `x + y`, `a && b`
-  - No space after unary: `-x`, `!flag`
-  - Space after commas: `func(a, b, c)`
-  - Space after colons: `x::Int64`
-  - No space before colons: `Dict{String, Int}`
+- **Indentation**: 4 spaces
+- **Line length**: Prefer < 92 chars, readability first
+- **Spacing**: Spaces around binary ops (`x + y`), no space after unary (`-x`), space after commas, space after colons (`x::Int64`), no space before colons (`Dict{String, Int}`)
 - **Trailing commas**: Use in multi-line definitions
 
 ### Docstrings and Comments
-
 **Docstrings only for:**
 1. Exported functions/types (public API)
 2. Complex functions where use is not obvious
 
 ```julia
-# Exported - always document
+# Exported
 """
     compute_average(values)
 
@@ -114,32 +85,20 @@ Calculate the arithmetic mean of a collection of numbers.
 function compute_average(values::Vector{Number})::Float64
 end
 
-# Complex internal - document if needed
-"""
-Apply cumulative sum with overflow protection.
-Handles large integers by converting to Float64 when needed.
-"""
-function safe_cumsum(values::Vector{Int})::Vector{Number}
-end
-
 # Simple internal - no docstring needed
 function get_first(items::Vector{T})::Union{T, Nothing} where T
     return isempty(items) ? nothing : items[1]
 end
 ```
 
-**Inline comments:**
-- Use sparingly, only when purpose isn't obvious
-- Explain **why**, not **what**
-- TODO/FIXME: Always include context
+**Inline comments**: Use sparingly, explain **why** not **what**. TODO/FIXME must include context.
 
 ## Type System
 
 ### Type Annotations
-
 - **Public APIs**: Always annotate argument and return types
 - **Internal functions**: Types optional but recommended
-- **Type stability**: Critical for performance; avoid type instability in hot paths
+- **Type stability**: Critical for performance
 
 ```julia
 # Good - fully typed
@@ -149,7 +108,7 @@ end
 
 # Bad - type unstable
 function get_value(container, key)
-    haskey(container, key) ? container[key] : nothing  # Type unknown
+    haskey(container, key) ? container[key] : nothing
 end
 
 # Good - explicitly typed
@@ -159,7 +118,6 @@ end
 ```
 
 ### Union Types
-
 - Use for optional/nullable values: `Union{Type, Nothing}`
 - Avoid `Any`; prefer specific types or structured alternatives
 
@@ -170,7 +128,7 @@ name::Union{String, Nothing}
 # Bad
 settings::Dict{String, Any}
 
-# Better - structured type
+# Better
 struct Settings
     timeout::Union{Int, Nothing}
     retries::Union{Int, Nothing}
@@ -178,29 +136,17 @@ end
 ```
 
 ### Parametric Types
-
-Use parametric types for generic code with constraints. **Prefer parametric structs over structs with abstract type fields** for type stability and performance.
-
-**Functions with type parameters:**
-```julia
-function reverse_items{T}(items::Vector{T})::Vector{T} where T
-end
-
-function sum_values{T <: Number}(values::Vector{T})::T where T
-end
-```
-
-**Structs: Use parametric types instead of abstract type fields**
+**Prefer parametric structs over structs with abstract type fields** for type stability and performance.
 
 ```julia
 # Bad - abstract type field causes type instability
 struct Container
-    items::Vector{Number}  # Abstract type - slow, type-unstable
+    items::Vector{Number}  # Slow, type-unstable
 end
 
-# Good - parametric type makes struct concrete and type-stable
+# Good - parametric type is type-stable
 struct Container{T <: Number}
-    items::Vector{T}  # Concrete type - fast, type-stable
+    items::Vector{T}  # Fast, type-stable
 end
 
 # Usage
@@ -208,45 +154,14 @@ int_container = Container{Int}([1, 2, 3])
 float_container = Container{Float64}([1.0, 2.0, 3.0])
 ```
 
-**When you need to store different types, use Union or separate parametric instances:**
-
-```julia
-# Bad - abstract type loses type information
-struct Processor
-    value::Number  # Type unstable
-end
-
-# Good - parametric type preserves type information
-struct Processor{T <: Number}
-    value::T  # Type stable
-end
-
-# If you truly need mixed types at runtime:
-struct MixedProcessor
-    value::Union{Int, Float64}  # Explicit union, better than Number
-end
-
-# Or use separate instances:
-int_processor = Processor{Int}(42)
-float_processor = Processor{Float64}(3.14)
-```
-
-**Benefits of parametric structs:**
-- **Type stability**: Compiler knows exact types, better optimization
-- **Performance**: No runtime type checking/dispatching
-- **Type safety**: Compile-time guarantees about stored types
-- **Flexibility**: Same struct works with different concrete types
-
 **Guidelines:**
 - Always parameterize structs when fields could have different concrete types
 - Avoid abstract types (`Number`, `AbstractArray`, etc.) as field types
-- Use parametric types with constraints: `struct Container{T <: Number}`
 - Use Union types only when you genuinely need mixed types at runtime
 
 ## Function Design
 
 ### Signatures
-
 - **Keyword arguments**: Use for 3+ optional parameters
 - **Default arguments**: Provide sensible defaults
 - **Argument order**: Required ? optional ? keyword
@@ -256,13 +171,11 @@ function transform_values(
     values::Vector{Number};
     scale::Float64 = 1.0,
     offset::Float64 = 0.0,
-    inplace::Bool = false,
 )::Vector{Number}
 end
 ```
 
 ### Function Purity
-
 - Prefer pure functions (no side effects)
 - Document side effects clearly if unavoidable
 
@@ -274,7 +187,7 @@ end
 
 # Document side effects
 """
-Modifies `container` in place by appending `value`.
+Modifies `container` in place.
 """
 function append!(container::Vector{T}, value::T) where T
     push!(container, value)
@@ -283,53 +196,16 @@ end
 
 ## Documentation
 
-**CRITICAL**: Documentation must be **simple and clean** - both in text content and formatting. Write clearly, concisely, and use consistent, minimal formatting.
+**CRITICAL**: Documentation must be **simple and clean** - both in text content and formatting.
 
-**Documentation principles:**
-- **Simple text**: Use clear, straightforward language. Avoid jargon and verbosity.
-- **Clean formatting**: Use consistent, minimal markdown. Avoid over-formatting.
-- **Be concise**: Get to the point quickly. Remove unnecessary words.
-- **Focus on usage**: Explain what it does and how to use it, not implementation details (unless needed).
-- **Consistent structure**: Use the same format across all docstrings.
+**Principles:**
+- Simple text: Clear, straightforward language
+- Clean formatting: Consistent, minimal markdown
+- Be concise: Get to the point
+- Focus on usage: What it does and how to use it
+- Consistent structure: Same format across all docstrings
 
 ### Module Documentation
-
-Always document modules. Keep it simple and focused:
-
-```julia
-"""
-    ModuleName
-
-Brief description of the module's purpose.
-
-## Features
-- Feature 1
-- Feature 2
-
-## Main Functions
-- [`function1`](@ref): Description
-
-## Examples
-```julia
-using ModuleName
-result = function1(args)
-```
-"""
-module ModuleName
-```
-
-**Avoid:**
-```julia
-"""
-    ModuleName
-
-This module provides a comprehensive set of utilities and functions that enable
-developers to perform various operations with enhanced performance and reliability.
-The module is designed with scalability in mind and offers extensive configurability.
-# ... verbose and unclear
-"""
-```
-
 ```julia
 """
     ModuleName
@@ -353,29 +229,6 @@ module ModuleName
 ```
 
 ### Type Documentation
-
-Only document exported types (or complex internal types). Keep descriptions simple:
-
-```julia
-"""
-    Container{T}
-
-A generic container for values of type T.
-
-# Fields
-- `items::Vector{T}`: The stored items
-
-# Examples
-```julia
-container = Container{Int}([1, 2, 3])
-```
-"""
-struct Container{T}
-    items::Vector{T}
-end
-```
-
-**Good - simple and clear:**
 ```julia
 """
     Point
@@ -397,54 +250,7 @@ struct Point
 end
 ```
 
-**Bad - verbose and over-formatted:**
-```julia
-"""
-    Point
-
-**A two-dimensional point** representing a location in Cartesian space with 
-*horizontal* and *vertical* components.
-
-# Fields
-- **`x::Float64`**: The **X coordinate** (horizontal position)
-- **`y::Float64`**: The **Y coordinate** (vertical position)
-
-# Examples
-```julia
-# Create a new point
-p = Point(1.0, 2.0)
-```
-"""
-```
-
 ### Function Documentation
-
-Only exported or complex functions. Keep it simple and focused:
-
-```julia
-"""
-    compute_result(input, factor = 1.0)
-
-Calculate result from input using the specified factor.
-
-# Arguments
-- `input::Float64`: Input value
-- `factor::Float64 = 1.0`: Multiplication factor
-
-# Returns
-- `Float64`: Computed result
-
-# Examples
-```julia
-result = compute_result(10.0, 2.0)
-```
-"""
-function compute_result(input::Float64, factor::Float64 = 1.0)::Float64
-    return input * factor
-end
-```
-
-**Good - simple and clear:**
 ```julia
 """
     divide(a, b)
@@ -460,54 +266,28 @@ Divide `a` by `b`.
 
 # Examples
 ```julia
-result = divide(10.0, 2.0)  # Returns 5.0
+result = divide(10.0, 2.0)
 ```
 """
+function divide(a::Float64, b::Float64)::Float64
+    b == 0 && throw(DivideError("Cannot divide by zero"))
+    return a / b
+end
 ```
 
-**Bad - verbose and cluttered:**
-```julia
-"""
-    divide(a::Float64, b::Float64)::Float64
-
-**This function performs division** of two floating-point numbers. The function
-takes two parameters and returns their quotient. It is important to note that
-the denominator should not be zero, as this would result in a division by zero
-error.
-
-# Arguments
-- **`a::Float64`**: The **numerator** (the number to be divided)
-- **`b::Float64`**: The **denominator** (the number to divide by) - **?? WARNING**: Must not be zero!
-
-# Returns
-- **`Float64`**: The **result** of the division operation (i.e., `a / b`)
-
-# Examples
-```julia
-# Example 1: Basic division
-result1 = divide(10.0, 2.0)  # Returns: 5.0
-
-# Example 2: Another example
-result2 = divide(15.0, 3.0)  # Returns: 5.0
-```
-"""
-```
-
-**Documentation formatting rules:**
-- Use plain markdown, avoid excessive formatting (no bold/italic unless necessary)
-- One sentence per line for readability in source code
-- Keep examples minimal - show one typical use case
-- Use simple language - "divide" not "perform division operation"
-- Remove redundant words - "This function..." is usually unnecessary
+**Formatting rules:**
+- Plain markdown, avoid excessive formatting
+- One sentence per line for readability
+- Keep examples minimal
+- Use simple language
+- Remove redundant words
 
 ## Performance
 
 ### Allocation Awareness
-
 - Pre-allocate when size is known
 - Use views to avoid copying: `@view array[start:end]`
 - Avoid global variables in hot paths (use `Ref` or pass as parameter)
-- **Use specialized array types for performance:**
 
 ```julia
 # Good - pre-allocate
@@ -516,39 +296,29 @@ for i in eachindex(inputs)
     results[i] = compute(inputs[i])
 end
 
-# Use StaticArrays.jl for small, fixed-size arrays (moderate size, typically < 100 elements)
-# Stack-allocated, no heap allocation, excellent performance
+# Use StaticArrays.jl for small fixed-size arrays (< 100 elements)
 using StaticArrays
 function compute_transform(point::SVector{3, Float64})::SVector{3, Float64}
-    # SVector is stack-allocated, much faster than Vector for small sizes
+    # Stack-allocated, zero heap allocation
 end
 
-# Use FixedSizeArrays.jl for preallocated arrays with known size at compile time
-# Better than Vector when size is fixed and known
+# Use FixedSizeArrays.jl for pre-allocated arrays with known size
 using FixedSizeArrays
 const FIXED_SIZE = 10
-results = FixedArray{Float64, (FIXED_SIZE,)}()  # Pre-allocated fixed size
+results = FixedArray{Float64, (FIXED_SIZE,)}()
 
-# Use built-in Vector/Array only when:
-# - You need to push/append to the array dynamically
+# Use Vector/Array only when:
+# - Need dynamic resizing (push!, append!)
 # - Performance is not a concern
 # - Size is unknown at creation time
 ```
 
-**Array Type Selection Guide:**
-- **StaticArrays.jl** (`SVector`, `SMatrix`, `MVector`, `MMatrix`): For small, fixed-size arrays (< ~100 elements). Stack-allocated, zero heap allocation, excellent performance for small sizes.
-- **FixedSizeArrays.jl**: For pre-allocated arrays where size is known at compile time but may be larger than StaticArrays handles efficiently.
-- **Built-in `Vector`/`Array`**: Use only when you need dynamic resizing (`push!`, `append!`) or when size is unknown at creation time.
-
-```julia
-# Avoid globals
-function increment(counter::Ref{Int})
-    counter[] += 1
-end
-```
+**Array Type Selection:**
+- **StaticArrays.jl**: Small fixed-size arrays (< ~100 elements). Stack-allocated, excellent performance.
+- **FixedSizeArrays.jl**: Pre-allocated arrays where size is known at compile time.
+- **Vector/Array**: Only for dynamic resizing or when size is unknown.
 
 ### Type Stability
-
 Ensure type stability in performance-critical code:
 
 ```julia
@@ -565,11 +335,9 @@ end
 Use `@code_warntype` to check for type instability.
 
 ### Broadcasting
-
 Use broadcasting for element-wise operations:
 
 ```julia
-# Good
 squared = values .^ 2
 sums = a .+ b
 ```
@@ -577,23 +345,22 @@ sums = a .+ b
 ## Error Handling
 
 ### Exception Types
-
 - Use appropriate exception types
 - Provide helpful error messages with context
 
 ```julia
-# Good - specific exception
+# Good
 if divisor == 0
     throw(DivideError("Cannot divide by zero"))
 end
 
-# Good - custom exception
+# Custom exception
 struct ValidationError <: Exception
     message::String
     field::String
 end
 
-# Good - helpful message
+# Helpful message
 if length(keys) != length(values)
     throw(ArgumentError(
         "Mismatch: keys has $(length(keys)) elements but values has $(length(values))"
@@ -602,7 +369,6 @@ end
 ```
 
 ### Validation
-
 - Validate inputs in public APIs
 - Fail fast with clear error messages
 
@@ -618,12 +384,10 @@ end
 ## Design Patterns
 
 ### Composition Over Inheritance
+**Prefer composition over inheritance.** Use structs containing other structs rather than abstract type hierarchies.
 
-**Prefer composition over inheritance.** In Julia, use composition (structs containing other structs) rather than abstract type hierarchies for most use cases.
-
-**Composition (Preferred):**
 ```julia
-# Good - composition with concrete types
+# Good - composition
 struct Logger
     level::String
 end
@@ -638,12 +402,7 @@ struct Processor
     config::Config
 end
 
-function process(data, processor::Processor)
-    log_message(processor.logger, "Processing...")
-    # Process data using processor.config
-end
-
-# Good - composition with parametric types (preferred when types vary)
+# Good - composition with parametric types
 struct Buffer{T}
     data::Vector{T}
     capacity::Int
@@ -653,44 +412,14 @@ struct Transformer{T}
     buffer::Buffer{T}
     multiplier::Float64
 end
-
-# Usage - type-stable composition
-int_transformer = Transformer(Buffer{Int}([1, 2, 3], 100), 2.0)
-float_transformer = Transformer(Buffer{Float64}([1.0, 2.0], 50), 1.5)
 ```
 
-**Inheritance (Use Sparingly):**
-```julia
-# Avoid deep inheritance hierarchies
-abstract type Animal end
-struct Dog <: Animal end
-struct Cat <: Animal end
-
-# Prefer composition for shared behavior
-struct Behaviors
-    can_speak::Bool
-    can_fly::Bool
-end
-
-struct Animal
-    name::String
-    behaviors::Behaviors
-end
-```
-
-**When to use each:**
-- **Composition**: Default choice. Flexible, testable, avoids deep hierarchies.
-- **Abstract types**: Use for dispatch-based polymorphism (multiple dispatch), not for code reuse.
-- **Inheritance hierarchies**: Only when you truly need is-a relationships and polymorphic dispatch.
-
-**Julia-specific considerations:**
-- Julia's multiple dispatch provides polymorphism without inheritance
-- Abstract types define interfaces for dispatch, not implementation sharing
-- Composition allows runtime flexibility and easier testing
-- Use `has_a` (composition) over `is_a` (inheritance) relationships
+**When to use:**
+- **Composition**: Default choice. Flexible, testable.
+- **Abstract types**: For dispatch-based polymorphism (multiple dispatch), not code reuse.
+- **Inheritance**: Only when you truly need is-a relationships and polymorphic dispatch.
 
 ### Builder Pattern
-
 For complex object construction:
 
 ```julia
@@ -713,7 +442,6 @@ end
 ```
 
 ### Strategy Pattern
-
 For algorithm selection:
 
 ```julia
@@ -722,16 +450,15 @@ struct QuickSort <: SortStrategy end
 struct MergeSort <: SortStrategy end
 
 function sort_values(values::Vector{Number}, ::QuickSort)::Vector{Number}
-    # Quick sort implementation
+    # Implementation
 end
 
 function sort_values(values::Vector{Number}, ::MergeSort)::Vector{Number}
-    # Merge sort implementation
+    # Implementation
 end
 ```
 
 ### Callback Pattern
-
 For flexible data processing:
 
 ```julia
@@ -749,7 +476,6 @@ end
 ```
 
 ### Factory Pattern
-
 For object creation with different types:
 
 ```julia
@@ -769,14 +495,12 @@ end
 ## Engineering Practices
 
 ### Testing
-
 **CRITICAL**: Test every line and branch. No untested code branches allowed.
 
-- **Complete coverage**: Every line of code must be executed by at least one test
-- **Branch coverage**: Test all conditional branches (`if/else`, ternary operators, `&&`, `||`)
+- **Complete coverage**: Every line executed by at least one test
+- **Branch coverage**: Test all conditionals (`if/else`, ternary, `&&`, `||`)
 - **Edge cases**: Empty inputs, boundary values, error conditions
 - **Public APIs**: All exported functions must have comprehensive tests
-- Use descriptive test names that explain what is being tested
 
 ```julia
 # Function to test
@@ -785,58 +509,30 @@ function divide(a::Float64, b::Float64)::Float64
         throw(DivideError("Cannot divide by zero"))
     end
     if a < 0
-        return -abs(a / b)  # Handle negative numerator
+        return -abs(a / b)
     end
     return a / b
 end
 
-# Comprehensive test covering all lines and branches
-@testset "Division function - complete coverage" begin
-    # Test error branch (b == 0)
-    @test_throws DivideError divide(10.0, 0.0)
-    
-    # Test normal branch (b != 0, a >= 0)
-    @test divide(10.0, 2.0) == 5.0
-    @test divide(0.0, 5.0) == 0.0
-    
-    # Test negative numerator branch (a < 0)
-    @test divide(-10.0, 2.0) == -5.0
-    
-    # Test floating point result
-    @test divide(1.0, 3.0) ? 0.3333333333333333
+# Complete test covering all branches
+@testset "divide - complete coverage" begin
+    @test_throws DivideError divide(10.0, 0.0)  # Error branch
+    @test divide(10.0, 2.0) == 5.0              # Normal branch
+    @test divide(0.0, 5.0) == 0.0               # Zero numerator
+    @test divide(-10.0, 2.0) == -5.0            # Negative branch
 end
 ```
 
 **Testing requirements:**
-- **If statements**: Test both `true` and `false` branches
-- **Ternary operators**: Test both sides: `condition ? value_a : value_b`
-- **Short-circuit operators**: Test both cases: `a && b`, `a || b`
-- **Switch/conditional chains**: Test all branches
-- **Error paths**: Test all exception-throwing branches
-- **Early returns**: Test early return conditions
+- If statements: Test both `true` and `false` branches
+- Ternary operators: Test both sides
+- Short-circuit operators: Test both cases
+- Error paths: Test all exception-throwing branches
+- Early returns: Test early return conditions
 
-```julia
-# Function with multiple branches
-function process_value(x::Int)::Int
-    x < 0 && return 0        # Early return branch
-    x == 0 && return 1       # Early return branch
-    x > 100 && throw(ArgumentError("Too large"))  # Error branch
-    return x * 2             # Normal branch
-end
-
-# Complete test covering all branches
-@testset "process_value - all branches" begin
-    @test process_value(-5) == 0              # x < 0 branch
-    @test process_value(0) == 1               # x == 0 branch
-    @test process_value(50) == 100            # Normal branch
-    @test_throws ArgumentError process_value(150)  # Error branch
-end
-```
-
-**Use coverage tools**: Monitor test coverage and ensure 100% line and branch coverage for all production code.
+Use coverage tools to ensure 100% line and branch coverage.
 
 ### Code Reuse (DRY)
-
 Extract common patterns:
 
 ```julia
@@ -854,14 +550,12 @@ end
 ```
 
 ### Dependency Management
-
 - Specify Julia version in Project.toml: `julia = "1.6"`
 - Pin dependency versions
 - Minimize dependencies
 - Document non-standard dependencies
 
 ### Code Organization
-
 **File structure:**
 - One type per file for large types, or group related types
 - Group related functionality
@@ -888,8 +582,7 @@ end
 - Be aware of memory usage for large datasets
 - Consider streaming for very large files
 - Use appropriate data structures (Dict vs. Vector)
-- Consider StaticArrays.jl for small fixed-size arrays (see [Performance](#performance) section)
-- Consider FixedSizeArrays.jl for pre-allocated arrays with known size
+- Consider StaticArrays.jl and FixedSizeArrays.jl (see Performance section)
 
 **Concurrency:**
 - Document thread-safety assumptions
@@ -907,7 +600,7 @@ end
 - [ ] Error handling appropriate
 - [ ] No type instability in hot paths
 - [ ] **Tests cover 100% of code lines and branches** (no untested code branches)
-- [ ] All conditional branches tested (`if/else`, ternary, short-circuit)
+- [ ] All conditional branches tested
 - [ ] All error paths tested
 - [ ] All early returns tested
 - [ ] Function length reasonable (target 25 lines)
@@ -928,7 +621,7 @@ Agents should:
 4. **One change at a time** - keep diffs small
 5. **Follow Julia conventions** - naming, formatting, types
 6. **Prefer composition over inheritance** - use struct composition, not deep type hierarchies
-7. **Document** exported/complex functions only - keep it simple and clean (text and formatting)
+7. **Document** exported/complex functions only - keep it simple and clean
 8. **Consider performance** - type stability, allocations
 9. **Handle errors** gracefully with helpful messages
 10. **Test everything** - 100% line and branch coverage, no untested code branches
