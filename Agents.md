@@ -629,16 +629,70 @@ end
 
 ### Testing
 
-- Write tests for all public APIs
-- Test edge cases: empty inputs, boundary values, error conditions
-- Use descriptive test names
+**CRITICAL**: Test every line and branch. No untested code branches allowed.
+
+- **Complete coverage**: Every line of code must be executed by at least one test
+- **Branch coverage**: Test all conditional branches (`if/else`, ternary operators, `&&`, `||`)
+- **Edge cases**: Empty inputs, boundary values, error conditions
+- **Public APIs**: All exported functions must have comprehensive tests
+- Use descriptive test names that explain what is being tested
 
 ```julia
-@testset "Division function" begin
+# Function to test
+function divide(a::Float64, b::Float64)::Float64
+    if b == 0
+        throw(DivideError("Cannot divide by zero"))
+    end
+    if a < 0
+        return -abs(a / b)  # Handle negative numerator
+    end
+    return a / b
+end
+
+# Comprehensive test covering all lines and branches
+@testset "Division function - complete coverage" begin
+    # Test error branch (b == 0)
     @test_throws DivideError divide(10.0, 0.0)
+    
+    # Test normal branch (b != 0, a >= 0)
     @test divide(10.0, 2.0) == 5.0
+    @test divide(0.0, 5.0) == 0.0
+    
+    # Test negative numerator branch (a < 0)
+    @test divide(-10.0, 2.0) == -5.0
+    
+    # Test floating point result
+    @test divide(1.0, 3.0) ? 0.3333333333333333
 end
 ```
+
+**Testing requirements:**
+- **If statements**: Test both `true` and `false` branches
+- **Ternary operators**: Test both sides: `condition ? value_a : value_b`
+- **Short-circuit operators**: Test both cases: `a && b`, `a || b`
+- **Switch/conditional chains**: Test all branches
+- **Error paths**: Test all exception-throwing branches
+- **Early returns**: Test early return conditions
+
+```julia
+# Function with multiple branches
+function process_value(x::Int)::Int
+    x < 0 && return 0        # Early return branch
+    x == 0 && return 1       # Early return branch
+    x > 100 && throw(ArgumentError("Too large"))  # Error branch
+    return x * 2             # Normal branch
+end
+
+# Complete test covering all branches
+@testset "process_value - all branches" begin
+    @test process_value(-5) == 0              # x < 0 branch
+    @test process_value(0) == 1               # x == 0 branch
+    @test process_value(50) == 100            # Normal branch
+    @test_throws ArgumentError process_value(150)  # Error branch
+end
+```
+
+**Use coverage tools**: Monitor test coverage and ensure 100% line and branch coverage for all production code.
 
 ### Code Reuse (DRY)
 
@@ -710,7 +764,10 @@ end
 - [ ] Documentation complete for exported/complex functions
 - [ ] Error handling appropriate
 - [ ] No type instability in hot paths
-- [ ] Tests cover main functionality and edge cases
+- [ ] **Tests cover 100% of code lines and branches** (no untested code branches)
+- [ ] All conditional branches tested (`if/else`, ternary, short-circuit)
+- [ ] All error paths tested
+- [ ] All early returns tested
 - [ ] Function length reasonable (target 25 lines)
 - [ ] Code follows naming conventions
 - [ ] No unnecessary allocations in loops
@@ -732,7 +789,7 @@ Agents should:
 7. **Document** exported/complex functions only
 8. **Consider performance** - type stability, allocations
 9. **Handle errors** gracefully with helpful messages
-10. **Write tests** for public APIs
+10. **Test everything** - 100% line and branch coverage, no untested code branches
 11. **Organize code** logically
 
 **Remember:** Quality over speed. Ask for clarification rather than guessing. Keep code minimal and clear. Make small, focused changes for easier review.
