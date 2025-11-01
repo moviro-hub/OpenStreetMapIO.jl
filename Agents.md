@@ -40,9 +40,9 @@ Guidelines for AI agents working on Julia codebases. Focus on code quality, main
 **Don't:**
 ```julia
 # Bad - stating the obvious
-# Create a new node
-node = Node(position, tags, info)
-lat = position.lat  # Get latitude
+# Create a new user
+user = User(name, email, id)
+value = data.value  # Get value from data
 result = calculate_sum(numbers)
 return result
 ```
@@ -50,8 +50,8 @@ return result
 **Do:**
 ```julia
 # Good - self-explanatory
-node = Node(position, tags, info)
-lat = position.lat
+user = User(name, email, id)
+value = data.value
 return calculate_sum(numbers)
 
 # Good - explain why, not what
@@ -106,24 +106,24 @@ decompressor = LZ4FrameDecompressorStream(stream)
 ```julia
 # Exported - always document
 """
-    readpbf(path; node_callback = nothing)
+    load_data(path; filter_fn = nothing)
 
-Read OpenStreetMap data from a PBF file.
+Load and parse data from the specified file path.
 """
-function readpbf(path::String; node_callback = nothing)
+function load_data(path::String; filter_fn = nothing)
 end
 
 # Complex internal - document if needed
 """
-Parse delta-encoded node coordinates from PBF format.
-Applies cumulative deltas to base coordinates.
+Parse delta-encoded values from binary format.
+Applies cumulative deltas to base values.
 """
-function parse_delta_encoded_nodes(base_lat, base_lon, deltas)
+function parse_delta_encoded(base_value::Float64, deltas::Vector{Int64})::Vector{Float64}
 end
 
 # Simple internal - no docstring needed
-function get_lat(p::Position)::Float64
-    return p.lat
+function get_value(data::DataPoint)::Float64
+    return data.value
 end
 ```
 
@@ -142,7 +142,7 @@ end
 
 ```julia
 # Good - fully typed
-function parse_node(data::Vector{UInt8}, offset::Int)::Node
+function parse_data(data::Vector{UInt8}, offset::Int)::DataStruct
 end
 
 # Bad - type unstable
@@ -163,15 +163,15 @@ end
 
 ```julia
 # Good
-tags::Union{Dict{String, String}, Nothing}
+metadata::Union{Dict{String, String}, Nothing}
 
 # Bad
-meta::Dict{String, Any}
+config::Dict{String, Any}
 
 # Better - structured type
-struct Metadata
-    bbox::Union{BBox, Nothing}
-    timestamp::Union{DateTime, Nothing}
+struct Config
+    timeout::Union{Int, Nothing}
+    retries::Union{Int, Nothing}
 end
 ```
 
@@ -196,11 +196,11 @@ end
 - **Argument order**: Required ? optional ? keyword
 
 ```julia
-function read_file(
+function process_file(
     path::String;
-    node_callback::Union{Function, Nothing} = nothing,
+    filter_fn::Union{Function, Nothing} = nothing,
     verbose::Bool = false,
-)::OpenStreetMap
+)::ProcessedData
 end
 ```
 
@@ -211,17 +211,17 @@ end
 
 ```julia
 # Good - pure function
-function calculate_distance(p1::Position, p2::Position)::Float64
-    lat_diff = p1.lat - p2.lat
-    lon_diff = p1.lon - p2.lon
-    return sqrt(lat_diff^2 + lon_diff^2)
+function calculate_distance(p1::Point, p2::Point)::Float64
+    dx = p1.x - p2.x
+    dy = p1.y - p2.y
+    return sqrt(dx^2 + dy^2)
 end
 
 # Document side effects
 """
-Modifies `osm` in place.
+Modifies `data` in place.
 """
-function parse_into!(osm::OpenStreetMap, data::Vector{UInt8})
+function parse_into!(data::DataContainer, raw::Vector{UInt8})
 end
 ```
 
@@ -311,9 +311,9 @@ end
 
 ```julia
 # Good - pre-allocate
-results = Vector{Node}(undef, known_size)
+results = Vector{Result}(undef, known_size)
 for i in 1:known_size
-    results[i] = create_node(data[i])
+    results[i] = process_item(data[i])
 end
 
 # Avoid globals
@@ -345,7 +345,7 @@ Use broadcasting for element-wise operations:
 
 ```julia
 # Good
-distances = sqrt.((lat1 .- lat2).^2 .+ (lon1 .- lon2).^2)
+distances = sqrt.((x1 .- x2).^2 .+ (y1 .- y2).^2)
 ```
 
 ## Error Handling
@@ -362,15 +362,15 @@ if !isfile(path)
 end
 
 # Good - custom exception
-struct OSMParseError <: Exception
+struct ParseError <: Exception
     message::String
     position::Int
 end
 
 # Good - helpful message
-if length(refs) != length(roles)
+if length(keys) != length(values)
     throw(ArgumentError(
-        "Mismatch: refs has $(length(refs)) elements but roles has $(length(roles))"
+        "Mismatch: keys has $(length(keys)) elements but values has $(length(values))"
     ))
 end
 ```
@@ -381,12 +381,12 @@ end
 - Fail fast with clear error messages
 
 ```julia
-function create_node(lat::Float64, lon::Float64, tags, info)
-    if lat < -90 || lat > 90
-        throw(ArgumentError("Latitude must be between -90 and 90, got $lat"))
+function create_item(value::Float64, threshold::Float64)
+    if value < 0 || value > 1
+        throw(ArgumentError("Value must be between 0 and 1, got $value"))
     end
-    if lon < -180 || lon > 180
-        throw(ArgumentError("Longitude must be between -180 and 180, got $lon"))
+    if threshold <= 0
+        throw(ArgumentError("Threshold must be positive, got $threshold"))
     end
 end
 ```
@@ -398,20 +398,20 @@ end
 For complex object construction:
 
 ```julia
-struct NodeBuilder
-    position::Union{Position, Nothing}
-    tags::Union{Dict{String, String}, Nothing}
+struct ItemBuilder
+    name::Union{String, Nothing}
+    metadata::Union{Dict{String, String}, Nothing}
 end
 
-NodeBuilder() = NodeBuilder(nothing, nothing)
+ItemBuilder() = ItemBuilder(nothing, nothing)
 
-function set_position(builder::NodeBuilder, pos::Position)::NodeBuilder
-    return NodeBuilder(pos, builder.tags)
+function set_name(builder::ItemBuilder, name::String)::ItemBuilder
+    return ItemBuilder(name, builder.metadata)
 end
 
-function build(builder::NodeBuilder)::Node
-    builder.position === nothing && throw(ArgumentError("Position required"))
-    return Node(builder.position, builder.tags, builder.info)
+function build(builder::ItemBuilder)::Item
+    builder.name === nothing && throw(ArgumentError("Name required"))
+    return Item(builder.name, builder.metadata)
 end
 ```
 
@@ -433,13 +433,13 @@ decompress(stream, ::ZstdStrategy) = ZstdDecompressorStream(stream)
 For flexible data processing:
 
 ```julia
-function process_nodes(
-    data::Vector{Node};
+function process_items(
+    data::Vector{Item};
     callback::Union{Function, Nothing} = nothing,
-)::Vector{Node}
-    result = Node[]
-    for node in data
-        processed = callback === nothing ? node : callback(node)
+)::Vector{Item}
+    result = Item[]
+    for item in data
+        processed = callback === nothing ? item : callback(item)
         processed !== nothing && push!(result, processed)
     end
     return result
@@ -451,11 +451,11 @@ end
 For object creation with different sources:
 
 ```julia
-function create_reader(source::String)::OSMReader
-    if endswith(source, ".pbf")
-        return PBFReader(source)
-    elseif endswith(source, ".osm") || endswith(source, ".xml")
-        return XMLReader(source)
+function create_reader(source::String)::DataReader
+    if endswith(source, ".json")
+        return JSONReader(source)
+    elseif endswith(source, ".csv")
+        return CSVReader(source)
     else
         throw(ArgumentError("Unknown file format: $source"))
     end
@@ -471,9 +471,9 @@ end
 - Use descriptive test names
 
 ```julia
-@testset "Node creation" begin
-    @test_throws ArgumentError Node(Position(100.0, 0.0), nothing, nothing)
-    @test Node(Position(0.0, 0.0), nothing, nothing) isa Node
+@testset "Item creation" begin
+    @test_throws ArgumentError Item("", 100.0)
+    @test Item("test", 10.0) isa Item
 end
 ```
 
@@ -483,14 +483,14 @@ Extract common patterns:
 
 ```julia
 # Bad - repeated pattern
-if node.tags !== nothing && haskey(node.tags, "amenity") && node.tags["amenity"] == "restaurant"
+if item.metadata !== nothing && haskey(item.metadata, "category") && item.metadata["category"] == "active"
 end
 
 # Good - extracted function
-function is_restaurant(node::Node)::Bool
-    return node.tags !== nothing &&
-           haskey(node.tags, "amenity") &&
-           node.tags["amenity"] == "restaurant"
+function is_active(item::Item)::Bool
+    return item.metadata !== nothing &&
+           haskey(item.metadata, "category") &&
+           item.metadata["category"] == "active"
 end
 ```
 
@@ -514,12 +514,12 @@ end
 
 **Module structure:**
 ```julia
-module OpenStreetMapIO
-    include("map_types.jl")      # Type definitions
-    include("utils.jl")           # Utility functions
-    include("load_pbf.jl")        # PBF file loading
-    include("load_xml.jl")        # XML file loading
-    include("load_overpass.jl")   # Overpass API
+module PackageName
+    include("types.jl")      # Type definitions
+    include("utils.jl")       # Utility functions
+    include("io.jl")          # I/O operations
+    include("process.jl")     # Processing logic
+    include("api.jl")         # Public API
 end
 ```
 
