@@ -539,20 +539,42 @@ end
 ```
 
 ### Factory Pattern
-For object creation with different types:
+In Julia, use multiple dispatch for factory patterns instead of string-based conditionals:
 
 ```julia
+# Bad - string-based factory
 function create_container(type::String)
     if type == "int"
         return Vector{Int}()
     elseif type == "float"
         return Vector{Float64}()
-    elseif type == "string"
-        return Vector{String}()
     else
-        throw(ArgumentError("Unknown container type: $type"))
+        throw(ArgumentError("Unknown type: $type"))
     end
 end
+
+# Good - dispatch-based factory (idiomatic Julia)
+struct IntType end
+struct FloatType end
+struct StringType end
+
+create_container(::Type{IntType}) = Vector{Int}()
+create_container(::Type{FloatType}) = Vector{Float64}()
+create_container(::Type{StringType}) = Vector{String}()
+
+# Usage
+container = create_container(IntType)
+```
+
+Or use type parameters directly:
+
+```julia
+# Even better - use type parameters
+create_container(::Type{T}) where T = Vector{T}()
+
+# Usage - type-safe and idiomatic
+container = create_container(Int)
+container = create_container(Float64)
 ```
 
 ## Engineering Practices
