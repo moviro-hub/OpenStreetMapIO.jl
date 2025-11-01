@@ -19,6 +19,22 @@ Guidelines for AI agents working on Julia codebases. Focus on code quality, main
 ### 1. Ask Rather Than Guess
 **CRITICAL**: When intent is unclear, **always ask** rather than assume. Ask about function names, algorithms, data structures, design decisions, edge cases, and performance trade-offs.
 
+**Planning Phase Priority:**
+**CRITICAL**: In the planning phase of a feature, **discussing what exactly to do is strongly preferred over developing based on an ill-defined plan**. Do not start implementation until requirements, scope, and design are clearly understood and agreed upon.
+
+- **Ask clarifying questions** about requirements, expected behavior, edge cases
+- **Propose design options** and discuss trade-offs before implementing
+- **Get confirmation** on ambiguous aspects rather than making assumptions
+- **Define success criteria** and acceptance criteria before coding
+- **Avoid starting development** with vague or incomplete requirements
+
+**Examples of when to pause and discuss:**
+- "The feature description mentions X but doesn't specify how to handle Y"
+- "Should this function handle case A or should callers validate?"
+- "The requirements don't specify the expected behavior for edge case Z"
+- "Should I optimize for performance or code simplicity here?"
+- "The design mentions approach 1 and 2 - which should I use?"
+
 ### 2. Function Length
 - **Target**: 25 lines per function (excluding docstrings)
 - **Negotiable** based on context
@@ -646,7 +662,7 @@ end
 ## Summary
 
 Agents should:
-1. **Always ask** when intent is unclear
+1. **Always ask** when intent is unclear - especially in planning phase, prefer discussion over ill-defined plans
 2. **Target 25 lines** per function (negotiable)
 3. **Write minimal code** - don't state the obvious
 4. **One change at a time** - keep diffs small
@@ -658,4 +674,4 @@ Agents should:
 10. **Test everything** - 100% line and branch coverage, no untested code branches
 11. **Organize code** logically
 
-**Remember:** Quality over speed. Ask for clarification rather than guessing. Keep code minimal and clear. Make small, focused changes for easier review.
+**Remember:** Quality over speed. **Discuss and clarify requirements before starting development.** Ask for clarification rather than guessing. Keep code minimal and clear. Make small, focused changes for easier review.
