@@ -613,8 +613,8 @@ using Logging
 Wrap logging statements with `if logging()` to allow removal by overloading:
 
 ```julia
-# Define logging control function
-logging() = true
+# Define logging control function - OFF by default
+logging() = false
 
 # Use in code
 function process_data(data::Vector{Float64})
@@ -637,16 +637,17 @@ function process_data(data::Vector{Float64})
 end
 ```
 
-**Remove logging in production:**
+**Enable logging when needed:**
 ```julia
-# In production module or config
-logging() = false  # Overload to disable all logging
+# In debug module or config
+logging() = true  # Overload to enable logging
 ```
 
 **Benefits:**
-- Can completely remove logging code by setting `logging() = false`
-- No performance overhead when disabled
-- Easy to enable/disable per module or globally
+- **OFF by default** - no performance overhead in production
+- Can completely remove logging code (compiler optimizes away)
+- Easy to enable when needed by overloading `logging() = true`
+- Enable/disable per module or globally
 - Logging macros are type-safe and support structured logging
 
 **Best practices:**
