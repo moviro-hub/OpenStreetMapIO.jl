@@ -40,23 +40,24 @@ Guidelines for AI agents working on Julia codebases. Focus on code quality, main
 **Don't:**
 ```julia
 # Bad - stating the obvious
-# Create a new user
-user = User(name, email, id)
-value = data.value  # Get value from data
-result = calculate_sum(numbers)
+# Create a new value
+value = 42
+# Increment the counter
+counter += 1
+result = sum(numbers)
 return result
 ```
 
 **Do:**
 ```julia
 # Good - self-explanatory
-user = User(name, email, id)
-value = data.value
-return calculate_sum(numbers)
+value = 42
+counter += 1
+return sum(numbers)
 
 # Good - explain why, not what
-# Use LZ4: 3x faster decompression with only 10% worse compression
-decompressor = LZ4FrameDecompressorStream(stream)
+# Prefer sqrt over x^0.5 for better numerical stability
+result = sqrt(value)
 ```
 
 **Add comments/clarity only when:**
@@ -106,24 +107,24 @@ decompressor = LZ4FrameDecompressorStream(stream)
 ```julia
 # Exported - always document
 """
-    load_data(path; filter_fn = nothing)
+    compute_average(values)
 
-Load and parse data from the specified file path.
+Calculate the arithmetic mean of a collection of numbers.
 """
-function load_data(path::String; filter_fn = nothing)
+function compute_average(values::Vector{Number})::Float64
 end
 
 # Complex internal - document if needed
 """
-Parse delta-encoded values from binary format.
-Applies cumulative deltas to base values.
+Apply cumulative sum with overflow protection.
+Handles large integers by converting to Float64 when needed.
 """
-function parse_delta_encoded(base_value::Float64, deltas::Vector{Int64})::Vector{Float64}
+function safe_cumsum(values::Vector{Int})::Vector{Number}
 end
 
 # Simple internal - no docstring needed
-function get_value(data::DataPoint)::Float64
-    return data.value
+function get_first(items::Vector{T})::Union{T, Nothing} where T
+    return isempty(items) ? nothing : items[1]
 end
 ```
 
@@ -142,17 +143,18 @@ end
 
 ```julia
 # Good - fully typed
-function parse_data(data::Vector{UInt8}, offset::Int)::DataStruct
+function add_numbers(a::Float64, b::Float64)::Float64
+    return a + b
 end
 
 # Bad - type unstable
-function get_value(dict, key)
-    haskey(dict, key) ? dict[key] : nothing  # Type unknown
+function get_value(container, key)
+    haskey(container, key) ? container[key] : nothing  # Type unknown
 end
 
 # Good - explicitly typed
-function get_value(dict::Dict{String, String}, key::String)::Union{String, Nothing}
-    return get(dict, key, nothing)
+function get_value(container::Dict{String, Int}, key::String)::Union{Int, Nothing}
+    return get(container, key, nothing)
 end
 ```
 
@@ -163,13 +165,13 @@ end
 
 ```julia
 # Good
-metadata::Union{Dict{String, String}, Nothing}
+name::Union{String, Nothing}
 
 # Bad
-config::Dict{String, Any}
+settings::Dict{String, Any}
 
 # Better - structured type
-struct Config
+struct Settings
     timeout::Union{Int, Nothing}
     retries::Union{Int, Nothing}
 end
@@ -180,7 +182,7 @@ end
 Use for generic code with constraints:
 
 ```julia
-function process_items{T}(items::Vector{T})::Vector{T} where T
+function reverse_items{T}(items::Vector{T})::Vector{T} where T
 end
 
 function sum_values{T <: Number}(values::Vector{T})::T where T
@@ -196,11 +198,12 @@ end
 - **Argument order**: Required ? optional ? keyword
 
 ```julia
-function process_file(
-    path::String;
-    filter_fn::Union{Function, Nothing} = nothing,
-    verbose::Bool = false,
-)::ProcessedData
+function transform_values(
+    values::Vector{Number};
+    scale::Float64 = 1.0,
+    offset::Float64 = 0.0,
+    inplace::Bool = false,
+)::Vector{Number}
 end
 ```
 
@@ -211,17 +214,16 @@ end
 
 ```julia
 # Good - pure function
-function calculate_distance(p1::Point, p2::Point)::Float64
-    dx = p1.x - p2.x
-    dy = p1.y - p2.y
-    return sqrt(dx^2 + dy^2)
+function multiply(a::Number, b::Number)::Number
+    return a * b
 end
 
 # Document side effects
 """
-Modifies `data` in place.
+Modifies `container` in place by appending `value`.
 """
-function parse_into!(data::DataContainer, raw::Vector{UInt8})
+function append!(container::Vector{T}, value::T) where T
+    push!(container, value)
 end
 ```
 
@@ -259,20 +261,20 @@ Only document exported types (or complex internal types):
 
 ```julia
 """
-    TypeName
+    Container{T}
 
-Description of the type.
+A generic container for values of type T.
 
 # Fields
-- `field1::Type1`: Description
+- `items::Vector{T}`: The stored items
 
 # Examples
 ```julia
-obj = TypeName(value1, value2)
+container = Container{Int}([1, 2, 3])
 ```
 """
-struct TypeName
-    field1::Type1
+struct Container{T}
+    items::Vector{T}
 end
 ```
 
@@ -282,22 +284,24 @@ Only exported or complex functions:
 
 ```julia
 """
-    function_name(param1, param2; kwarg1 = default)
+    compute_result(input, factor = 1.0)
 
-Brief description.
+Calculate result from input using the specified factor.
 
 # Arguments
-- `param1::Type1`: Description
+- `input::Float64`: Input value
+- `factor::Float64 = 1.0`: Multiplication factor
 
 # Returns
-- `ReturnType`: Description
+- `Float64`: Computed result
 
 # Examples
 ```julia
-result = function_name(value1, value2)
+result = compute_result(10.0, 2.0)
 ```
 """
-function function_name(param1::Type1, param2::Type2; kwarg1::Type3 = default)::ReturnType
+function compute_result(input::Float64, factor::Float64 = 1.0)::Float64
+    return input * factor
 end
 ```
 
@@ -311,9 +315,9 @@ end
 
 ```julia
 # Good - pre-allocate
-results = Vector{Result}(undef, known_size)
-for i in 1:known_size
-    results[i] = process_item(data[i])
+results = Vector{Float64}(undef, length(inputs))
+for i in eachindex(inputs)
+    results[i] = compute(inputs[i])
 end
 
 # Avoid globals
@@ -328,7 +332,7 @@ Ensure type stability in performance-critical code:
 
 ```julia
 # Type stable
-function sum_values(values::Vector{Float64})::Float64
+function sum_floats(values::Vector{Float64})::Float64
     total = 0.0  # Float64, not Int
     for v in values
         total += v
@@ -345,7 +349,8 @@ Use broadcasting for element-wise operations:
 
 ```julia
 # Good
-distances = sqrt.((x1 .- x2).^2 .+ (y1 .- y2).^2)
+squared = values .^ 2
+sums = a .+ b
 ```
 
 ## Error Handling
@@ -357,14 +362,14 @@ distances = sqrt.((x1 .- x2).^2 .+ (y1 .- y2).^2)
 
 ```julia
 # Good - specific exception
-if !isfile(path)
-    throw(ArgumentError("File not found: $path"))
+if divisor == 0
+    throw(DivideError("Cannot divide by zero"))
 end
 
 # Good - custom exception
-struct ParseError <: Exception
+struct ValidationError <: Exception
     message::String
-    position::Int
+    field::String
 end
 
 # Good - helpful message
@@ -381,13 +386,11 @@ end
 - Fail fast with clear error messages
 
 ```julia
-function create_item(value::Float64, threshold::Float64)
-    if value < 0 || value > 1
-        throw(ArgumentError("Value must be between 0 and 1, got $value"))
+function divide(a::Float64, b::Float64)::Float64
+    if b == 0
+        throw(DivideError("Cannot divide by zero: $a / $b"))
     end
-    if threshold <= 0
-        throw(ArgumentError("Threshold must be positive, got $threshold"))
-    end
+    return a / b
 end
 ```
 
@@ -398,20 +401,21 @@ end
 For complex object construction:
 
 ```julia
-struct ItemBuilder
-    name::Union{String, Nothing}
-    metadata::Union{Dict{String, String}, Nothing}
+struct ValueBuilder
+    base::Union{Int, Nothing}
+    multiplier::Union{Float64, Nothing}
 end
 
-ItemBuilder() = ItemBuilder(nothing, nothing)
+ValueBuilder() = ValueBuilder(nothing, nothing)
 
-function set_name(builder::ItemBuilder, name::String)::ItemBuilder
-    return ItemBuilder(name, builder.metadata)
+function set_base(builder::ValueBuilder, base::Int)::ValueBuilder
+    return ValueBuilder(base, builder.multiplier)
 end
 
-function build(builder::ItemBuilder)::Item
-    builder.name === nothing && throw(ArgumentError("Name required"))
-    return Item(builder.name, builder.metadata)
+function build(builder::ValueBuilder)::Float64
+    builder.base === nothing && throw(ArgumentError("Base value required"))
+    multiplier = builder.multiplier === nothing ? 1.0 : builder.multiplier
+    return builder.base * multiplier
 end
 ```
 
@@ -420,12 +424,17 @@ end
 For algorithm selection:
 
 ```julia
-abstract type CompressionStrategy end
-struct LZ4Strategy <: CompressionStrategy end
-struct ZstdStrategy <: CompressionStrategy end
+abstract type SortStrategy end
+struct QuickSort <: SortStrategy end
+struct MergeSort <: SortStrategy end
 
-decompress(stream, ::LZ4Strategy) = LZ4FrameDecompressorStream(stream)
-decompress(stream, ::ZstdStrategy) = ZstdDecompressorStream(stream)
+function sort_values(values::Vector{Number}, ::QuickSort)::Vector{Number}
+    # Quick sort implementation
+end
+
+function sort_values(values::Vector{Number}, ::MergeSort)::Vector{Number}
+    # Merge sort implementation
+end
 ```
 
 ### Callback Pattern
@@ -433,14 +442,14 @@ decompress(stream, ::ZstdStrategy) = ZstdDecompressorStream(stream)
 For flexible data processing:
 
 ```julia
-function process_items(
-    data::Vector{Item};
-    callback::Union{Function, Nothing} = nothing,
-)::Vector{Item}
-    result = Item[]
-    for item in data
-        processed = callback === nothing ? item : callback(item)
-        processed !== nothing && push!(result, processed)
+function filter_values(
+    values::Vector{T};
+    predicate::Union{Function, Nothing} = nothing,
+)::Vector{T} where T
+    predicate === nothing && return values
+    result = T[]
+    for value in values
+        predicate(value) && push!(result, value)
     end
     return result
 end
@@ -448,16 +457,18 @@ end
 
 ### Factory Pattern
 
-For object creation with different sources:
+For object creation with different types:
 
 ```julia
-function create_reader(source::String)::DataReader
-    if endswith(source, ".json")
-        return JSONReader(source)
-    elseif endswith(source, ".csv")
-        return CSVReader(source)
+function create_container(type::String)::Vector{Any}
+    if type == "int"
+        return Vector{Int}()
+    elseif type == "float"
+        return Vector{Float64}()
+    elseif type == "string"
+        return Vector{String}()
     else
-        throw(ArgumentError("Unknown file format: $source"))
+        throw(ArgumentError("Unknown container type: $type"))
     end
 end
 ```
@@ -471,9 +482,9 @@ end
 - Use descriptive test names
 
 ```julia
-@testset "Item creation" begin
-    @test_throws ArgumentError Item("", 100.0)
-    @test Item("test", 10.0) isa Item
+@testset "Division function" begin
+    @test_throws DivideError divide(10.0, 0.0)
+    @test divide(10.0, 2.0) == 5.0
 end
 ```
 
@@ -483,14 +494,15 @@ Extract common patterns:
 
 ```julia
 # Bad - repeated pattern
-if item.metadata !== nothing && haskey(item.metadata, "category") && item.metadata["category"] == "active"
+if x > 0 && x < 100 && x % 2 == 0
+end
+
+if y > 0 && y < 100 && y % 2 == 0
 end
 
 # Good - extracted function
-function is_active(item::Item)::Bool
-    return item.metadata !== nothing &&
-           haskey(item.metadata, "category") &&
-           item.metadata["category"] == "active"
+function is_valid_even(x::Int)::Bool
+    return x > 0 && x < 100 && x % 2 == 0
 end
 ```
 
