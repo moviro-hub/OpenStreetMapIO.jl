@@ -41,3 +41,7 @@ osmdata = readpbf("map.pbf", node_callback=keep_restaurants)
 ## License
 
 This package is licensed under the MIT License. See [LICENSE.md](https://github.com/moviro-hub-hub/OpenStreetMapIO.jl/blob/main/LICENSE.md) for details.
+
+## Additional Guides
+
+- Learn how to pair OpenStreetMap data with agent-based simulations in the [Agents guide](agents.md).

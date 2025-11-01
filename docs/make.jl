@@ -13,6 +13,7 @@ makedocs(;
         "Home" => "index.md",
         "API Reference" => "api.md",
         "Examples" => "examples.md",
+        "Agents" => "agents.md",
     ],
     checkdocs = :exports,
 )
