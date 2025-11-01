@@ -47,6 +47,81 @@ This document provides comprehensive guidelines for AI agents working on Julia c
 - Functions over 35 lines should be reviewed for refactoring opportunities
 - Single Responsibility Principle: each function should do one thing well
 
+### 3. Minimal Commands and Code Clarity
+**CRITICAL**: Write minimal, clear code. Do not state the obvious. Only add comments, intermediate variables, or verbose explanations if the code would otherwise be difficult to read or understand.
+
+**Guidelines:**
+- **Avoid redundant comments** that simply restate what the code does
+  ```julia
+  # Bad - stating the obvious
+  # Create a new node
+  node = Node(position, tags, info)
+  
+  # Bad - obvious variable naming doesn't need explanation
+  # Get the latitude from the position
+  lat = position.lat
+  
+  # Good - code is self-explanatory
+  node = Node(position, tags, info)
+  lat = position.lat
+  ```
+
+- **Skip obvious intermediate steps** unless they improve readability
+  ```julia
+  # Bad - unnecessary intermediate variable
+  result = calculate_sum(numbers)
+  return result
+  
+  # Good - direct return
+  return calculate_sum(numbers)
+  ```
+
+- **Only add comments when code needs explanation** (why, not what)
+  ```julia
+  # Good - explains non-obvious reasoning
+  # Use LZ4 instead of zlib: 3x faster decompression with only 10% worse compression
+  decompressor = LZ4FrameDecompressorStream(stream)
+  
+  # Good - clarifies complex logic or edge case
+  # Handle historical data where nodes may have been deleted
+  if info !== nothing && info.visible === false
+      continue
+  end
+  ```
+
+- **Use descriptive names** instead of comments
+  ```julia
+  # Bad - needs comment because name is unclear
+  # Check if node is within bounding box
+  if check(n, b)
+  
+  # Good - self-documenting code
+  if is_within_bbox(node, bbox)
+  ```
+
+- **Avoid verbose variable names** that repeat type information
+  ```julia
+  # Bad - unnecessarily verbose
+  node_dictionary_dict = Dict{Int64, Node}()
+  
+  # Good - concise and clear
+  nodes = Dict{Int64, Node}()
+  ```
+
+**When to add clarity:**
+- Complex algorithms or business logic
+- Non-obvious performance optimizations
+- Edge cases or special handling
+- Workarounds for bugs or limitations
+- Domain-specific knowledge not obvious from code
+
+**When to keep it minimal:**
+- Simple assignments and operations
+- Standard library function calls
+- Type conversions that are obvious
+- Iteration patterns (for loops, comprehensions)
+- Standard control flow (if/else, return)
+
 ## Julia Style Guide
 
 ### Naming Conventions
@@ -169,7 +244,7 @@ This document provides comprehensive guidelines for AI agents working on Julia c
    end
    ```
 
-2. **Inline comments**: Use sparingly, only when code purpose isn't obvious
+2. **Inline comments**: Use sparingly, only when code purpose isn't obvious (see [Core Principle #3](#3-minimal-commands-and-code-clarity))
    ```julia
    # Good - explains why, not what
    # Use LZ4 for faster decompression with acceptable compression ratio
@@ -762,17 +837,20 @@ When reviewing or writing code, check:
 - [ ] Code follows naming conventions
 - [ ] No unnecessary allocations in loops
 - [ ] Input validation where appropriate
+- [ ] No redundant comments or obvious statements
+- [ ] Code is minimal and self-documenting
 
 ## Summary
 
 Agents should:
 1. **Always ask** when user intent is unclear
 2. **Target 25 lines** per function, but be flexible based on context
-3. **Follow Julia conventions** for naming, formatting, and type annotations
-4. **Write comprehensive documentation** with examples
-5. **Consider performance** implications, especially type stability
-6. **Handle errors** gracefully with informative messages
-7. **Write tests** for public APIs
-8. **Organize code** logically and maintain separation of concerns
+3. **Write minimal code** - don't state the obvious; only add comments/clarity when code would otherwise be difficult to read
+4. **Follow Julia conventions** for naming, formatting, and type annotations
+5. **Write comprehensive documentation** with examples
+6. **Consider performance** implications, especially type stability
+7. **Handle errors** gracefully with informative messages
+8. **Write tests** for public APIs
+9. **Organize code** logically and maintain separation of concerns
 
-Remember: **Quality over speed**. It's better to ask for clarification than to implement the wrong solution.
+Remember: **Quality over speed**. It's better to ask for clarification than to implement the wrong solution. Keep code minimal and clear?avoid redundancy.
