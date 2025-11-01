@@ -521,23 +521,6 @@ function sort_values(values::Vector{Float64}, ::MergeSort)::Vector{Float64}
 end
 ```
 
-### Callback Pattern
-For flexible data processing:
-
-```julia
-function filter_values(
-    values::Vector{T};
-    predicate::Union{Function, Nothing} = nothing,
-)::Vector{T} where T
-    predicate === nothing && return values
-    result = T[]
-    for value in values
-        predicate(value) && push!(result, value)
-    end
-    return result
-end
-```
-
 ### Factory Pattern
 In Julia, use multiple dispatch for factory patterns instead of string-based conditionals:
 
