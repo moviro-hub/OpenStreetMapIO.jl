@@ -4,17 +4,18 @@ Guidelines for AI agents working on Julia codebases. Focus on code quality, main
 
 ## Table of Contents
 
-1. [Core Principles](#core-principles)
-2. [Julia Style Guide](#julia-style-guide)
+1. [Critical Principles](#critical-principles)
+2. [Code Style](#code-style)
 3. [Type System](#type-system)
 4. [Function Design](#function-design)
-5. [Documentation](#documentation)
-6. [Performance](#performance)
-7. [Error Handling](#error-handling)
-8. [Design Patterns](#design-patterns)
-9. [Engineering Practices](#engineering-practices)
+5. [Performance](#performance)
+6. [Error Handling](#error-handling)
+7. [Design Patterns](#design-patterns)
+8. [Engineering Practices](#engineering-practices)
 
-## Core Principles
+## Critical Principles
+
+**These principles must be followed at all times.**
 
 ### 1. Ask Rather Than Guess
 **CRITICAL**: When intent is unclear, **always ask** rather than assume. Ask about function names, algorithms, data structures, design decisions, edge cases, and performance trade-offs.
@@ -35,14 +36,7 @@ Guidelines for AI agents working on Julia codebases. Focus on code quality, main
 - "Should I optimize for performance or code simplicity here?"
 - "The design mentions approach 1 and 2 - which should I use?"
 
-### 2. Function Length
-- **Target**: 25 lines per function (excluding docstrings)
-- **Negotiable** based on context
-- Over 50 lines: almost always refactor
-- Over 35 lines: review for refactoring
-- Each function should do one thing well
-
-### 3. Minimal Code
+### 2. Minimal Code
 **CRITICAL**: Write minimal, clear code. Don't state the obvious.
 
 ```julia
@@ -63,7 +57,7 @@ result = sqrt(value)
 
 Add comments only for: complex algorithms, non-obvious optimizations, edge cases, workarounds.
 
-### 4. One Change at a Time
+### 3. One Change at a Time
 **CRITICAL**: Make small, focused changes for easier review.
 
 - One concern per change
@@ -71,9 +65,38 @@ Add comments only for: complex algorithms, non-obvious optimizations, edge cases
 - Separate commits for multiple changes
 - Incremental refactoring: Add new ? switch ? remove old
 
-## Julia Style Guide
+### 4. Documentation
+**CRITICAL**: Documentation must be **simple and clean** - both in text content and formatting.
 
-### Naming
+**Principles:**
+- Simple text: Clear, straightforward language
+- Clean formatting: Consistent, minimal markdown
+- Be concise: Get to the point
+- Focus on usage: What it does and how to use it
+- Consistent structure: Same format across all docstrings
+
+See [Documentation Section](#documentation) for detailed formatting guidelines.
+
+### 5. Testing
+**CRITICAL**: Test every line and branch. No untested code branches allowed.
+
+- **Complete coverage**: Every line executed by at least one test
+- **Branch coverage**: Test all conditionals (`if/else`, ternary, `&&`, `||`)
+- **Edge cases**: Empty inputs, boundary values, error conditions
+- **Public APIs**: All exported functions must have comprehensive tests
+
+See [Testing Section](#testing) for detailed requirements.
+
+## Code Style
+
+### Function Length
+- **Target**: 25 lines per function (excluding docstrings)
+- **Negotiable** based on context
+- Over 50 lines: almost always refactor
+- Over 35 lines: review for refactoring
+- Each function should do one thing well
+
+### Naming Conventions
 - **Functions**: `snake_case` (`compute_value`, `parse_data`)
 - **Mutating functions**: Use `!` suffix (`sort!`, `push!`, `append!`)
 - **Predicates**: Use `?` suffix or `is_` prefix (`isempty`, `haskey`)
@@ -93,6 +116,7 @@ Add comments only for: complex algorithms, non-obvious optimizations, edge cases
 - **Trailing commas**: Use in multi-line definitions
 
 ### Docstrings and Comments
+
 **Docstrings only for:**
 1. Exported functions/types (public API)
 2. Complex functions where use is not obvious
@@ -114,6 +138,87 @@ end
 ```
 
 **Inline comments**: Use sparingly, explain **why** not **what**. TODO/FIXME must include context.
+
+### Documentation
+
+See [Critical Principle #4](#4-documentation) for principles.
+
+**Module Documentation:**
+```julia
+"""
+    ModuleName
+
+Brief description of the module's purpose.
+
+## Features
+- Feature 1
+- Feature 2
+
+## Main Functions
+- [`function1`](@ref): Description
+
+## Examples
+```julia
+using ModuleName
+result = function1(args)
+```
+"""
+module ModuleName
+```
+
+**Type Documentation:**
+```julia
+"""
+    Point
+
+A 2D point with x and y coordinates.
+
+# Fields
+- `x::Float64`: X coordinate
+- `y::Float64`: Y coordinate
+
+# Examples
+```julia
+p = Point(1.0, 2.0)
+```
+"""
+struct Point
+    x::Float64
+    y::Float64
+end
+```
+
+**Function Documentation:**
+```julia
+"""
+    divide(a, b)
+
+Divide `a` by `b`.
+
+# Arguments
+- `a::Float64`: Numerator
+- `b::Float64`: Denominator (must not be zero)
+
+# Returns
+- `Float64`: Result of division
+
+# Examples
+```julia
+result = divide(10.0, 2.0)
+```
+"""
+function divide(a::Float64, b::Float64)::Float64
+    b == 0 && throw(DivideError("Cannot divide by zero"))
+    return a / b
+end
+```
+
+**Formatting rules:**
+- Plain markdown, avoid excessive formatting
+- One sentence per line for readability
+- Keep examples minimal
+- Use simple language
+- Remove redundant words
 
 ## Type System
 
@@ -218,94 +323,6 @@ function append!(container::Vector{T}, value::T) where T
     push!(container, value)
 end
 ```
-
-## Documentation
-
-**CRITICAL**: Documentation must be **simple and clean** - both in text content and formatting.
-
-**Principles:**
-- Simple text: Clear, straightforward language
-- Clean formatting: Consistent, minimal markdown
-- Be concise: Get to the point
-- Focus on usage: What it does and how to use it
-- Consistent structure: Same format across all docstrings
-
-### Module Documentation
-```julia
-"""
-    ModuleName
-
-Brief description of the module's purpose.
-
-## Features
-- Feature 1
-- Feature 2
-
-## Main Functions
-- [`function1`](@ref): Description
-
-## Examples
-```julia
-using ModuleName
-result = function1(args)
-```
-"""
-module ModuleName
-```
-
-### Type Documentation
-```julia
-"""
-    Point
-
-A 2D point with x and y coordinates.
-
-# Fields
-- `x::Float64`: X coordinate
-- `y::Float64`: Y coordinate
-
-# Examples
-```julia
-p = Point(1.0, 2.0)
-```
-"""
-struct Point
-    x::Float64
-    y::Float64
-end
-```
-
-### Function Documentation
-```julia
-"""
-    divide(a, b)
-
-Divide `a` by `b`.
-
-# Arguments
-- `a::Float64`: Numerator
-- `b::Float64`: Denominator (must not be zero)
-
-# Returns
-- `Float64`: Result of division
-
-# Examples
-```julia
-result = divide(10.0, 2.0)
-```
-"""
-function divide(a::Float64, b::Float64)::Float64
-    b == 0 && throw(DivideError("Cannot divide by zero"))
-    return a / b
-end
-```
-
-**Formatting rules:**
-- Plain markdown, avoid excessive formatting
-- One sentence per line for readability
-- Keep examples minimal
-- Use simple language
-- Remove redundant words
 
 ## Performance
 
@@ -541,13 +558,10 @@ end
 ## Engineering Practices
 
 ### Testing
-**CRITICAL**: Test every line and branch. No untested code branches allowed.
 
-- **Complete coverage**: Every line executed by at least one test
-- **Branch coverage**: Test all conditionals (`if/else`, ternary, `&&`, `||`)
-- **Edge cases**: Empty inputs, boundary values, error conditions
-- **Public APIs**: All exported functions must have comprehensive tests
+See [Critical Principle #5](#5-testing) for core requirements.
 
+**Complete test example:**
 ```julia
 # Function to test
 function divide(a::Float64, b::Float64)::Float64
@@ -661,17 +675,19 @@ end
 
 ## Summary
 
-Agents should:
-1. **Always ask** when intent is unclear - especially in planning phase, prefer discussion over ill-defined plans
-2. **Target 25 lines** per function (negotiable)
-3. **Write minimal code** - don't state the obvious
-4. **One change at a time** - keep diffs small
-5. **Follow Julia conventions** - naming, formatting, types
-6. **Prefer composition over inheritance** - use struct composition, not deep type hierarchies
-7. **Document** exported/complex functions only - keep it simple and clean
-8. **Consider performance** - type stability, allocations, appropriate array types
-9. **Handle errors** gracefully with helpful messages
-10. **Test everything** - 100% line and branch coverage, no untested code branches
-11. **Organize code** logically
+**Critical principles:**
+1. **Ask Rather Than Guess** - especially in planning phase, prefer discussion over ill-defined plans
+2. **Minimal Code** - don't state the obvious
+3. **One Change at a Time** - keep diffs small
+4. **Documentation** - keep it simple and clean
+5. **Testing** - 100% line and branch coverage, no untested code branches
+
+**Additional guidelines:**
+- Target 25 lines per function (negotiable)
+- Follow Julia conventions - naming, formatting, types
+- Prefer composition over inheritance
+- Consider performance - type stability, allocations, appropriate array types
+- Handle errors gracefully with helpful messages
+- Organize code logically
 
 **Remember:** Quality over speed. **Discuss and clarify requirements before starting development.** Ask for clarification rather than guessing. Keep code minimal and clear. Make small, focused changes for easier review.
