@@ -422,6 +422,63 @@ end
 
 ## Design Patterns
 
+### Composition Over Inheritance
+
+**Prefer composition over inheritance.** In Julia, use composition (structs containing other structs) rather than abstract type hierarchies for most use cases.
+
+**Composition (Preferred):**
+```julia
+# Good - composition
+struct Logger
+    level::String
+end
+
+struct Config
+    timeout::Int
+    retries::Int
+end
+
+struct Processor
+    logger::Logger
+    config::Config
+end
+
+function process(data, processor::Processor)
+    log_message(processor.logger, "Processing...")
+    # Process data using processor.config
+end
+```
+
+**Inheritance (Use Sparingly):**
+```julia
+# Avoid deep inheritance hierarchies
+abstract type Animal end
+struct Dog <: Animal end
+struct Cat <: Animal end
+
+# Prefer composition for shared behavior
+struct Behaviors
+    can_speak::Bool
+    can_fly::Bool
+end
+
+struct Animal
+    name::String
+    behaviors::Behaviors
+end
+```
+
+**When to use each:**
+- **Composition**: Default choice. Flexible, testable, avoids deep hierarchies.
+- **Abstract types**: Use for dispatch-based polymorphism (multiple dispatch), not for code reuse.
+- **Inheritance hierarchies**: Only when you truly need is-a relationships and polymorphic dispatch.
+
+**Julia-specific considerations:**
+- Julia's multiple dispatch provides polymorphism without inheritance
+- Abstract types define interfaces for dispatch, not implementation sharing
+- Composition allows runtime flexibility and easier testing
+- Use `has_a` (composition) over `is_a` (inheritance) relationships
+
 ### Builder Pattern
 
 For complex object construction:
@@ -602,10 +659,11 @@ Agents should:
 3. **Write minimal code** - don't state the obvious
 4. **One change at a time** - keep diffs small
 5. **Follow Julia conventions** - naming, formatting, types
-6. **Document** exported/complex functions only
-7. **Consider performance** - type stability, allocations
-8. **Handle errors** gracefully with helpful messages
-9. **Write tests** for public APIs
-10. **Organize code** logically
+6. **Prefer composition over inheritance** - use struct composition, not deep type hierarchies
+7. **Document** exported/complex functions only
+8. **Consider performance** - type stability, allocations
+9. **Handle errors** gracefully with helpful messages
+10. **Write tests** for public APIs
+11. **Organize code** logically
 
 **Remember:** Quality over speed. Ask for clarification rather than guessing. Keep code minimal and clear. Make small, focused changes for easier review.
