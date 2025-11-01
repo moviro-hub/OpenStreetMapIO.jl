@@ -283,9 +283,52 @@ end
 
 ## Documentation
 
+**CRITICAL**: Documentation must be **simple and clean** - both in text content and formatting. Write clearly, concisely, and use consistent, minimal formatting.
+
+**Documentation principles:**
+- **Simple text**: Use clear, straightforward language. Avoid jargon and verbosity.
+- **Clean formatting**: Use consistent, minimal markdown. Avoid over-formatting.
+- **Be concise**: Get to the point quickly. Remove unnecessary words.
+- **Focus on usage**: Explain what it does and how to use it, not implementation details (unless needed).
+- **Consistent structure**: Use the same format across all docstrings.
+
 ### Module Documentation
 
-Always document modules:
+Always document modules. Keep it simple and focused:
+
+```julia
+"""
+    ModuleName
+
+Brief description of the module's purpose.
+
+## Features
+- Feature 1
+- Feature 2
+
+## Main Functions
+- [`function1`](@ref): Description
+
+## Examples
+```julia
+using ModuleName
+result = function1(args)
+```
+"""
+module ModuleName
+```
+
+**Avoid:**
+```julia
+"""
+    ModuleName
+
+This module provides a comprehensive set of utilities and functions that enable
+developers to perform various operations with enhanced performance and reliability.
+The module is designed with scalability in mind and offers extensive configurability.
+# ... verbose and unclear
+"""
+```
 
 ```julia
 """
@@ -311,7 +354,7 @@ module ModuleName
 
 ### Type Documentation
 
-Only document exported types (or complex internal types):
+Only document exported types (or complex internal types). Keep descriptions simple:
 
 ```julia
 """
@@ -332,9 +375,51 @@ struct Container{T}
 end
 ```
 
+**Good - simple and clear:**
+```julia
+"""
+    Point
+
+A 2D point with x and y coordinates.
+
+# Fields
+- `x::Float64`: X coordinate
+- `y::Float64`: Y coordinate
+
+# Examples
+```julia
+p = Point(1.0, 2.0)
+```
+"""
+struct Point
+    x::Float64
+    y::Float64
+end
+```
+
+**Bad - verbose and over-formatted:**
+```julia
+"""
+    Point
+
+**A two-dimensional point** representing a location in Cartesian space with 
+*horizontal* and *vertical* components.
+
+# Fields
+- **`x::Float64`**: The **X coordinate** (horizontal position)
+- **`y::Float64`**: The **Y coordinate** (vertical position)
+
+# Examples
+```julia
+# Create a new point
+p = Point(1.0, 2.0)
+```
+"""
+```
+
 ### Function Documentation
 
-Only exported or complex functions:
+Only exported or complex functions. Keep it simple and focused:
 
 ```julia
 """
@@ -358,6 +443,62 @@ function compute_result(input::Float64, factor::Float64 = 1.0)::Float64
     return input * factor
 end
 ```
+
+**Good - simple and clear:**
+```julia
+"""
+    divide(a, b)
+
+Divide `a` by `b`.
+
+# Arguments
+- `a::Float64`: Numerator
+- `b::Float64`: Denominator (must not be zero)
+
+# Returns
+- `Float64`: Result of division
+
+# Examples
+```julia
+result = divide(10.0, 2.0)  # Returns 5.0
+```
+"""
+```
+
+**Bad - verbose and cluttered:**
+```julia
+"""
+    divide(a::Float64, b::Float64)::Float64
+
+**This function performs division** of two floating-point numbers. The function
+takes two parameters and returns their quotient. It is important to note that
+the denominator should not be zero, as this would result in a division by zero
+error.
+
+# Arguments
+- **`a::Float64`**: The **numerator** (the number to be divided)
+- **`b::Float64`**: The **denominator** (the number to divide by) - **?? WARNING**: Must not be zero!
+
+# Returns
+- **`Float64`**: The **result** of the division operation (i.e., `a / b`)
+
+# Examples
+```julia
+# Example 1: Basic division
+result1 = divide(10.0, 2.0)  # Returns: 5.0
+
+# Example 2: Another example
+result2 = divide(15.0, 3.0)  # Returns: 5.0
+```
+"""
+```
+
+**Documentation formatting rules:**
+- Use plain markdown, avoid excessive formatting (no bold/italic unless necessary)
+- One sentence per line for readability in source code
+- Keep examples minimal - show one typical use case
+- Use simple language - "divide" not "perform division operation"
+- Remove redundant words - "This function..." is usually unnecessary
 
 ## Performance
 
@@ -762,6 +903,7 @@ end
 
 - [ ] Type annotations present for public APIs
 - [ ] Documentation complete for exported/complex functions
+- [ ] Documentation is simple and clean (text and formatting)
 - [ ] Error handling appropriate
 - [ ] No type instability in hot paths
 - [ ] **Tests cover 100% of code lines and branches** (no untested code branches)
@@ -786,7 +928,7 @@ Agents should:
 4. **One change at a time** - keep diffs small
 5. **Follow Julia conventions** - naming, formatting, types
 6. **Prefer composition over inheritance** - use struct composition, not deep type hierarchies
-7. **Document** exported/complex functions only
+7. **Document** exported/complex functions only - keep it simple and clean (text and formatting)
 8. **Consider performance** - type stability, allocations
 9. **Handle errors** gracefully with helpful messages
 10. **Test everything** - 100% line and branch coverage, no untested code branches
