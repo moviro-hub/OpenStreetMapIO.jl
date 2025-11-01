@@ -13,6 +13,7 @@ Guidelines for AI agents working on Julia codebases. Focus on code quality, main
 7. [Error Handling](#error-handling)
 8. [Design Patterns](#design-patterns)
 9. [Engineering Practices](#engineering-practices)
+10. [Official Julia Documentation Guidelines](#official-julia-documentation-guidelines)
 
 ## Core Principles
 
@@ -591,6 +592,194 @@ end
 **API Evolution:**
 - Maintain backward compatibility when possible
 - Deprecate rather than remove: `Base.@deprecate old_function(args...) new_function(args...)`
+
+## Official Julia Documentation Guidelines
+
+Based on [Julia's official documentation](https://docs.julialang.org/en/v1/), the following are critical guidelines for agents:
+
+### Style Conventions (from Julia Style Guide)
+
+**Functions:**
+- Use `snake_case` for function names: `compute_value`, `parse_data`
+- Avoid abbreviations unless widely understood: `idx` is acceptable, `comp_val` is not
+- Use `!` suffix for in-place mutating functions: `sort!`, `push!`, `append!`
+- Question-mark suffix for predicates (return Bool): `isempty`, `haskey`
+
+**Types:**
+- Use `PascalCase` for types and constructors
+- Use short names for type parameters: `T`, `S`, `U`, `V`, `N`, `M`
+
+**Constants:**
+- Use `SCREAMING_SNAKE_CASE` for module-level constants
+- Use `const` for truly constant values
+
+### Performance Tips (from Performance Tips)
+
+**Avoid global variables:**
+```julia
+# Bad
+global x = 0
+function increment()
+    global x += 1
+end
+
+# Good
+function increment(x::Ref{Int})
+    x[] += 1
+end
+```
+
+**Use type annotations:**
+- Always annotate function arguments and return values for performance
+- Use concrete types when possible, avoid `Any`
+
+**Measure before optimizing:**
+- Use `@time`, `@btime` (from BenchmarkTools.jl), and `@profview` (from ProfileView.jl)
+- Profile first: `using Profile; @profile my_function(); Profile.print()`
+
+**Avoid containers with abstract element types:**
+```julia
+# Bad - Vector{Any}
+data = [1, 2.0, "three"]
+
+# Good - use tuples or structs
+struct DataPoint
+    int_val::Int
+    float_val::Float64
+    str_val::String
+end
+```
+
+**Pre-allocate outputs:**
+- Allocate result containers before loops
+- Use `sizehint!` for arrays that grow
+
+**Access arrays in memory order:**
+```julia
+# Good - column-major order (Julia's default)
+for j in 1:size(A, 2)
+    for i in 1:size(A, 1)
+        A[i, j] = ...
+    end
+end
+```
+
+### Type System Best Practices
+
+**Abstract types for dispatch, not storage:**
+```julia
+# Bad - storing abstract type loses information
+items::Vector{Number} = [1, 2.0, 3]
+
+# Good - parametric container preserves type
+struct Container{T}
+    items::Vector{T}
+end
+```
+
+**Type annotations in function signatures:**
+- Always type function arguments and return values
+- This enables optimization and helps catch errors
+
+**Avoid field types that are too abstract:**
+```julia
+# Bad
+struct MyType
+    data::Any
+end
+
+# Good
+struct MyType{T}
+    data::T
+end
+```
+
+### Documentation Standards (from Documenter.jl best practices)
+
+**Docstring format:**
+- Use triple-quoted strings `"""..."""`
+- Start with function signature
+- One-line summary, then detailed description
+- Use `# Arguments`, `# Returns`, `# Examples` sections
+- Include type information in signature
+
+**Cross-references:**
+- Use `` [`function_name`](@ref) `` for internal references
+- Use markdown links for external references
+
+**Examples:**
+- Include runnable examples
+- Test examples to ensure they work
+- Keep examples simple and focused
+
+### Package Development Guidelines
+
+**Project structure:**
+- Use `Project.toml` for dependencies (not `REQUIRE`)
+- Specify compatible Julia version: `julia = "1.6"`
+- Use semantic versioning
+- Document all public APIs
+
+**Testing:**
+- Place tests in `test/` directory
+- Use `Test.jl` standard library
+- Test all exported functions
+- Include integration tests
+
+**Module organization:**
+- Export only public API
+- Use `__init__` function for initialization code
+- Prefer `include()` over loading files separately
+
+### Type System Guidelines
+
+**When to use abstract types:**
+- For dispatch (multiple dispatch polymorphism)
+- To define interface contracts
+- NOT for storage or performance
+
+**When to use concrete types:**
+- For data storage
+- For performance-critical code
+- For type stability
+
+**Union types:**
+- Use for truly optional/nullable values
+- Keep unions small (prefer `Union{A, B}` over `Union{A, B, C, ...}`)
+- Consider `Nothing` unions: `Union{String, Nothing}`
+
+### Error Handling Guidelines
+
+**Exception hierarchy:**
+- `ArgumentError`: Invalid argument value
+- `BoundsError`: Index out of bounds
+- `TypeError`: Type conversion/assertion error
+- `MethodError`: Method doesn't exist
+- `ErrorException`: Generic error (use sparingly)
+
+**Best practices:**
+- Use specific exception types
+- Include context in error messages
+- Fail fast with clear messages
+- Document exceptions in docstrings
+
+### Memory and Performance
+
+**Avoid allocations in hot loops:**
+- Pre-allocate result containers
+- Use `@views` to avoid copying
+- Reuse buffers when possible
+
+**Use appropriate data structures:**
+- `Vector` for ordered collections
+- `Set` for membership testing
+- `Dict` for key-value lookups
+- `Tuple` for immutable small collections
+
+**Consider StaticArrays.jl:**
+- For small fixed-size arrays (< ~100 elements)
+- Stack-allocated, zero heap allocation
+- Excellent performance for small sizes
 
 ## Code Review Checklist
 
