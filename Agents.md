@@ -597,6 +597,79 @@ end
 
 Use coverage tools to ensure 100% line and branch coverage.
 
+### Logging
+Use Julia's logging macros (`@info`, `@warn`, `@error`) with conditional logging to allow easy removal of logging statements.
+
+**Basic usage:**
+```julia
+using Logging
+
+@info "Processing started" n_items=length(items)
+@warn "Deprecated function, use new_function instead"
+@error "Failed to process item" item_id=id exception=(ex, catch_backtrace())
+```
+
+**Conditional logging pattern:**
+Wrap logging statements with `if logging()` to allow removal by overloading:
+
+```julia
+# Define logging control function
+logging() = true
+
+# Use in code
+function process_data(data::Vector{Float64})
+    if logging()
+        @info "Processing data" length=length(data)
+    end
+    
+    # ... processing code ...
+    
+    if logging()
+        @debug "Intermediate result" result=computed_value
+    end
+    
+    if error_occurred
+        if logging()
+            @error "Processing failed" reason=error_message
+        end
+        throw(ErrorException(error_message))
+    end
+end
+```
+
+**Remove logging in production:**
+```julia
+# In production module or config
+logging() = false  # Overload to disable all logging
+```
+
+**Benefits:**
+- Can completely remove logging code by setting `logging() = false`
+- No performance overhead when disabled
+- Easy to enable/disable per module or globally
+- Logging macros are type-safe and support structured logging
+
+**Best practices:**
+- Use `@info` for informational messages
+- Use `@warn` for warnings that don't stop execution
+- Use `@error` for errors (usually before throwing exceptions)
+- Use `@debug` for detailed debugging information
+- Include context in log messages (use keyword arguments for structured data)
+- Wrap expensive logging operations in `if logging()` checks
+
+```julia
+# Good - structured logging with context
+if logging()
+    @info "Data processed successfully" 
+        n_items=length(items) 
+        processing_time=elapsed_time 
+        memory_used=bytes_allocated
+end
+
+# Bad - expensive string interpolation always evaluated
+@info "Processing $(expensive_computation()) items"  # Computed even when logging disabled
+```
+
 ### Code Reuse (DRY)
 Extract common patterns:
 
