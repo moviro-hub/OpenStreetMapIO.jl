@@ -179,8 +179,9 @@ end
 
 ### Parametric Types
 
-Use for generic code with constraints:
+Use parametric types for generic code with constraints. **Prefer parametric structs over structs with abstract type fields** for type stability and performance.
 
+**Functions with type parameters:**
 ```julia
 function reverse_items{T}(items::Vector{T})::Vector{T} where T
 end
@@ -188,6 +189,59 @@ end
 function sum_values{T <: Number}(values::Vector{T})::T where T
 end
 ```
+
+**Structs: Use parametric types instead of abstract type fields**
+
+```julia
+# Bad - abstract type field causes type instability
+struct Container
+    items::Vector{Number}  # Abstract type - slow, type-unstable
+end
+
+# Good - parametric type makes struct concrete and type-stable
+struct Container{T <: Number}
+    items::Vector{T}  # Concrete type - fast, type-stable
+end
+
+# Usage
+int_container = Container{Int}([1, 2, 3])
+float_container = Container{Float64}([1.0, 2.0, 3.0])
+```
+
+**When you need to store different types, use Union or separate parametric instances:**
+
+```julia
+# Bad - abstract type loses type information
+struct Processor
+    value::Number  # Type unstable
+end
+
+# Good - parametric type preserves type information
+struct Processor{T <: Number}
+    value::T  # Type stable
+end
+
+# If you truly need mixed types at runtime:
+struct MixedProcessor
+    value::Union{Int, Float64}  # Explicit union, better than Number
+end
+
+# Or use separate instances:
+int_processor = Processor{Int}(42)
+float_processor = Processor{Float64}(3.14)
+```
+
+**Benefits of parametric structs:**
+- **Type stability**: Compiler knows exact types, better optimization
+- **Performance**: No runtime type checking/dispatching
+- **Type safety**: Compile-time guarantees about stored types
+- **Flexibility**: Same struct works with different concrete types
+
+**Guidelines:**
+- Always parameterize structs when fields could have different concrete types
+- Avoid abstract types (`Number`, `AbstractArray`, etc.) as field types
+- Use parametric types with constraints: `struct Container{T <: Number}`
+- Use Union types only when you genuinely need mixed types at runtime
 
 ## Function Design
 
@@ -428,7 +482,7 @@ end
 
 **Composition (Preferred):**
 ```julia
-# Good - composition
+# Good - composition with concrete types
 struct Logger
     level::String
 end
@@ -447,6 +501,21 @@ function process(data, processor::Processor)
     log_message(processor.logger, "Processing...")
     # Process data using processor.config
 end
+
+# Good - composition with parametric types (preferred when types vary)
+struct Buffer{T}
+    data::Vector{T}
+    capacity::Int
+end
+
+struct Transformer{T}
+    buffer::Buffer{T}
+    multiplier::Float64
+end
+
+# Usage - type-stable composition
+int_transformer = Transformer(Buffer{Int}([1, 2, 3], 100), 2.0)
+float_transformer = Transformer(Buffer{Float64}([1.0, 2.0], 50), 1.5)
 ```
 
 **Inheritance (Use Sparingly):**
