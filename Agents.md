@@ -770,30 +770,48 @@ end
 
 ## Code Review Checklist
 
-- [ ] Type annotations present for public APIs
-- [ ] Documentation complete for exported/complex functions
-- [ ] Documentation is simple and clean (text and formatting)
-- [ ] Error handling appropriate
-- [ ] No type instability in hot paths
-- [ ] **Tests cover 100% of code lines and branches** (no untested code branches)
-- [ ] All conditional branches tested
-- [ ] All error paths tested
-- [ ] All early returns tested
-- [ ] Function length reasonable (target 25 lines)
-- [ ] Code follows naming conventions
-- [ ] All dependencies have explicit `using` statements (prefer qualified imports)
-- [ ] Appropriate array types used (StaticArrays.jl, FixedSizeArrays.jl, or Vector)
-- [ ] No unnecessary allocations in loops
-- [ ] Input validation where appropriate
-- [ ] No redundant comments or obvious statements
-- [ ] Code is minimal and self-documenting
-- [ ] Changes focused on single concern
-- [ ] Diffs kept small and reviewable
+**Critical Principles:**
+- [ ] Intent clarified before implementation
+- [ ] Code is minimal and self-explanatory
+- [ ] Single concern per change, diffs < 100 lines
+
+**API Design:**
 - [ ] Public API clearly separated from internal implementation
-- [ ] Internal algorithms optimized appropriately
-- [ ] Package structure follows conventions (for packages)
-- [ ] Service patterns followed (for services)
 - [ ] Return types consistent in public APIs
+- [ ] Backward compatibility maintained (or properly deprecated)
+- [ ] Public API stable and well-documented
+
+**Function Design:**
+- [ ] Function length reasonable (target 25 lines)
+- [ ] Keyword arguments used for 3+ optional parameters
+- [ ] Side effects documented
+
+**Julia Style Guide:**
+- [ ] Naming conventions followed
+- [ ] Formatting consistent (4 spaces, < 92 chars)
+- [ ] Documentation simple and clean (for exported/complex functions)
+
+**Type System:**
+- [ ] Type annotations present for public APIs
+- [ ] Parametric types used (not abstract type fields)
+- [ ] No type instability in hot paths
+
+**Error Handling:**
+- [ ] Appropriate exception types used
+- [ ] Input validation in public APIs
+- [ ] Clear error messages with context
+
+**Performance:**
+- [ ] Appropriate array types (StaticArrays.jl, FixedSizeArrays.jl, or Vector)
+- [ ] No unnecessary allocations in loops
+- [ ] Memory managed appropriately
+- [ ] Internal algorithms optimized (where applicable)
+
+**Engineering Practices:**
+- [ ] **Tests cover 100% of lines and branches**
+- [ ] All dependencies have explicit `using` statements (qualified imports preferred)
+- [ ] Code organization follows conventions
+- [ ] Package/service patterns followed (if applicable)
 
 ## Summary
 
