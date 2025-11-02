@@ -1,6 +1,6 @@
 # OpenStreetMapIO.jl
 
-A Julia package for reading and processing OpenStreetMap data in various formats.
+A comprehensive OpenStreetMap (OSM) data file reader for Julia.
 
 ## Features
 
@@ -40,4 +40,4 @@ osmdata = readpbf("map.pbf", node_callback=keep_restaurants)
 
 ## License
 
-This package is licensed under the MIT License. See [LICENSE.md](https://github.com/moviro-hub-hub/OpenStreetMapIO.jl/blob/main/LICENSE.md) for details.
+This package is licensed under the MIT License. See [LICENSE.md](https://github.com/moviro-hub/OpenStreetMapIO.jl/blob/main/LICENSE.md) for details.

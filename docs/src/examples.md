@@ -39,7 +39,7 @@ println("Loaded $(length(osmdata.nodes)) nodes from XML")
 
 ```julia
 # Query data for a specific area
-bbox = BBox(53.4, 9.8, 53.7, 10.2)
+bbox = BBox(53.45, 9.95, 53.55, 10.05)
 osmdata = queryoverpass(bbox)
 
 # Query around a specific point
