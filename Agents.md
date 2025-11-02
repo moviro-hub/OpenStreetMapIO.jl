@@ -770,45 +770,45 @@ end
 
 ## Code Review Checklist
 
-**Critical Principles:**
+Critical Principles:
 - [ ] Intent clarified before implementation
 - [ ] Code is minimal and self-explanatory
 - [ ] Single concern per change, diffs < 100 lines
 
-**API Design:**
+API Design:
 - [ ] Public API clearly separated from internal implementation
 - [ ] Return types consistent in public APIs
 - [ ] Backward compatibility maintained (or properly deprecated)
 - [ ] Public API stable and well-documented
 
-**Function Design:**
+Function Design:
 - [ ] Function length reasonable (target 25 lines)
 - [ ] Keyword arguments used for 3+ optional parameters
 - [ ] Side effects documented
 
-**Julia Style Guide:**
+Julia Style Guide:
 - [ ] Naming conventions followed
 - [ ] Formatting consistent (4 spaces, < 92 chars)
 - [ ] Documentation simple and clean (for exported/complex functions)
 
-**Type System:**
+Type System:
 - [ ] Type annotations present for public APIs
 - [ ] Parametric types used (not abstract type fields)
 - [ ] No type instability in hot paths
 
-**Error Handling:**
+Error Handling:
 - [ ] Appropriate exception types used
 - [ ] Input validation in public APIs
 - [ ] Clear error messages with context
 
-**Performance:**
+Performance:
 - [ ] Appropriate array types (StaticArrays.jl, FixedSizeArrays.jl, or Vector)
 - [ ] No unnecessary allocations in loops
 - [ ] Memory managed appropriately
 - [ ] Internal algorithms optimized (where applicable)
 
-**Engineering Practices:**
-- [ ] **Tests cover 100% of lines and branches**
+Engineering Practices:
+- [ ] Tests cover 100% of lines and branches
 - [ ] All dependencies have explicit `using` statements (qualified imports preferred)
 - [ ] Code organization follows conventions
 - [ ] Package/service patterns followed (if applicable)
