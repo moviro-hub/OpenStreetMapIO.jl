@@ -1,7 +1,7 @@
 """
     OpenStreetMapIO
 
-A Julia package for reading and processing OpenStreetMap data in various formats.
+A comprehensive OpenStreetMap (OSM) data file reader for Julia.
 
 ## Features
 

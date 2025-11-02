@@ -42,7 +42,7 @@ using OpenStreetMapIO
 osmdata = readpbf("map.pbf")
 
 # Query by bounding box
-bbox = BBox(53.4, 9.8, 53.7, 10.2)
+bbox = BBox(53.45, 9.95, 53.55, 10.05)
 osmdata = queryoverpass(bbox)
 
 # Query by center point and radius
