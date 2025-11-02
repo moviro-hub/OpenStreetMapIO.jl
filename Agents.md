@@ -236,6 +236,36 @@ Guidelines:
 - **Avoid abstract types**: (`Number`, `AbstractArray`) as field types - use parametric instead
 - Keep unions small: prefer `Union{A, B}` over `Union{A, B, C, ...}`
 
+### Immutability
+
+Prefer immutable types first, mutable only if required.
+
+- **Default to immutable**: Use immutable structs (`struct`) as default choice
+- **Mutable only when needed**: Use `mutable struct` only when state must change after construction
+- **Benefits of immutability**: Thread-safe, easier to reason about, better performance in many cases
+- **When to use mutable**: State that changes over time, performance-critical in-place updates
+
+```julia
+# Good - immutable by default
+struct Point
+    x::Float64
+    y::Float64
+end
+
+# Mutable only when state needs to change
+mutable struct Counter
+    count::Int
+end
+
+function increment!(counter::Counter)
+    counter.count += 1
+end
+```
+
+- Use immutable structs for data that doesn't change after creation
+- Use mutable structs only when in-place mutation is required
+- Prefer immutable data structures in concurrent code
+
 ## Function Design
 
 ### Signatures
