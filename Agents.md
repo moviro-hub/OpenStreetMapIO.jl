@@ -22,7 +22,7 @@ Guidelines for AI agents working on Julia codebases.
 **CRITICAL**: When intent is unclear, **always ask** rather than assume.
 
 **Planning Phase:**
-**CRITICAL**: In planning phase, **discussing what exactly to do is preferred over developing based on an ill-defined plan**. Do not start implementation until requirements, scope, and design are clearly understood.
+**CRITICAL**: In planning phase, clarify requirements before implementing. Do not start until scope and design are clearly understood.
 
 - Ask clarifying questions about requirements, expected behavior, edge cases
 - Propose design options and discuss trade-offs before implementing
@@ -57,7 +57,7 @@ Add comments only for: complex algorithms, non-obvious optimizations, edge cases
 - One concern per change
 - Target 50-100 lines per diff
 - Separate commits for multiple changes
-- Incremental refactoring: Add new ? switch ? remove old
+- Incremental refactoring: Add new → switch → remove old
 
 ## API Design
 
@@ -156,8 +156,9 @@ Divide `a` by `b`.
 - `Float64`: Result of division
 
 # Examples
-```julia
-result = divide(10.0, 2.0)
+```jldoctest
+julia> result = divide(10.0, 2.0)
+5.0
 ```
 """
 ```
@@ -270,7 +271,7 @@ end
 struct Point
     x::Float64
     y::Float64
-    
+
     # Inner constructor - basic validation
     function Point(x::Float64, y::Float64)
         isfinite(x) && isfinite(y) || throw(ArgumentError("Coordinates must be finite"))
@@ -289,7 +290,7 @@ Point(x::Real, y::Real) = Point(Float64(x), Float64(y))
 
 - **Keyword arguments**: Use for 3+ optional parameters
 - **Default arguments**: Provide sensible defaults
-- **Argument order**: Required ? optional ? keyword
+- **Argument order**: Required → optional → keyword
 
 ```julia
 function transform_values(
@@ -407,7 +408,7 @@ end
 - **SIMD-friendly code**: Use operations that vectorize well (simple loops, element-wise ops)
 - **Cache-aware**: Access memory sequentially when possible, reuse recently accessed data
 - **Avoid function calls in tight loops**: Extract loop bodies, minimize indirection
-- **Algorithm complexity**: Choose O(n log n) over O(n?) when data grows large
+- **Algorithm complexity**: Choose O(n log n) over O(n²) when data grows large
 - **Unroll small loops**: For very small fixed-size loops, consider manual unrolling
 
 ```julia
@@ -532,7 +533,7 @@ struct Transformer{T}
 end
 ```
 
-When to use:
+**When to use:**
 - **Composition**: Default choice. Flexible, testable.
 - **Abstract types**: For dispatch-based polymorphism (multiple dispatch), not code reuse
 - **Inheritance**: Only when you truly need is-a relationships and polymorphic dispatch
@@ -637,9 +638,7 @@ using Test
 end
 ```
 
-- **Test all branches**: `if/else`, ternary, short-circuit, error paths, early returns.
-
-- Use coverage tools to ensure 100% line and branch coverage.
+- **Test all branches**: `if/else`, ternary, short-circuit, error paths, early returns. Use coverage tools to ensure 100% line and branch coverage.
 
 ### Run Commands in Project Environment
 
@@ -663,7 +662,7 @@ julia> Pkg.activate(".")
 julia> Pkg.add("PackageName")
 ```
 
-- Package manager ensures proper dependency resolution, maintains consistency, prevents manual errors.
+- Ensures proper dependency resolution and consistency.
 
 ### Dependency Management
 See [Run Commands in Project Environment](#run-commands-in-project-environment) for how to add dependencies.
@@ -734,10 +733,10 @@ module PackageName
     include("types.jl")      # Type definitions
     include("internal.jl")   # Internal helper functions
     include("algorithms.jl") # Optimized internal algorithms
-    
+
     # Public API
     include("api.jl")        # Public API - exported functions only
-    
+
     # Exports
     export public_function, PublicType
 end
@@ -782,7 +781,7 @@ For long-running services:
 function run_service(config::Config)
     # Initialize
     resources = initialize(config)
-    
+
     try
         # Main loop
         while is_running()
