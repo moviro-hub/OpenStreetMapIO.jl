@@ -261,6 +261,34 @@ function increment!(counter::Counter)
 end
 ```
 
+### Constructors
+
+Julia supports inner and outer constructors. Use them appropriately:
+
+- **Inner constructors**: Do basic validation, keep performance in mind
+- **Outer constructors**: Reduce code duplication, provide convenience
+
+```julia
+struct Point
+    x::Float64
+    y::Float64
+    
+    # Inner constructor - basic validation, performance-conscious
+    function Point(x::Float64, y::Float64)
+        isfinite(x) && isfinite(y) || throw(ArgumentError("Coordinates must be finite"))
+        return new(x, y)
+    end
+end
+
+# Outer constructors - reduce duplication, convenience
+Point(x::Int, y::Int) = Point(Float64(x), Float64(y))
+Point(x::Real, y::Real) = Point(Float64(x), Float64(y))
+```
+
+- Inner constructors: Minimal validation, performance-critical path
+- Outer constructors: Type conversions, default values, convenience methods
+- Prefer outer constructors for conversions to avoid code duplication
+
 ## Function Design
 
 ### Signatures
