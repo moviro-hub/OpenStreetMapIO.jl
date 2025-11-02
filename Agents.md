@@ -240,10 +240,9 @@ Guidelines:
 
 Prefer immutable types first, mutable only if required.
 
-- **Default to immutable**: Use immutable structs (`struct`) as default choice
+- **Default to immutable**: Use `struct` (immutable) as default choice
 - **Mutable only when needed**: Use `mutable struct` only when state must change after construction
-- **Benefits of immutability**: Thread-safe, easier to reason about, better performance in many cases
-- **When to use mutable**: State that changes over time, performance-critical in-place updates
+- **Benefits**: Thread-safe, easier to reason about, better performance
 
 ```julia
 # Good - immutable by default
@@ -261,10 +260,6 @@ function increment!(counter::Counter)
     counter.count += 1
 end
 ```
-
-- Use immutable structs for data that doesn't change after creation
-- Use mutable structs only when in-place mutation is required
-- Prefer immutable data structures in concurrent code
 
 ## Function Design
 
