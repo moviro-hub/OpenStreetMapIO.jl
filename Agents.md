@@ -142,7 +142,7 @@ end
 
 Formatting:
 
-```julia
+`````julia
 """
     divide(a, b)
 
@@ -161,7 +161,7 @@ julia> result = divide(10.0, 2.0)
 5.0
 ```
 """
-```
+`````
 
 - Plain markdown, avoid excessive formatting
 - One sentence per line for readability
