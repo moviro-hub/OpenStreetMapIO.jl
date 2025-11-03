@@ -14,4 +14,3 @@ end
     @test OpenStreetMapIO.decode_html_entities("' &apos; &#39;") == "' ' '"
     @test OpenStreetMapIO.decode_html_entities("no entities") == "no entities"
 end
-

@@ -10,7 +10,6 @@ Read OpenStreetMap data from a PBF (Protocol Buffer Format) file.
 - `node_callback::Union{Function,Nothing}=nothing`: Optional callback function for filtering nodes
 - `way_callback::Union{Function,Nothing}=nothing`: Optional callback function for filtering ways
 - `relation_callback::Union{Function,Nothing}=nothing`: Optional callback function for filtering relations
- 
 
 # Callback Functions
 Callback functions should accept one argument of the respective type (`Node`, `Way`, or `Relation`) and return either:
