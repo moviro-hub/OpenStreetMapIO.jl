@@ -30,6 +30,12 @@ Guidelines for AI agents working on Julia codebases.
 - Define success criteria before coding
 - Avoid starting development with vague or incomplete requirements
 
+**Implementation Phase:**
+**CRITICAL**: respect edits to your code as much as possible.
+- try not to revert changes to your code unless absolutely necessary.
+- take any changes to your code as a suggestion, and evaluate them based on the context of the project.
+- if the changes are not beneficial, explain why and suggest alternative solutions.
+
 ### 2. Minimal Code
 **CRITICAL**: Minimal, self-explanatory code. Comments explain why, not what.
 
@@ -667,7 +673,7 @@ julia> Pkg.add("PackageName")
 ### Dependency Management
 See [Run Commands in Project Environment](#run-commands-in-project-environment) for how to add dependencies.
 
-- **Specify Julia version** in Project.toml: `julia = "1.6"`
+- **Specify Julia version** in Project.toml: `julia = ">=1.10, <2.0"`
 - **Pin dependency versions**
 - **Minimize dependencies**
 - **Document non-standard dependencies**
@@ -692,32 +698,41 @@ data = download("https://example.com/data.json")
 
 ### Logging
 
-Use Julia's logging macros with conditional logging (OFF by default):
+Use Julia's logging macros
 
 ```julia
 using Logging
 
-# Define logging control - OFF by default
-logging() = false
-
 # Use in code
 function process_data(data::Vector{Float64})
-    if logging()
-        @info "Processing data" length=length(data)
-    end
+    @info "Processing data" length=length(data)
     # ... processing ...
 end
 
-# Enable when needed
-logging() = true  # Overload to enable
 ```
 
 - **Use `@info`** for informational messages
 - **Use `@warn`** for warnings
 - **Use `@error`** for errors (usually before throwing)
-- **Use `@debug`** for detailed debugging
+
 - **Include context** with keyword arguments
-- **Wrap expensive operations** in `if logging()` checks
+
+Use `@debug` for detailed debugging when needed (OFF by default):
+
+```julia
+# Define debugging control with conditional `debugging()` function (OFF by default):
+debugging() = false
+
+```julia
+if debugging()
+    @debug "Processing data" data=data
+end
+
+# Enable when needed by overloading the `debugging()` function
+debugging() = true
+```
+
+- **Wrap debugging operations** in `if debugging()` checks
 
 ### Code Organization
 
