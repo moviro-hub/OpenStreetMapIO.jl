@@ -82,6 +82,14 @@ osmdata = readpbf("map.pbf", node_callback=keep_restaurants)
 osmdata = readosm("map.osm", node_callback=keep_restaurants)
 ```
 
+### Optional DenseInfo decoding (PBF)
+
+Dense nodes can include compact metadata (version, timestamp, changeset, uid, user, visible) via DenseInfo. Decode it by enabling the flag (slower):
+
+```julia
+osmdata = readpbf("map.pbf"; enable_dense_info = true)
+```
+
 ## Data Types
 
 - **`OpenStreetMap`**: Container with `nodes`, `ways`, `relations`, and `meta` dictionaries

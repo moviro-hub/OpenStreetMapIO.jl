@@ -1,5 +1,5 @@
 """
-    readpbf(filename; node_callback, way_callback, relation_callback)
+    readpbf(filename; node_callback, way_callback, relation_callback, enable_dense_info)
 
 Read OpenStreetMap data from a PBF (Protocol Buffer Format) file.
 
@@ -10,6 +10,7 @@ Read OpenStreetMap data from a PBF (Protocol Buffer Format) file.
 - `node_callback::Union{Function,Nothing}=nothing`: Optional callback function for filtering nodes
 - `way_callback::Union{Function,Nothing}=nothing`: Optional callback function for filtering ways
 - `relation_callback::Union{Function,Nothing}=nothing`: Optional callback function for filtering relations
+- `enable_dense_info::Bool=false`: When true, decode DenseInfo into `Node.info` for dense nodes (slower)
 
 # Callback Functions
 Callback functions should accept one argument of the respective type (`Node`, `Way`, or `Relation`) and return either:
@@ -49,6 +50,7 @@ function readpbf(
         node_callback::Union{Function, Nothing} = nothing,
         way_callback::Union{Function, Nothing} = nothing,
         relation_callback::Union{Function, Nothing} = nothing,
+        enable_dense_info::Bool = false,
     )::OpenStreetMap
     # Validate file exists and is readable
     isfile(filename) || throw(ArgumentError("File '$filename' does not exist"))
@@ -71,7 +73,7 @@ function readpbf(
 
                 primitive_block = decode_blob(blob, OSMPBF.PrimitiveBlock)
                 process_primitive_block!(
-                    osmdata, primitive_block, node_callback, way_callback, relation_callback
+                    osmdata, primitive_block, node_callback, way_callback, relation_callback, enable_dense_info
                 )
             end
         end
@@ -363,6 +365,7 @@ function process_primitive_block!(
         node_callback::Union{Function, Nothing},
         way_callback::Union{Function, Nothing},
         relation_callback::Union{Function, Nothing},
+        enable_dense_info::Bool,
     )
     # Pre-compute string lookup table for performance
     string_table = build_string_table(primblock.stringtable)
@@ -387,7 +390,7 @@ function process_primitive_block!(
             # Extract dense nodes (more efficient format)
             if hasproperty(primgrp, :dense) && primgrp.dense !== nothing
                 dense_nodes = extract_dense_nodes(
-                    primgrp, string_table, latlon_params, date_params, node_callback
+                    primgrp, string_table, latlon_params, date_params, node_callback, enable_dense_info
                 )
                 merge!(osmdata.nodes, dense_nodes)
             end
@@ -628,6 +631,7 @@ Optimized for performance with vectorized operations and efficient tag processin
 - `latlon_params::LatLonParams`: Lat/lon conversion parameters
 - `date_params::DateTimeParams`: Date/time conversion parameters
 - `node_callback::Union{Function,Nothing}`: Optional node filtering callback
+- `enable_dense_info::Bool`: Decode DenseInfo when true (slower)
 
 # Returns
 - `Dict{Int64,Node}`: Extracted dense nodes
@@ -640,6 +644,7 @@ function extract_dense_nodes(
         latlon_params::LatLonParams,
         date_params::DateTimeParams,
         node_callback::Union{Function, Nothing},
+        enable_dense_info::Bool,
     )::Dict{Int64, Node}
     if primgrp.dense === nothing || isempty(primgrp.dense.id)
         return Dict{Int64, Node}()
@@ -674,13 +679,20 @@ function extract_dense_nodes(
         # Extract tags efficiently
         tags = extract_dense_node_tags(primgrp.dense, string_table, ids)
 
+        # Optionally decode DenseInfo aligned to ids
+        info_vec = Union{Info,Nothing}[]
+        if enable_dense_info && hasproperty(primgrp.dense, :denseinfo) && primgrp.dense.denseinfo !== nothing
+            info_vec = extract_dense_info(primgrp.dense.denseinfo, string_table, date_params, length(ids))
+        else
+            resize!(info_vec, 0)
+        end
+
         # Assemble Node objects
         nodes = Dict{Int64, Node}()
-        for (id, lat, lon) in zip(ids, lats, lons)
+        for (i, (id, lat, lon)) in enumerate(zip(ids, lats, lons))
             try
-                # For dense nodes, Info extraction is complex (requires DenseInfo delta decoding)
-                # For now, set info to nothing - full DenseInfo support can be added later
-                node = Node(Position(lat, lon), get(tags, id, nothing), nothing)
+                info = (enable_dense_info && length(info_vec) == length(ids)) ? info_vec[i] : nothing
+                node = Node(Position(lat, lon), get(tags, id, nothing), info)
 
                 # Apply callback if provided
                 if node_callback !== nothing
@@ -697,7 +709,7 @@ function extract_dense_nodes(
                     nodes[id] = node
                 end
             catch e
-                @warn "Error processing dense node $id: $e"
+                @warn "Error processing dense node" id = id error = e
                 continue
             end
         end
@@ -705,9 +717,76 @@ function extract_dense_nodes(
         return nodes
 
     catch e
-        @warn "Error processing dense nodes: $e"
+        @warn "Error processing dense nodes" error = e
         return Dict{Int64, Node}()
     end
+end
+
+"""
+    extract_dense_info(denseinfo, string_table, date_params, n)
+
+Decode DenseInfo arrays (delta-coded) and return a vector of `Union{Info,Nothing}` of length `n`.
+Missing arrays or zeros result in `nothing` fields as per Info semantics.
+"""
+function extract_dense_info(
+        denseinfo::OSMPBF.DenseInfo,
+        string_table::Vector{String},
+        date_params::DateTimeParams,
+        n::Int,
+    )::Vector{Union{Info,Nothing}}
+    result = Vector{Union{Info,Nothing}}(undef, n)
+
+    # Prepare vectors; some fields may be empty
+    versions = getfield(denseinfo, :version)
+    ts = getfield(denseinfo, :timestamp)
+    cs = getfield(denseinfo, :changeset)
+    uids = getfield(denseinfo, :uid)
+    users = getfield(denseinfo, :user_sid)
+    visibles = getfield(denseinfo, :visible)
+
+    # Delta decode applicable fields
+    ts_vals = isempty(ts) ? Int[] : collect(cumsum(ts))
+    cs_vals = isempty(cs) ? Int[] : collect(cumsum(cs))
+    uid_vals = isempty(uids) ? Int[] : collect(cumsum(uids))
+    user_sid_vals = isempty(users) ? Int[] : collect(cumsum(users))
+
+    for i in 1:n
+        version = (!isempty(versions) && i <= length(versions) && versions[i] != -1) ? Int32(versions[i]) : nothing
+
+        # timestamp (ms units after multiplying by date_granularity)
+        timestamp = nothing
+        if !isempty(ts_vals) && i <= length(ts_vals)
+            try
+                timestamp_ms = ts_vals[i] * date_params.date_granularity
+                timestamp = unix2datetime(timestamp_ms / 1000.0)
+            catch e
+                if logging()
+                    @warn "Invalid dense timestamp" index = i error = e
+                end
+            end
+        end
+
+        changeset = (!isempty(cs_vals) && i <= length(cs_vals) && cs_vals[i] != 0) ? Int64(cs_vals[i]) : nothing
+        uid = (!isempty(uid_vals) && i <= length(uid_vals) && uid_vals[i] != 0) ? Int32(uid_vals[i]) : nothing
+
+        user = nothing
+        if !isempty(user_sid_vals) && i <= length(user_sid_vals)
+            sid = Int(user_sid_vals[i])
+            if sid > 0 && sid <= length(string_table)
+                user = string_table[sid]
+            end
+        end
+
+        visible = (!isempty(visibles) && i <= length(visibles)) ? Bool(visibles[i]) : nothing
+
+        if version === nothing && timestamp === nothing && changeset === nothing && uid === nothing && user === nothing && visible === nothing
+            result[i] = nothing
+        else
+            result[i] = Info(version, timestamp, changeset, uid, user, visible)
+        end
+    end
+
+    return result
 end
 
 """
@@ -920,7 +999,7 @@ function extract_relations(
         try
             # Validate tag consistency
             if length(r.keys) != length(r.vals)
-                @warn "Relation has inconsistent tag keys/values, skipping" relation_id = r.i
+                @warn "Relation has inconsistent tag keys/values, skipping" relation_id = r.id
                 continue
             end
 
