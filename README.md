@@ -21,7 +21,7 @@ Pkg.add(url="https://github.com/moviro-hub/OpenStreetMapIO.jl")
 
 ### Reading OSM Files
 
-Example data can be found in the  `.test/data` directory of this repository.
+Example data can be found in the `test/data` directory of this repository.
 
 ```julia
 using OpenStreetMapIO
