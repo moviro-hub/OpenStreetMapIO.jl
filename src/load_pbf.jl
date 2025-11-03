@@ -297,7 +297,7 @@ function process_header_block!(osmdata::OpenStreetMap, header::OSMPBF.HeaderBloc
                 round(1.0e-9 * bbox.right; digits = 7),
             )
         catch e
-            @warn "Invalid bounding box in header: $e"
+            @warn "Invalid bounding box in header" error = e
         end
     end
 
@@ -322,7 +322,7 @@ function process_header_block!(osmdata::OpenStreetMap, header::OSMPBF.HeaderBloc
         try
             osmdata.meta["osmosis_replication_timestamp"] = unix2datetime(header.osmosis_replication_timestamp)
         catch e
-            @warn "Invalid timestamp in header: $e"
+            @warn "Invalid timestamp in header" error = e
         end
     end
 
@@ -401,7 +401,7 @@ function process_primitive_block!(
             merge!(osmdata.relations, relations)
 
         catch e
-            @warn "Error processing primitive group: $e"
+            @warn "Error processing primitive group" error = e
             continue  # Skip this group and continue with the next one
         end
     end
@@ -452,7 +452,7 @@ function extract_info(
             timestamp_ms = proto_info.timestamp * date_params.date_granularity
             timestamp = unix2datetime(timestamp_ms / 1000.0)
         catch e
-            @warn "Invalid timestamp in Info: $e"
+            @warn "Invalid timestamp in Info" error = e
         end
     end
 
@@ -550,7 +550,7 @@ function extract_regular_nodes(
         try
             # Validate tag consistency
             if length(n.keys) != length(n.vals)
-                @warn "Node $(n.id) has inconsistent tag keys/values, skipping"
+                @warn "Node has inconsistent tag keys/values, skipping" node_id = n.id
                 continue
             end
 
@@ -561,7 +561,7 @@ function extract_regular_nodes(
                 for (k, v) in zip(n.keys, n.vals)
                     # Validate string indices
                     if k + 1 > length(string_table) || v + 1 > length(string_table)
-                        @warn "Node $(n.id) has invalid string indices, skipping"
+                        @warn "Node has invalid string indices, skipping" node_id = n.id
                         continue
                     end
                     tags[string_table[k + 1]] = string_table[v + 1]
@@ -580,7 +580,7 @@ function extract_regular_nodes(
 
             # Validate coordinates are within valid ranges
             if lat < -90.0 || lat > 90.0 || lon < -180.0 || lon > 180.0
-                @warn "Node $(n.id) has invalid coordinates (lat=$lat, lon=$lon), skipping"
+                @warn "Node has invalid coordinates, skipping" node_id = n.id lat = lat lon = lon
                 continue
             end
 
@@ -608,7 +608,7 @@ function extract_regular_nodes(
             end
 
         catch e
-            @warn "Error processing node $(n.id): $e"
+            @warn "Error processing node" node_id = n.id error = e
             continue
         end
     end
@@ -821,7 +821,7 @@ function extract_ways(
         try
             # Validate tag consistency
             if length(w.keys) != length(w.vals)
-                @warn "Way $(w.id) has inconsistent tag keys/values, skipping"
+                @warn "Way has inconsistent tag keys/values, skipping" way_id = w.id
                 continue
             end
 
@@ -832,7 +832,7 @@ function extract_ways(
                 for (k, v) in zip(w.keys, w.vals)
                     # Validate string indices
                     if k + 1 > length(string_table) || v + 1 > length(string_table)
-                        @warn "Way $(w.id) has invalid string indices, skipping"
+                        @warn "Way has invalid string indices, skipping" way_id = w.id
                         continue
                     end
                     tags[string_table[k + 1]] = string_table[v + 1]
@@ -883,7 +883,7 @@ function extract_ways(
             end
 
         catch e
-            @warn "Error processing way $(w.id): $e"
+            @warn "Error processing way" way_id = w.id error = e
             continue
         end
     end
@@ -920,7 +920,7 @@ function extract_relations(
         try
             # Validate tag consistency
             if length(r.keys) != length(r.vals)
-                @warn "Relation $(r.id) has inconsistent tag keys/values, skipping"
+                @warn "Relation has inconsistent tag keys/values, skipping" relation_id = r.i
                 continue
             end
 
@@ -931,7 +931,7 @@ function extract_relations(
                 for (k, v) in zip(r.keys, r.vals)
                     # Validate string indices
                     if k + 1 > length(string_table) || v + 1 > length(string_table)
-                        @warn "Relation $(r.id) has invalid string indices, skipping"
+                        @warn "Relation has invalid string indices, skipping" relation_id = r.id
                         continue
                     end
                     tags[string_table[k + 1]] = string_table[v + 1]
@@ -967,7 +967,7 @@ function extract_relations(
             end
 
         catch e
-            @warn "Error processing relation $(r.id): $e"
+            @warn "Error processing relation" relation_id = r.id error = e
             continue
         end
     end
@@ -1003,11 +1003,11 @@ function convert_member_types(types)::Vector{String}
             elseif t_int == 2
                 result[i] = "relation"
             else
-                @warn "Unknown member type $t (int: $t_int), defaulting to 'node'"
+                @warn "Unknown member type, defaulting to 'node'" t = t t_int = t_int
                 result[i] = "node"
             end
         catch e
-            @warn "Error converting member type $t: $e, defaulting to 'node'"
+            @warn "Error converting member type, defaulting to 'node'" t = t error = e
             result[i] = "node"
         end
     end
@@ -1036,7 +1036,7 @@ function extract_relation_roles(
 
     for (i, sid) in enumerate(roles_sid)
         if sid + 1 > length(string_table)
-            @warn "Invalid role string index $sid, using empty string"
+            @warn "Invalid role string index, using empty string" sid = sid
             result[i] = ""
         else
             result[i] = string_table[sid + 1]
