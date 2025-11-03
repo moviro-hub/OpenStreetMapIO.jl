@@ -1,3 +1,4 @@
+__precompile__()
 """
     OpenStreetMapIO
 
@@ -52,23 +53,25 @@ osmdata = readpbf("map.pbf", node_callback=keep_restaurants)
 ```
 """
 module OpenStreetMapIO
-using ProtoBuf: decode, ProtoDecoder, PipeBuffer
-using CodecZlib: ZlibDecompressorStream
-using CodecLz4: LZ4FrameDecompressorStream
-using CodecZstd: ZstdDecompressorStream
-using CodecXz: XzDecompressorStream
-using Dates: unix2datetime, DateTime
-using XML: XML
-using Downloads: download
+    using ProtoBuf: decode, ProtoDecoder, PipeBuffer
+    using CodecZlib: ZlibDecompressorStream
+    using CodecLz4: LZ4FrameDecompressorStream
+    using CodecZstd: ZstdDecompressorStream
+    using CodecXz: XzDecompressorStream
+    using Dates: unix2datetime, DateTime
+    using XML: XML
+    using Downloads: download
+    using Logging
 
-export readpbf, readosm, queryoverpass
-export OpenStreetMap, Node, Way, Relation, BBox, Position, Info
 
-include("OSMPBF/OSMPBF.jl")
-include("map_types.jl")
-include("utils.jl")
-include("load_pbf.jl")
-include("load_xml.jl")
-include("load_overpass.jl")
+    export readpbf, readosm, queryoverpass
+    export OpenStreetMap, Node, Way, Relation, BBox, Position, Info
+
+    include("OSMPBF/OSMPBF.jl")
+    include("map_types.jl")
+    include("utils.jl")
+    include("load_pbf.jl")
+    include("load_xml.jl")
+    include("load_overpass.jl")
 
 end

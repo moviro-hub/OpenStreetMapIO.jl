@@ -1,5 +1,5 @@
 if !isdefined(Main, :TestUtils)
-    include("test_utils.jl")
+    include("TestUtils.jl")
     using .TestUtils
 end
 using OpenStreetMapIO, Test
