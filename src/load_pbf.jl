@@ -1,5 +1,5 @@
 """
-    readpbf(filename; node_callback, way_callback, relation_callback, enable_dense_info)
+    readpbf(filename; node_callback, way_callback, relation_callback)
 
 Read OpenStreetMap data from a PBF (Protocol Buffer Format) file.
 
@@ -10,7 +10,7 @@ Read OpenStreetMap data from a PBF (Protocol Buffer Format) file.
 - `node_callback::Union{Function,Nothing}=nothing`: Optional callback function for filtering nodes
 - `way_callback::Union{Function,Nothing}=nothing`: Optional callback function for filtering ways
 - `relation_callback::Union{Function,Nothing}=nothing`: Optional callback function for filtering relations
-- `enable_dense_info::Bool=false`: When true, decode DenseInfo into `Node.info` for dense nodes (slower)
+ 
 
 # Callback Functions
 Callback functions should accept one argument of the respective type (`Node`, `Way`, or `Relation`) and return either:
@@ -50,7 +50,6 @@ function readpbf(
         node_callback::Union{Function, Nothing} = nothing,
         way_callback::Union{Function, Nothing} = nothing,
         relation_callback::Union{Function, Nothing} = nothing,
-        enable_dense_info::Bool = false,
     )::OpenStreetMap
     # Validate file exists and is readable
     isfile(filename) || throw(ArgumentError("File '$filename' does not exist"))
@@ -73,7 +72,7 @@ function readpbf(
 
                 primitive_block = decode_blob(blob, OSMPBF.PrimitiveBlock)
                 process_primitive_block!(
-                    osmdata, primitive_block, node_callback, way_callback, relation_callback, enable_dense_info
+                    osmdata, primitive_block, node_callback, way_callback, relation_callback
                 )
             end
         end
@@ -365,7 +364,6 @@ function process_primitive_block!(
         node_callback::Union{Function, Nothing},
         way_callback::Union{Function, Nothing},
         relation_callback::Union{Function, Nothing},
-        enable_dense_info::Bool,
     )
     # Pre-compute string lookup table for performance
     string_table = build_string_table(primblock.stringtable)
@@ -390,7 +388,7 @@ function process_primitive_block!(
             # Extract dense nodes (more efficient format)
             if hasproperty(primgrp, :dense) && primgrp.dense !== nothing
                 dense_nodes = extract_dense_nodes(
-                    primgrp, string_table, latlon_params, date_params, node_callback, enable_dense_info
+                    primgrp, string_table, latlon_params, date_params, node_callback
                 )
                 merge!(osmdata.nodes, dense_nodes)
             end
@@ -631,7 +629,6 @@ Optimized for performance with vectorized operations and efficient tag processin
 - `latlon_params::LatLonParams`: Lat/lon conversion parameters
 - `date_params::DateTimeParams`: Date/time conversion parameters
 - `node_callback::Union{Function,Nothing}`: Optional node filtering callback
-- `enable_dense_info::Bool`: Decode DenseInfo when true (slower)
 
 # Returns
 - `Dict{Int64,Node}`: Extracted dense nodes
@@ -644,7 +641,6 @@ function extract_dense_nodes(
         latlon_params::LatLonParams,
         date_params::DateTimeParams,
         node_callback::Union{Function, Nothing},
-        enable_dense_info::Bool,
     )::Dict{Int64, Node}
     if primgrp.dense === nothing || isempty(primgrp.dense.id)
         return Dict{Int64, Node}()
@@ -679,9 +675,9 @@ function extract_dense_nodes(
         # Extract tags efficiently
         tags = extract_dense_node_tags(primgrp.dense, string_table, ids)
 
-        # Optionally decode DenseInfo aligned to ids
-        info_vec = Union{Info,Nothing}[]
-        if enable_dense_info && hasproperty(primgrp.dense, :denseinfo) && primgrp.dense.denseinfo !== nothing
+        # Decode DenseInfo aligned to ids (if present)
+        info_vec = Union{Info, Nothing}[]
+        if hasproperty(primgrp.dense, :denseinfo) && primgrp.dense.denseinfo !== nothing
             info_vec = extract_dense_info(primgrp.dense.denseinfo, string_table, date_params, length(ids))
         else
             resize!(info_vec, 0)
@@ -691,7 +687,7 @@ function extract_dense_nodes(
         nodes = Dict{Int64, Node}()
         for (i, (id, lat, lon)) in enumerate(zip(ids, lats, lons))
             try
-                info = (enable_dense_info && length(info_vec) == length(ids)) ? info_vec[i] : nothing
+                info = (length(info_vec) == length(ids)) ? info_vec[i] : nothing
                 node = Node(Position(lat, lon), get(tags, id, nothing), info)
 
                 # Apply callback if provided
@@ -733,8 +729,8 @@ function extract_dense_info(
         string_table::Vector{String},
         date_params::DateTimeParams,
         n::Int,
-    )::Vector{Union{Info,Nothing}}
-    result = Vector{Union{Info,Nothing}}(undef, n)
+    )::Vector{Union{Info, Nothing}}
+    result = Vector{Union{Info, Nothing}}(undef, n)
 
     # Prepare vectors; some fields may be empty
     versions = getfield(denseinfo, :version)
