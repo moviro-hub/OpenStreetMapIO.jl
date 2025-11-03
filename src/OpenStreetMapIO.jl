@@ -1,3 +1,4 @@
+__precompile__()
 """
     OpenStreetMapIO
 
@@ -60,6 +61,8 @@ using CodecXz: XzDecompressorStream
 using Dates: unix2datetime, DateTime
 using XML: XML
 using Downloads: download
+using Logging
+
 
 export readpbf, readosm, queryoverpass
 export OpenStreetMap, Node, Way, Relation, BBox, Position, Info
