@@ -114,7 +114,9 @@ function parse_osm(
                     osmdata.nodes[id] = node
                 end
             catch e
-                @warn "Error processing node: $e"
+                if logging()
+                    @warn "Error processing node" error = e
+                end
                 continue
             end
         elseif elname == "way"
@@ -134,7 +136,9 @@ function parse_osm(
                     osmdata.ways[id] = way
                 end
             catch e
-                @warn "Error processing way: $e"
+                if logging()
+                    @warn "Error processing way" error = e
+                end
                 continue
             end
         elseif elname == "relation"
@@ -154,7 +158,9 @@ function parse_osm(
                     osmdata.relations[id] = relation
                 end
             catch e
-                @warn "Error processing relation: $e"
+                if logging()
+                    @warn "Error processing relation" error = e
+                end
                 continue
             end
         else
