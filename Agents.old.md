@@ -1026,5 +1026,3 @@ Engineering Practices:
 - Organize code logically
 
 **Remember:** Quality over speed. **Discuss and clarify requirements before starting development.** Ask for clarification rather than guessing. Keep code minimal and clear. Make small, focused changes.
-
-

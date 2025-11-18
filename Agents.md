@@ -1,6 +1,6 @@
 # Agent Guidelines for Julia Development
 
-Guidelines for AI agents working on Julia codebases.
+Guidelines for AI agents and humans working on this codebase.
 
 ## At a Glance
 
@@ -29,18 +29,12 @@ Guidelines for AI agents working on Julia codebases.
 
 ## Daily Workflow
 
-- Run Runic locally; fix formatting.
+- Run Runic locally; fix formatting:
+  - Use the `format.sh` script in the root of the project to format the code.
 - Run tests; ensure changed public APIs have complete line/branch coverage.
 - Keep CI green (tests, coverage, docs; optional JET).
 - Prefer commands in the project environment:
   - `julia --project=. -e 'using Pkg; Pkg.test()'`
-
-Recommended pre-commit hook:
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-julia --project=. -e 'using Runic; Runic.format!(".")'
-```
 
 ## API Design
 

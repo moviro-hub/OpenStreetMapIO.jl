@@ -1,5 +1,5 @@
 """
-    readosm(filename; node_callback, way_callback, relation_callback)
+    read_osm(filename; node_callback, way_callback, relation_callback)
 
 Read OpenStreetMap data from an XML file.
 
@@ -22,7 +22,7 @@ Callback functions should accept one argument of the respective type (`Node`, `W
 # Examples
 ```julia
 # Read all data
-osmdata = readosm("map.osm")
+osmdata = read_osm("map.osm")
 
 # Filter to only include restaurants
 function keep_restaurants(node)
@@ -31,14 +31,14 @@ function keep_restaurants(node)
     end
     return nothing
 end
-osmdata = readosm("map.osm", node_callback=keep_restaurants)
+osmdata = read_osm("map.osm", node_callback=keep_restaurants)
 ```
 
 # See Also
-- [`readpbf`](@ref): Read OSM PBF files
-- [`queryoverpass`](@ref): Query data from Overpass API
+- [`read_pbf`](@ref): Read OSM PBF files
+- [`query_overpass`](@ref): Query data from Overpass API
 """
-function readosm(
+function read_osm(
         filename::String;
         node_callback::Union{Function, Nothing} = nothing,
         way_callback::Union{Function, Nothing} = nothing,
@@ -74,7 +74,7 @@ Optimized for performance with early returns and efficient parsing.
 # Returns
 - `OpenStreetMap`: Parsed OSM data structure
 
-# Internal function used by `readosm`.
+# Internal function used by `read_osm`.
 """
 function parse_osm(
         xmldoc::XML.Node;

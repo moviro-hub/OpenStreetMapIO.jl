@@ -27,14 +27,14 @@ Example data can be found in the `test/data` directory of this repository.
 using OpenStreetMapIO
 
 # Read PBF file
-osmdata = readpbf("map.pbf")
+osmdata = read_pbf("map.pbf")
 
 # Read XML file
-osmdata = readosm("map.osm")
+osmdata = read_osm("map.osm")
 
 # Query data from Overpass API
 bbox = BBox(53.45, 9.95, 53.55, 10.05)  # lat_min, lon_min, lat_max, lon_max
-osmdata = queryoverpass(bbox)
+osmdata = query_overpass(bbox)
 ```
 
 ### Working with Data
@@ -77,9 +77,9 @@ function keep_restaurants(node)
     return nothing
 end
 
-osmdata = readpbf("map.pbf", node_callback=keep_restaurants)
+osmdata = read_pbf("map.pbf", node_callback=keep_restaurants)
 
-osmdata = readosm("map.osm", node_callback=keep_restaurants)
+osmdata = read_osm("map.osm", node_callback=keep_restaurants)
 ```
 
 ## Data Types

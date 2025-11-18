@@ -10,7 +10,7 @@ This page provides comprehensive examples showing how to use OpenStreetMapIO.jl 
 using OpenStreetMapIO
 
 # Read a PBF file
-osmdata = readpbf("map.pbf")
+osmdata = read_pbf("map.pbf")
 
 # Explore the data
 println("Dataset contains:")
@@ -29,7 +29,7 @@ end
 
 ```julia
 # Read an XML file (same interface as PBF)
-osmdata = readosm("map.osm")
+osmdata = read_osm("map.osm")
 
 # Data structure is identical
 println("Loaded $(length(osmdata.nodes)) nodes from XML")
@@ -40,11 +40,11 @@ println("Loaded $(length(osmdata.nodes)) nodes from XML")
 ```julia
 # Query data for a specific area
 bbox = BBox(53.45, 9.95, 53.55, 10.05)
-osmdata = queryoverpass(bbox)
+osmdata = query_overpass(bbox)
 
 # Query around a specific point
 center = Position(53.55, 9.99)
-osmdata = queryoverpass(center, 2000)  # 2km radius
+osmdata = query_overpass(center, 2000)  # 2km radius
 ```
 
 ## Working with Metadata
@@ -53,7 +53,7 @@ osmdata = queryoverpass(center, 2000)  # 2km radius
 
 ```julia
 # Read file with element metadata
-osmdata = readpbf("map.pbf")
+osmdata = read_pbf("map.pbf")
 
 # Access version information
 for (id, node) in osmdata.nodes
@@ -73,7 +73,7 @@ end
 
 ```julia
 # Some PBF files include embedded coordinates in ways
-osmdata = readpbf("map.pbf")
+osmdata = read_pbf("map.pbf")
 
 for (id, way) in osmdata.ways
     if way.positions !== nothing
@@ -105,7 +105,7 @@ function keep_italian_restaurants(node)
     return nothing
 end
 
-italian_restaurants = readpbf("map.pbf", node_callback=keep_italian_restaurants)
+italian_restaurants = read_pbf("map.pbf", node_callback=keep_italian_restaurants)
 println("Found $(length(italian_restaurants.nodes)) Italian restaurants")
 
 # Find all highways
@@ -116,7 +116,7 @@ function keep_highways(way)
     return nothing
 end
 
-highways = readpbf("map.pbf", way_callback=keep_highways)
+highways = read_pbf("map.pbf", way_callback=keep_highways)
 println("Found $(length(highways.ways)) highways")
 
 # Find all bus routes
@@ -130,7 +130,7 @@ function keep_bus_routes(relation)
 end
 
 # Apply all filters
-osmdata = readpbf("map.pbf",
+osmdata = read_pbf("map.pbf",
     node_callback=keep_italian_restaurants,
     way_callback=keep_highways,
     relation_callback=keep_bus_routes
@@ -153,7 +153,7 @@ function add_processing_info(node)
     return Node(node.position, new_tags, node.info)
 end
 
-processed_data = readpbf("map.pbf", node_callback=add_processing_info)
+processed_data = read_pbf("map.pbf", node_callback=add_processing_info)
 ```
 
 ### Finding Points of Interest
@@ -173,7 +173,7 @@ function keep_pois(node)
     return nothing
 end
 
-pois = readpbf("map.pbf", node_callback=keep_pois)
+pois = read_pbf("map.pbf", node_callback=keep_pois)
 println("Found $(length(pois.nodes)) points of interest")
 
 # Analyze POI types
@@ -219,7 +219,7 @@ function analyze_without_storage(filename)
         return nothing  # Don't store the way
     end
 
-    readpbf(filename,
+    read_pbf(filename,
         node_callback=count_restaurants,
         way_callback=count_highways
     )

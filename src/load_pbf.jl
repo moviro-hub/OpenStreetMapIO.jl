@@ -1,5 +1,5 @@
 """
-    readpbf(filename; node_callback, way_callback, relation_callback)
+    read_pbf(filename; node_callback, way_callback, relation_callback)
 
 Read OpenStreetMap data from a PBF (Protocol Buffer Format) file.
 
@@ -22,7 +22,7 @@ Callback functions should accept one argument of the respective type (`Node`, `W
 # Examples
 ```julia
 # Read all data
-osmdata = readpbf("map.pbf")
+osmdata = read_pbf("map.pbf")
 
 # Filter to only include restaurants
 function keep_restaurants(node)
@@ -31,20 +31,20 @@ function keep_restaurants(node)
     end
     return nothing
 end
-osmdata = readpbf("map.pbf", node_callback=keep_restaurants)
+osmdata = read_pbf("map.pbf", node_callback=keep_restaurants)
 
 # Filter multiple element types
-osmdata = readpbf("map.pbf",
+osmdata = read_pbf("map.pbf",
     node_callback=keep_restaurants,
     way_callback=way -> way.tags !== nothing && haskey(way.tags, "highway") ? way : nothing
 )
 ```
 
 # See Also
-- [`readosm`](@ref): Read OSM XML files
-- [`queryoverpass`](@ref): Query data from Overpass API
+- [`read_osm`](@ref): Read OSM XML files
+- [`query_overpass`](@ref): Query data from Overpass API
 """
-function readpbf(
+function read_pbf(
         filename::String;
         node_callback::Union{Function, Nothing} = nothing,
         way_callback::Union{Function, Nothing} = nothing,
@@ -102,7 +102,7 @@ Optimized for performance with efficient memory allocation.
 - `EOFError`: If file ends unexpectedly
 - `ArgumentError`: If blob data is corrupted
 
-# Internal function used by `readpbf`.
+# Internal function used by `read_pbf`.
 """
 function read_next_blob(f)::Tuple{OSMPBF.BlobHeader, OSMPBF.Blob}
     # Read blob header size
@@ -144,7 +144,7 @@ Validate that the blob header has the expected type.
 # Throws
 - `ArgumentError`: If blob type doesn't match expected type
 
-# Internal function used by `readpbf`.
+# Internal function used by `read_pbf`.
 """
 function validate_blob_type(blobheader::OSMPBF.BlobHeader, expected_type::String)
     actual_type = blobheader.var"#type"
@@ -208,7 +208,7 @@ Validates decompressed data size against raw_size if provided for corruption det
 - LZ4
 - Zstd
 
-# Internal function used by `readpbf`.
+# Internal function used by `read_pbf`.
 """
 function decode_blob(
         blob::OSMPBF.Blob,
@@ -283,7 +283,7 @@ Robustly handles missing or invalid header fields.
 - `osmdata::OpenStreetMap`: OSM data object to update
 - `header::OSMPBF.HeaderBlock`: Header block from PBF file
 
-# Internal function used by `readpbf`.
+# Internal function used by `read_pbf`.
 """
 function process_header_block!(osmdata::OpenStreetMap, header::OSMPBF.HeaderBlock)
     # Process bounding box with validation
@@ -355,7 +355,7 @@ Optimized for performance with efficient string table handling and batch process
 - `way_callback::Union{Function,Nothing}`: Optional way filtering callback
 - `relation_callback::Union{Function,Nothing}`: Optional relation filtering callback
 
-# Internal function used by `readpbf`.
+# Internal function used by `read_pbf`.
 """
 function process_primitive_block!(
         osmdata::OpenStreetMap,

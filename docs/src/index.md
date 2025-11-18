@@ -20,12 +20,12 @@ Pkg.add(url="https://github.com/moviro-hub/OpenStreetMapIO.jl")
 using OpenStreetMapIO
 
 # Read OSM data from files
-osmdata = readpbf("map.pbf")  # PBF format
-osmdata = readosm("map.osm")  # XML format
+osmdata = read_pbf("map.pbf")  # PBF format
+osmdata = read_osm("map.osm")  # XML format
 
 # Query data from Overpass API
 bbox = BBox(53.45, 9.95, 53.55, 10.05)
-osmdata = queryoverpass(bbox)
+osmdata = query_overpass(bbox)
 
 # Filter data during reading
 function keep_restaurants(node)
@@ -35,7 +35,7 @@ function keep_restaurants(node)
     return nothing
 end
 
-osmdata = readpbf("map.pbf", node_callback=keep_restaurants)
+osmdata = read_pbf("map.pbf", node_callback=keep_restaurants)
 ```
 
 ## License

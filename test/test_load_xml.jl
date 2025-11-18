@@ -60,11 +60,11 @@ using OpenStreetMapIO, Test
 
     @testset "XML Reading Error Handling" begin
         # Test reading non-existent file
-        @test_throws Exception OpenStreetMapIO.readosm("nonexistent.osm")
+        @test_throws Exception OpenStreetMapIO.read_osm("nonexistent.osm")
 
         # Test reading invalid XML file (using PBF file)
         try
-            OpenStreetMapIO.readosm(test_file_pbf)
+            OpenStreetMapIO.read_osm(test_file_pbf)
             @test false  # Should have thrown an error
         catch e
             @test true  # Should throw some kind of error
@@ -87,7 +87,7 @@ using OpenStreetMapIO, Test
         end
 
         try
-            OpenStreetMapIO.readosm(temp_file)
+            OpenStreetMapIO.read_osm(temp_file)
             @test false  # Should have thrown an error
         catch e
             @test true  # Should throw some kind of error
@@ -98,7 +98,7 @@ using OpenStreetMapIO, Test
     end
 
     @testset "XML Metadata Extraction" begin
-        osmdata = OpenStreetMapIO.readosm(test_file_xml)
+        osmdata = OpenStreetMapIO.read_osm(test_file_xml)
 
         # Test metadata structure
         @test haskey(osmdata.meta, "bbox")
@@ -154,7 +154,7 @@ using OpenStreetMapIO, Test
     @testset "XML Performance Tests" begin
         # Test reading time
         start_time = time()
-        osmdata = OpenStreetMapIO.readosm(test_file_xml)
+        osmdata = OpenStreetMapIO.read_osm(test_file_xml)
         read_time = time() - start_time
 
         @test read_time < 10.0  # Should read in less than 10 seconds
@@ -175,7 +175,7 @@ using OpenStreetMapIO, Test
     end
 
     @testset "XML Data Consistency" begin
-        osmdata = OpenStreetMapIO.readosm(test_file_xml)
+        osmdata = OpenStreetMapIO.read_osm(test_file_xml)
 
         # Test that all way references point to existing nodes
         for (way_id, way) in osmdata.ways
@@ -221,8 +221,8 @@ using OpenStreetMapIO, Test
 
     @testset "XML vs PBF Consistency" begin
         # Read both formats and compare
-        osmdata_xml = OpenStreetMapIO.readosm(test_file_xml)
-        osmdata_pbf = OpenStreetMapIO.readpbf(test_file_pbf)
+        osmdata_xml = OpenStreetMapIO.read_osm(test_file_xml)
+        osmdata_pbf = OpenStreetMapIO.read_pbf(test_file_pbf)
 
         # Test that both formats produce similar data
         @test length(osmdata_xml.nodes) == length(osmdata_pbf.nodes)
@@ -257,7 +257,7 @@ using OpenStreetMapIO, Test
 
     @testset "XML Special Cases" begin
         # Test reading XML with special characters
-        osmdata = OpenStreetMapIO.readosm(test_file_xml)
+        osmdata = OpenStreetMapIO.read_osm(test_file_xml)
 
         # Find nodes with special characters in tags
         special_char_nodes = []

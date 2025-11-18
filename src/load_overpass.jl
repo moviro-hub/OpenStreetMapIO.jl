@@ -1,5 +1,5 @@
 """
-    queryoverpass(bbox; kwargs...)
+    query_overpass(bbox; kwargs...)
 
 Query OpenStreetMap data from Overpass API using a bounding box.
 
@@ -15,18 +15,18 @@ Query OpenStreetMap data from Overpass API using a bounding box.
 # Examples
 ```julia
 bbox = BBox(54.0, 9.0, 55.0, 10.0)
-osmdata = queryoverpass(bbox)
+osmdata = query_overpass(bbox)
 ```
 """
-function queryoverpass(bbox::BBox; kwargs...)::OpenStreetMap
-    osmdata = queryoverpass(
+function query_overpass(bbox::BBox; kwargs...)::OpenStreetMap
+    osmdata = query_overpass(
         "$(bbox.bottom_lat),$(bbox.left_lon),$(bbox.top_lat),$(bbox.right_lon)"; kwargs...
     )
     return osmdata
 end
 
 """
-    queryoverpass(position, radius; kwargs...)
+    query_overpass(position, radius; kwargs...)
 
 Query OpenStreetMap data from Overpass API using a center point and radius.
 
@@ -43,16 +43,16 @@ Query OpenStreetMap data from Overpass API using a center point and radius.
 # Examples
 ```julia
 center = Position(54.2619665, 9.9854149)
-osmdata = queryoverpass(center, 1000)  # 1km radius
+osmdata = query_overpass(center, 1000)  # 1km radius
 ```
 """
-function queryoverpass(position::Position, radius::Real; kwargs...)
-    osmdata = queryoverpass("around:$radius,$(position.lat),$(position.lon)"; kwargs...)
+function query_overpass(position::Position, radius::Real; kwargs...)
+    osmdata = query_overpass("around:$radius,$(position.lat),$(position.lon)"; kwargs...)
     return osmdata
 end
 
 """
-    queryoverpass(bounds; timeout)
+    query_overpass(bounds; timeout)
 
 Query OpenStreetMap data from Overpass API using a bounds string.
 
@@ -68,17 +68,17 @@ Query OpenStreetMap data from Overpass API using a bounds string.
 # Examples
 ```julia
 # Bounding box query
-osmdata = queryoverpass("54.0,9.0,55.0,10.0")
+osmdata = query_overpass("54.0,9.0,55.0,10.0")
 
 # Radius query
-osmdata = queryoverpass("around:1000,54.2619665,9.9854149")
+osmdata = query_overpass("around:1000,54.2619665,9.9854149")
 ```
 
 # See Also
-- [`readpbf`](@ref): Read OSM PBF files
-- [`readosm`](@ref): Read OSM XML files
+- [`read_pbf`](@ref): Read OSM PBF files
+- [`read_osm`](@ref): Read OSM XML files
 """
-function queryoverpass(bounds::String; timeout::Int64 = 25)::OpenStreetMap
+function query_overpass(bounds::String; timeout::Int64 = 25)::OpenStreetMap
     query = """
     	[out:xml][timeout:$timeout];
     	(

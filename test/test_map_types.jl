@@ -153,8 +153,8 @@ using OpenStreetMapIO, Test
         # Test that data types are consistent across different sources
         test_file_pbf = test_data_path("map.pbf")
         test_file_xml = test_data_path("map.osm")
-        osmdata_pbf = OpenStreetMapIO.readpbf(test_file_pbf)
-        osmdata_xml = OpenStreetMapIO.readosm(test_file_xml)
+        osmdata_pbf = OpenStreetMapIO.read_pbf(test_file_pbf)
+        osmdata_xml = OpenStreetMapIO.read_osm(test_file_xml)
 
         # Test that both sources produce the same data types
         @test isa(osmdata_pbf, OpenStreetMap)
