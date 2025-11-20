@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Examples · OpenStreetMapIO.jl</title><meta name="title" content="Examples · OpenStreetMapIO.jl"/><meta property="og:title" content="Examples · OpenStreetMapIO.jl"/><meta property="twitter:title" content="Examples · OpenStreetMapIO.jl"/><meta name="description" content="Documentation for OpenStreetMapIO.jl."/><meta property="og:description" content="Documentation for OpenStreetMapIO.jl."/><meta property="twitter:description" content="Documentation for OpenStreetMapIO.jl."/><meta property="og:url" content="https://moviro-hub.github.io/OpenStreetMapIO.jl/examples/"/><meta property="twitter:url" content="https://moviro-hub.github.io/OpenStreetMapIO.jl/examples/"/><link rel="canonical" href="https://moviro-hub.github.io/OpenStreetMapIO.jl/examples/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">OpenStreetMapIO.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../api/">API Reference</a></li><li class="is-active"><a class="tocitem" href>Examples</a><ul class="internal"><li><a class="tocitem" href="#Basic-File-Reading"><span>Basic File Reading</span></a></li><li><a class="tocitem" href="#Working-with-Metadata"><span>Working with Metadata</span></a></li><li><a class="tocitem" href="#Data-Filtering-and-Processing"><span>Data Filtering and Processing</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Examples</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Examples</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/moviro-hub/OpenStreetMapIO.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/moviro-hub/OpenStreetMapIO.jl/blob/main/docs/src/examples.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h1><p>This page provides comprehensive examples showing how to use OpenStreetMapIO.jl for various tasks.</p><h2 id="Basic-File-Reading"><a class="docs-heading-anchor" href="#Basic-File-Reading">Basic File Reading</a><a id="Basic-File-Reading-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-File-Reading" title="Permalink"></a></h2><h3 id="Reading-PBF-Files"><a class="docs-heading-anchor" href="#Reading-PBF-Files">Reading PBF Files</a><a id="Reading-PBF-Files-1"></a><a class="docs-heading-anchor-permalink" href="#Reading-PBF-Files" title="Permalink"></a></h3><pre><code class="language-julia hljs">using OpenStreetMapIO
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Examples · OpenStreetMapIO.jl</title><meta name="title" content="Examples · OpenStreetMapIO.jl"/><meta property="og:title" content="Examples · OpenStreetMapIO.jl"/><meta property="twitter:title" content="Examples · OpenStreetMapIO.jl"/><meta name="description" content="Documentation for OpenStreetMapIO.jl."/><meta property="og:description" content="Documentation for OpenStreetMapIO.jl."/><meta property="twitter:description" content="Documentation for OpenStreetMapIO.jl."/><meta property="og:url" content="https://moviro-hub.github.io/OpenStreetMapIO.jl/examples/"/><meta property="twitter:url" content="https://moviro-hub.github.io/OpenStreetMapIO.jl/examples/"/><link rel="canonical" href="https://moviro-hub.github.io/OpenStreetMapIO.jl/examples/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">OpenStreetMapIO.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../api/">API Reference</a></li><li class="is-active"><a class="tocitem" href>Examples</a><ul class="internal"><li><a class="tocitem" href="#Basic-File-Reading"><span>Basic File Reading</span></a></li><li><a class="tocitem" href="#Data-Filtering-and-Processing"><span>Data Filtering and Processing</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Examples</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Examples</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/moviro-hub/OpenStreetMapIO.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/moviro-hub/OpenStreetMapIO.jl/blob/main/docs/src/examples.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h1><p>This page provides comprehensive examples showing how to use OpenStreetMapIO.jl for various tasks.</p><h2 id="Basic-File-Reading"><a class="docs-heading-anchor" href="#Basic-File-Reading">Basic File Reading</a><a id="Basic-File-Reading-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-File-Reading" title="Permalink"></a></h2><h3 id="Reading-PBF-Files"><a class="docs-heading-anchor" href="#Reading-PBF-Files">Reading PBF Files</a><a id="Reading-PBF-Files-1"></a><a class="docs-heading-anchor-permalink" href="#Reading-PBF-Files" title="Permalink"></a></h3><pre><code class="language-julia hljs">using OpenStreetMapIO
 
 # Read a PBF file
-osmdata = readpbf(&quot;map.pbf&quot;)
+osmdata = read_pbf(&quot;map.pbf&quot;)
 
 # Explore the data
 println(&quot;Dataset contains:&quot;)
@@ -15,41 +15,16 @@ if haskey(osmdata.meta, &quot;bbox&quot;)
     bbox = osmdata.meta[&quot;bbox&quot;]
     println(&quot;Bounding box: $bbox&quot;)
 end</code></pre><h3 id="Reading-XML-Files"><a class="docs-heading-anchor" href="#Reading-XML-Files">Reading XML Files</a><a id="Reading-XML-Files-1"></a><a class="docs-heading-anchor-permalink" href="#Reading-XML-Files" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Read an XML file (same interface as PBF)
-osmdata = readosm(&quot;map.osm&quot;)
+osmdata = read_osm(&quot;map.osm&quot;)
 
 # Data structure is identical
 println(&quot;Loaded $(length(osmdata.nodes)) nodes from XML&quot;)</code></pre><h3 id="Querying-from-Overpass"><a class="docs-heading-anchor" href="#Querying-from-Overpass">Querying from Overpass</a><a id="Querying-from-Overpass-1"></a><a class="docs-heading-anchor-permalink" href="#Querying-from-Overpass" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Query data for a specific area
 bbox = BBox(53.45, 9.95, 53.55, 10.05)
-osmdata = queryoverpass(bbox)
+osmdata = fetch_overpass(bbox)
 
 # Query around a specific point
 center = Position(53.55, 9.99)
-osmdata = queryoverpass(center, 2000)  # 2km radius</code></pre><h2 id="Working-with-Metadata"><a class="docs-heading-anchor" href="#Working-with-Metadata">Working with Metadata</a><a id="Working-with-Metadata-1"></a><a class="docs-heading-anchor-permalink" href="#Working-with-Metadata" title="Permalink"></a></h2><h3 id="Accessing-Element-Information"><a class="docs-heading-anchor" href="#Accessing-Element-Information">Accessing Element Information</a><a id="Accessing-Element-Information-1"></a><a class="docs-heading-anchor-permalink" href="#Accessing-Element-Information" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Read file with element metadata
-osmdata = readpbf(&quot;map.pbf&quot;)
-
-# Access version information
-for (id, node) in osmdata.nodes
-    if node.info !== nothing
-        println(&quot;Node $id:&quot;)
-        println(&quot;  Version: $(node.info.version)&quot;)
-        println(&quot;  Timestamp: $(node.info.timestamp)&quot;)
-        println(&quot;  Changeset: $(node.info.changeset)&quot;)
-        if node.info.user !== nothing
-            println(&quot;  User: $(node.info.user)&quot;)
-        end
-    end
-end</code></pre><h3 id="Working-with-LocationsOnWays"><a class="docs-heading-anchor" href="#Working-with-LocationsOnWays">Working with LocationsOnWays</a><a id="Working-with-LocationsOnWays-1"></a><a class="docs-heading-anchor-permalink" href="#Working-with-LocationsOnWays" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Some PBF files include embedded coordinates in ways
-osmdata = readpbf(&quot;map.pbf&quot;)
-
-for (id, way) in osmdata.ways
-    if way.positions !== nothing
-        # Way has embedded node coordinates
-        println(&quot;Way $id with embedded coordinates:&quot;)
-        for (i, pos) in enumerate(way.positions)
-            println(&quot;  Node $(way.refs[i]) at ($(pos.lat), $(pos.lon))&quot;)
-        end
-    end
-end</code></pre><h2 id="Data-Filtering-and-Processing"><a class="docs-heading-anchor" href="#Data-Filtering-and-Processing">Data Filtering and Processing</a><a id="Data-Filtering-and-Processing-1"></a><a class="docs-heading-anchor-permalink" href="#Data-Filtering-and-Processing" title="Permalink"></a></h2><p>In the following examples, we will demonstrate the functionality of the package.</p><h3 id="Filtering-by-Tags"><a class="docs-heading-anchor" href="#Filtering-by-Tags">Filtering by Tags</a><a id="Filtering-by-Tags-1"></a><a class="docs-heading-anchor-permalink" href="#Filtering-by-Tags" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Find all restaurants with specific cuisine
+osmdata = fetch_overpass(center, 2000)  # 2km radius</code></pre><h2 id="Data-Filtering-and-Processing"><a class="docs-heading-anchor" href="#Data-Filtering-and-Processing">Data Filtering and Processing</a><a id="Data-Filtering-and-Processing-1"></a><a class="docs-heading-anchor-permalink" href="#Data-Filtering-and-Processing" title="Permalink"></a></h2><p>In the following examples, we will demonstrate the functionality of the package.</p><h3 id="Filtering-by-Tags"><a class="docs-heading-anchor" href="#Filtering-by-Tags">Filtering by Tags</a><a id="Filtering-by-Tags-1"></a><a class="docs-heading-anchor-permalink" href="#Filtering-by-Tags" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Find all restaurants with specific cuisine
 function keep_italian_restaurants(node)
     if node.tags !== nothing &amp;&amp;
        haskey(node.tags, &quot;amenity&quot;) &amp;&amp;
@@ -61,7 +36,7 @@ function keep_italian_restaurants(node)
     return nothing
 end
 
-italian_restaurants = readpbf(&quot;map.pbf&quot;, node_callback=keep_italian_restaurants)
+italian_restaurants = read_pbf(&quot;map.pbf&quot;, node_callback=keep_italian_restaurants)
 println(&quot;Found $(length(italian_restaurants.nodes)) Italian restaurants&quot;)
 
 # Find all highways
@@ -72,7 +47,7 @@ function keep_highways(way)
     return nothing
 end
 
-highways = readpbf(&quot;map.pbf&quot;, way_callback=keep_highways)
+highways = read_pbf(&quot;map.pbf&quot;, way_callback=keep_highways)
 println(&quot;Found $(length(highways.ways)) highways&quot;)
 
 # Find all bus routes
@@ -86,7 +61,7 @@ function keep_bus_routes(relation)
 end
 
 # Apply all filters
-osmdata = readpbf(&quot;map.pbf&quot;,
+osmdata = read_pbf(&quot;map.pbf&quot;,
     node_callback=keep_italian_restaurants,
     way_callback=keep_highways,
     relation_callback=keep_bus_routes
@@ -95,15 +70,7 @@ osmdata = readpbf(&quot;map.pbf&quot;,
 println(&quot;Filtered dataset:&quot;)
 println(&quot;  $(length(osmdata.nodes)) Italian restaurants&quot;)
 println(&quot;  $(length(osmdata.ways)) highways&quot;)
-println(&quot;  $(length(osmdata.relations)) bus routes&quot;)</code></pre><h3 id="Adding-Custom-Tags"><a class="docs-heading-anchor" href="#Adding-Custom-Tags">Adding Custom Tags</a><a id="Adding-Custom-Tags-1"></a><a class="docs-heading-anchor-permalink" href="#Adding-Custom-Tags" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Add processing metadata to all nodes
-function add_processing_info(node)
-    new_tags = node.tags === nothing ? Dict{String,String}() : copy(node.tags)
-    new_tags[&quot;processed_by&quot;] = &quot;OpenStreetMapIO.jl&quot;
-    new_tags[&quot;processed_at&quot;] = string(now())
-    return Node(node.position, new_tags, node.info)
-end
-
-processed_data = readpbf(&quot;map.pbf&quot;, node_callback=add_processing_info)</code></pre><h3 id="Finding-Points-of-Interest"><a class="docs-heading-anchor" href="#Finding-Points-of-Interest">Finding Points of Interest</a><a id="Finding-Points-of-Interest-1"></a><a class="docs-heading-anchor-permalink" href="#Finding-Points-of-Interest" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Find all points of interest in an area
+println(&quot;  $(length(osmdata.relations)) bus routes&quot;)</code></pre><h3 id="Finding-Points-of-Interest"><a class="docs-heading-anchor" href="#Finding-Points-of-Interest">Finding Points of Interest</a><a id="Finding-Points-of-Interest-1"></a><a class="docs-heading-anchor-permalink" href="#Finding-Points-of-Interest" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Find all points of interest in an area
 function keep_pois(node)
     if node.tags !== nothing
         # Check for common POI tags
@@ -117,7 +84,7 @@ function keep_pois(node)
     return nothing
 end
 
-pois = readpbf(&quot;map.pbf&quot;, node_callback=keep_pois)
+pois = read_pbf(&quot;map.pbf&quot;, node_callback=keep_pois)
 println(&quot;Found $(length(pois.nodes)) points of interest&quot;)
 
 # Analyze POI types
@@ -136,31 +103,4 @@ end
 sorted_types = sort(collect(poi_types), by=x-&gt;x[2], rev=true)
 for (type, count) in sorted_types[1:10]
     println(&quot;$type: $count&quot;)
-end</code></pre><h3 id="Memory-Efficient-Processing"><a class="docs-heading-anchor" href="#Memory-Efficient-Processing">Memory-Efficient Processing</a><a id="Memory-Efficient-Processing-1"></a><a class="docs-heading-anchor-permalink" href="#Memory-Efficient-Processing" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Process data without storing everything in memory
-function analyze_without_storage(filename)
-    restaurant_count = 0
-    highway_count = 0
-
-    function count_restaurants(node)
-        if node.tags !== nothing &amp;&amp;
-           haskey(node.tags, &quot;amenity&quot;) &amp;&amp;
-           node.tags[&quot;amenity&quot;] == &quot;restaurant&quot;
-            restaurant_count += 1
-        end
-        return nothing  # Don&#39;t store the node
-    end
-
-    function count_highways(way)
-        if way.tags !== nothing &amp;&amp; haskey(way.tags, &quot;highway&quot;)
-            highway_count += 1
-        end
-        return nothing  # Don&#39;t store the way
-    end
-
-    readpbf(filename,
-        node_callback=count_restaurants,
-        way_callback=count_highways
-    )
-
-    println(&quot;Found $restaurant_count restaurants and $highway_count highways&quot;)
-end</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../api/">« API Reference</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.0 on <span class="colophon-date" title="Wednesday 19 November 2025 15:02">Wednesday 19 November 2025</span>. Using Julia version 1.12.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../api/">« API Reference</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.0 on <span class="colophon-date" title="Thursday 20 November 2025 12:26">Thursday 20 November 2025</span>. Using Julia version 1.12.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
