@@ -19,7 +19,7 @@ end
 const TEST_DATA_PBF = begin
     test_file = joinpath(@__DIR__, "data", "map.pbf")
     try
-        OpenStreetMapIO.readpbf(test_file)
+        OpenStreetMapIO.read_pbf(test_file)
     catch
         OpenStreetMap()  # Empty data if file not available
     end
@@ -28,7 +28,7 @@ end
 const TEST_DATA_XML = begin
     test_file = joinpath(@__DIR__, "data", "map.osm")
     try
-        OpenStreetMapIO.readosm(test_file)
+        OpenStreetMapIO.read_osm(test_file)
     catch
         OpenStreetMap()  # Empty data if file not available
     end

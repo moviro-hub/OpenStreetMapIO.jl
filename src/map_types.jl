@@ -172,7 +172,7 @@ Container for complete OpenStreetMap data including nodes, ways, relations, and 
 # Examples
 ```julia
 osmdata = OpenStreetMap()
-osmdata = readpbf("map.pbf")  # Load from file
+osmdata = read_pbf("map.pbf")  # Load from file
 ```
 """
 struct OpenStreetMap

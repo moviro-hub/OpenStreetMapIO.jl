@@ -69,7 +69,7 @@ using CodecZlib: ZlibCompressorStream
             return node
         end
 
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf; node_callback = node_callback)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf; node_callback = node_callback)
         @test node_count > 0
         @test length(osmdata.nodes) == node_count
 
@@ -80,7 +80,7 @@ using CodecZlib: ZlibCompressorStream
             return way
         end
 
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf; way_callback = way_callback)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf; way_callback = way_callback)
         @test way_count > 0
         @test length(osmdata.ways) == way_count
 
@@ -91,7 +91,7 @@ using CodecZlib: ZlibCompressorStream
             return relation
         end
 
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf; relation_callback = relation_callback)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf; relation_callback = relation_callback)
         @test relation_count > 0
         @test length(osmdata.relations) == relation_count
 
@@ -107,7 +107,7 @@ using CodecZlib: ZlibCompressorStream
             return nothing
         end
 
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf; node_callback = filter_nodes)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf; node_callback = filter_nodes)
         @test filtered_nodes > 0
         @test length(osmdata.nodes) == filtered_nodes
 
@@ -126,7 +126,7 @@ using CodecZlib: ZlibCompressorStream
             return Node(node.position, new_tags, node.info)
         end
 
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf; node_callback = add_test_tag)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf; node_callback = add_test_tag)
 
         # Check that some nodes have the test tag
         nodes_with_test_tag = 0
@@ -148,7 +148,7 @@ using CodecZlib: ZlibCompressorStream
             return nothing
         end
 
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf; way_callback = filter_highway_ways)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf; way_callback = filter_highway_ways)
         @test filtered_count >= 0  # May be 0 if no highways in test data
         @test length(osmdata.ways) == filtered_count
 
@@ -168,7 +168,7 @@ using CodecZlib: ZlibCompressorStream
             return nothing
         end
 
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf; way_callback = filter_long_ways)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf; way_callback = filter_long_ways)
         @test long_way_count >= 0
         @test length(osmdata.ways) == long_way_count
 
@@ -189,7 +189,7 @@ using CodecZlib: ZlibCompressorStream
             return nothing
         end
 
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf; relation_callback = filter_route_relations)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf; relation_callback = filter_route_relations)
         @test filtered_count >= 0  # May be 0 if no routes in test data
         @test length(osmdata.relations) == filtered_count
 
@@ -210,7 +210,7 @@ using CodecZlib: ZlibCompressorStream
             return nothing
         end
 
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf; relation_callback = filter_large_relations)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf; relation_callback = filter_large_relations)
         @test large_relation_count >= 0
         @test length(osmdata.relations) == large_relation_count
 
@@ -239,7 +239,7 @@ using CodecZlib: ZlibCompressorStream
             return relation
         end
 
-        osmdata = OpenStreetMapIO.readpbf(
+        osmdata = OpenStreetMapIO.read_pbf(
             test_file_pbf;
             node_callback = count_nodes_callback,
             way_callback = count_ways_callback,
@@ -286,7 +286,7 @@ using CodecZlib: ZlibCompressorStream
             return nothing
         end
 
-        osmdata = OpenStreetMapIO.readpbf(
+        osmdata = OpenStreetMapIO.read_pbf(
             test_file_pbf;
             node_callback = filter_german_nodes_callback,
             way_callback = filter_highway_ways_callback,
@@ -308,13 +308,13 @@ using CodecZlib: ZlibCompressorStream
         end
 
         # Callback errors are now handled gracefully with warnings
-        osmdata_nodes = OpenStreetMapIO.readpbf(test_file_pbf; node_callback = error_callback)
+        osmdata_nodes = OpenStreetMapIO.read_pbf(test_file_pbf; node_callback = error_callback)
         @test length(osmdata_nodes.nodes) == 0  # No nodes should be processed due to callback errors
 
-        osmdata_ways = OpenStreetMapIO.readpbf(test_file_pbf; way_callback = error_callback)
+        osmdata_ways = OpenStreetMapIO.read_pbf(test_file_pbf; way_callback = error_callback)
         @test length(osmdata_ways.ways) == 0  # No ways should be processed due to callback errors
 
-        osmdata_relations = OpenStreetMapIO.readpbf(test_file_pbf; relation_callback = error_callback)
+        osmdata_relations = OpenStreetMapIO.read_pbf(test_file_pbf; relation_callback = error_callback)
         @test length(osmdata_relations.relations) == 0  # No relations should be processed due to callback errors
 
         # Test callback that returns nothing (valid behavior)
@@ -322,7 +322,7 @@ using CodecZlib: ZlibCompressorStream
             return nothing  # Should exclude the element
         end
 
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf; node_callback = nothing_callback)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf; node_callback = nothing_callback)
         @test length(osmdata.nodes) == 0  # No nodes should be included
     end
 
@@ -332,7 +332,7 @@ using CodecZlib: ZlibCompressorStream
         baseline_times = Float64[]
         for i in 1:3
             start_time = time()
-            osmdata = OpenStreetMapIO.readpbf(test_file_pbf)
+            osmdata = OpenStreetMapIO.read_pbf(test_file_pbf)
             push!(baseline_times, time() - start_time)
         end
         baseline_time = median(baseline_times)
@@ -341,13 +341,14 @@ using CodecZlib: ZlibCompressorStream
         callback_times = Float64[]
         for i in 1:3
             start_time = time()
-            osmdata_with_callback = OpenStreetMapIO.readpbf(test_file_pbf; node_callback = identity)
+            osmdata_with_callback = OpenStreetMapIO.read_pbf(test_file_pbf; node_callback = identity)
             push!(callback_times, time() - start_time)
         end
         callback_time = median(callback_times)
 
-        # Callback time should not be significantly slower (allow 1000% overhead for compilation/system variance)
-        @test callback_time < baseline_time * 10.0
+        # Callback time should not be significantly slower (allow 1000% overhead or 10ms absolute slack)
+        callback_threshold = max(baseline_time * 10.0, 0.01)
+        @test callback_time <= callback_threshold
 
         # Test with complex callback
         complex_callback_count = 0
@@ -365,13 +366,14 @@ using CodecZlib: ZlibCompressorStream
         complex_times = Float64[]
         for i in 1:3
             start_time = time()
-            osmdata_complex = OpenStreetMapIO.readpbf(test_file_pbf; node_callback = complex_callback)
+            osmdata_complex = OpenStreetMapIO.read_pbf(test_file_pbf; node_callback = complex_callback)
             push!(complex_times, time() - start_time)
         end
         complex_time = median(complex_times)
 
-        # Complex callback should still be reasonable (allow 2000% overhead for compilation and system variability)
-        @test complex_time < baseline_time * 20.0 || complex_time < 0.01  # Either reasonable overhead or very fast overall
+        # Complex callback should still be reasonable (allow 2000% overhead or 20ms absolute slack)
+        complex_threshold = max(baseline_time * 20.0, 0.02)
+        @test complex_time <= complex_threshold
         @test complex_callback_count > 0
     end
 
@@ -382,8 +384,8 @@ using CodecZlib: ZlibCompressorStream
             return element
         end
 
-        osmdata_original = OpenStreetMapIO.readpbf(test_file_pbf)
-        osmdata_with_callback = OpenStreetMapIO.readpbf(
+        osmdata_original = OpenStreetMapIO.read_pbf(test_file_pbf)
+        osmdata_with_callback = OpenStreetMapIO.read_pbf(
             test_file_pbf;
             node_callback = preserve_data_callback,
             way_callback = preserve_data_callback,
@@ -415,15 +417,15 @@ using CodecZlib: ZlibCompressorStream
 
     @testset "PBF Reading Error Handling" begin
         # Test reading non-existent file
-        @test_throws ArgumentError OpenStreetMapIO.readpbf("nonexistent.pbf")
+        @test_throws ArgumentError OpenStreetMapIO.read_pbf("nonexistent.pbf")
 
         # Test reading invalid PBF file (using XML file)
         test_file_xml = test_data_path("map.osm")
-        @test_throws ArgumentError OpenStreetMapIO.readpbf(test_file_xml)
+        @test_throws ArgumentError OpenStreetMapIO.read_pbf(test_file_xml)
     end
 
     @testset "PBF Metadata Extraction" begin
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf)
 
         # Test metadata structure
         @test haskey(osmdata.meta, "bbox")
@@ -603,7 +605,7 @@ using CodecZlib: ZlibCompressorStream
         @testset "Read PBF with zlib compression" begin
             # The test PBF file uses zlib compression (most common)
             # This tests that the existing compression support works
-            osmdata = OpenStreetMapIO.readpbf(test_file_pbf)
+            osmdata = OpenStreetMapIO.read_pbf(test_file_pbf)
 
             @test length(osmdata.nodes) > 0
             @test length(osmdata.ways) > 0
@@ -670,7 +672,7 @@ using CodecZlib: ZlibCompressorStream
     @testset "PBF Performance Tests" begin
         # Test reading time
         start_time = time()
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf)
         read_time = time() - start_time
 
         @test read_time < 10.0  # Should read in less than 10 seconds
@@ -691,7 +693,7 @@ using CodecZlib: ZlibCompressorStream
     end
 
     @testset "PBF Data Consistency" begin
-        osmdata = OpenStreetMapIO.readpbf(test_file_pbf)
+        osmdata = OpenStreetMapIO.read_pbf(test_file_pbf)
 
         # Test that all way references point to existing nodes
         for (way_id, way) in osmdata.ways

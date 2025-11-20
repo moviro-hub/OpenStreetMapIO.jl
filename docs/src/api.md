@@ -7,14 +7,14 @@ This page provides documentation for all public functions and types in OpenStree
 ### File Reading
 
 ```@docs
-readpbf
-readosm
+read_pbf
+read_osm
 ```
 
 ### Online Queries
 
 ```@docs
-queryoverpass
+fetch_overpass
 ```
 
 ## Data Types
@@ -39,15 +39,15 @@ Info
 using OpenStreetMapIO
 
 # Read OSM PBF data (supports all compression formats)
-osmdata = readpbf("map.pbf")
+osmdata = read_pbf("map.pbf")
 
 # Query by bounding box
 bbox = BBox(53.45, 9.95, 53.55, 10.05)
-osmdata = queryoverpass(bbox)
+osmdata = fetch_overpass(bbox)
 
 # Query by center point and radius
 center = Position(53.55, 9.99)
-osmdata = queryoverpass(center, 1000)  # 1km radius
+osmdata = fetch_overpass(center, 1000)  # 1km radius
 
 # Access node data
 for (id, node) in osmdata.nodes
@@ -78,5 +78,5 @@ function keep_restaurants(node)
     return nothing
 end
 
-osmdata = readpbf("map.pbf", node_callback=keep_restaurants)
+osmdata = read_pbf("map.pbf", node_callback=keep_restaurants)
 ```
