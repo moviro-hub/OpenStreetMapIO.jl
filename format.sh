@@ -25,10 +25,7 @@ for (root, dirs, files) in walkdir(\"$PROJECT_PATH\")
     for file in files
         if endswith(file, \".jl\")
             file_path = joinpath(root, file)
-            # Skip rule files to preserve their exact formatting
-            if !occursin(\"src/rules/\", file_path)
-                push!(jl_files, file_path)
-            end
+            push!(jl_files, file_path)
         end
     end
 end
