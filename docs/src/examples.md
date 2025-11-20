@@ -40,50 +40,11 @@ println("Loaded $(length(osmdata.nodes)) nodes from XML")
 ```julia
 # Query data for a specific area
 bbox = BBox(53.45, 9.95, 53.55, 10.05)
-osmdata = query_overpass(bbox)
+osmdata = fetch_overpass(bbox)
 
 # Query around a specific point
 center = Position(53.55, 9.99)
-osmdata = query_overpass(center, 2000)  # 2km radius
-```
-
-## Working with Metadata
-
-### Accessing Element Information
-
-```julia
-# Read file with element metadata
-osmdata = read_pbf("map.pbf")
-
-# Access version information
-for (id, node) in osmdata.nodes
-    if node.info !== nothing
-        println("Node $id:")
-        println("  Version: $(node.info.version)")
-        println("  Timestamp: $(node.info.timestamp)")
-        println("  Changeset: $(node.info.changeset)")
-        if node.info.user !== nothing
-            println("  User: $(node.info.user)")
-        end
-    end
-end
-```
-
-### Working with LocationsOnWays
-
-```julia
-# Some PBF files include embedded coordinates in ways
-osmdata = read_pbf("map.pbf")
-
-for (id, way) in osmdata.ways
-    if way.positions !== nothing
-        # Way has embedded node coordinates
-        println("Way $id with embedded coordinates:")
-        for (i, pos) in enumerate(way.positions)
-            println("  Node $(way.refs[i]) at ($(pos.lat), $(pos.lon))")
-        end
-    end
-end
+osmdata = fetch_overpass(center, 2000)  # 2km radius
 ```
 
 ## Data Filtering and Processing
@@ -142,20 +103,6 @@ println("  $(length(osmdata.ways)) highways")
 println("  $(length(osmdata.relations)) bus routes")
 ```
 
-### Adding Custom Tags
-
-```julia
-# Add processing metadata to all nodes
-function add_processing_info(node)
-    new_tags = node.tags === nothing ? Dict{String,String}() : copy(node.tags)
-    new_tags["processed_by"] = "OpenStreetMapIO.jl"
-    new_tags["processed_at"] = string(now())
-    return Node(node.position, new_tags, node.info)
-end
-
-processed_data = read_pbf("map.pbf", node_callback=add_processing_info)
-```
-
 ### Finding Points of Interest
 
 ```julia
@@ -192,38 +139,5 @@ end
 sorted_types = sort(collect(poi_types), by=x->x[2], rev=true)
 for (type, count) in sorted_types[1:10]
     println("$type: $count")
-end
-```
-
-### Memory-Efficient Processing
-
-```julia
-# Process data without storing everything in memory
-function analyze_without_storage(filename)
-    restaurant_count = 0
-    highway_count = 0
-
-    function count_restaurants(node)
-        if node.tags !== nothing &&
-           haskey(node.tags, "amenity") &&
-           node.tags["amenity"] == "restaurant"
-            restaurant_count += 1
-        end
-        return nothing  # Don't store the node
-    end
-
-    function count_highways(way)
-        if way.tags !== nothing && haskey(way.tags, "highway")
-            highway_count += 1
-        end
-        return nothing  # Don't store the way
-    end
-
-    read_pbf(filename,
-        node_callback=count_restaurants,
-        way_callback=count_highways
-    )
-
-    println("Found $restaurant_count restaurants and $highway_count highways")
 end
 ```

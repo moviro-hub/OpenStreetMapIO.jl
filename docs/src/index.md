@@ -1,10 +1,10 @@
 # OpenStreetMapIO.jl
 
-A comprehensive OpenStreetMap (OSM) data file reader for Julia.
+A Julia package for reading OpenStreetMap (OSM) data files or fetching data from the Overpass API.
 
 ## Features
 
-- **File Format Support**: Read OSM data from both PBF and XML formats
+- **File Format Support**: Read OSM data from both PBF and OSM (XML) formats
 - **Online Data Access**: Query OSM data directly from Overpass API
 - **Callback Support**: Filter data during reading with custom callback functions
 
@@ -25,7 +25,7 @@ osmdata = read_osm("map.osm")  # XML format
 
 # Query data from Overpass API
 bbox = BBox(53.45, 9.95, 53.55, 10.05)
-osmdata = query_overpass(bbox)
+osmdata = fetch_overpass(bbox)
 
 # Filter data during reading
 function keep_restaurants(node)

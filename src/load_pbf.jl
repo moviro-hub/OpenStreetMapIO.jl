@@ -42,7 +42,7 @@ osmdata = read_pbf("map.pbf",
 
 # See Also
 - [`read_osm`](@ref): Read OSM XML files
-- [`query_overpass`](@ref): Query data from Overpass API
+- [`fetch_overpass`](@ref): Query data from Overpass API
 """
 function read_pbf(
         filename::String;

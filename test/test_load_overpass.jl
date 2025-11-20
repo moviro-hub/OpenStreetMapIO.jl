@@ -13,7 +13,7 @@ using OpenStreetMapIO, Test
         # Try to run the test with reasonable timeout
         # If API is unavailable, the function should throw an error (not hang)
         try
-            @time osmdata = OpenStreetMapIO.query_overpass(bbox; timeout = 15)
+            @time osmdata = OpenStreetMapIO.fetch_overpass(bbox; timeout = 15)
 
             # If we get here, API call succeeded - verify basic structure
             @test osmdata isa OpenStreetMap
@@ -42,7 +42,7 @@ using OpenStreetMapIO, Test
         # Try to run the test with reasonable timeout
         # If API is unavailable, the function should throw an error (not hang)
         try
-            @time osmdata = OpenStreetMapIO.query_overpass(center, radius; timeout = 15)
+            @time osmdata = OpenStreetMapIO.fetch_overpass(center, radius; timeout = 15)
 
             # If we get here, API call succeeded - verify basic structure
             @test osmdata isa OpenStreetMap

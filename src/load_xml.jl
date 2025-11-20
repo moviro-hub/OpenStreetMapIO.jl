@@ -36,7 +36,7 @@ osmdata = read_osm("map.osm", node_callback=keep_restaurants)
 
 # See Also
 - [`read_pbf`](@ref): Read OSM PBF files
-- [`query_overpass`](@ref): Query data from Overpass API
+- [`fetch_overpass`](@ref): Query data from Overpass API
 """
 function read_osm(
         filename::String;

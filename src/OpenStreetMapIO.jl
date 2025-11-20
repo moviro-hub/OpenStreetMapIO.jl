@@ -16,7 +16,7 @@ A comprehensive OpenStreetMap (OSM) data file reader for Julia.
 
 - [`read_pbf`](@ref): Read OSM data from PBF files
 - [`read_osm`](@ref): Read OSM data from XML files
-- [`query_overpass`](@ref): Query data from Overpass API
+- [`fetch_overpass`](@ref): Query data from Overpass API
 
 ## Data Types
 
@@ -40,7 +40,7 @@ osmdata = read_osm("map.osm")
 
 # Query from Overpass API
 bbox = BBox(54.0, 9.0, 55.0, 10.0)
-osmdata = query_overpass(bbox)
+osmdata = fetch_overpass(bbox)
 
 # Filter data using callbacks
 function keep_restaurants(node)
@@ -64,7 +64,7 @@ module OpenStreetMapIO
     using Logging
 
 
-    export read_pbf, read_osm, query_overpass
+    export read_pbf, read_osm, fetch_overpass
     export OpenStreetMap, Node, Way, Relation, BBox, Position, Info
 
     include("OSMPBF/OSMPBF.jl")

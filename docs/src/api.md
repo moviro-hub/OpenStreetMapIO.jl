@@ -14,7 +14,7 @@ read_osm
 ### Online Queries
 
 ```@docs
-query_overpass
+fetch_overpass
 ```
 
 ## Data Types
@@ -43,11 +43,11 @@ osmdata = read_pbf("map.pbf")
 
 # Query by bounding box
 bbox = BBox(53.45, 9.95, 53.55, 10.05)
-osmdata = query_overpass(bbox)
+osmdata = fetch_overpass(bbox)
 
 # Query by center point and radius
 center = Position(53.55, 9.99)
-osmdata = query_overpass(center, 1000)  # 1km radius
+osmdata = fetch_overpass(center, 1000)  # 1km radius
 
 # Access node data
 for (id, node) in osmdata.nodes
